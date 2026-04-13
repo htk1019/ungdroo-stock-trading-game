@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react'
 import { Setup } from './components/Setup'
 import { Play } from './components/Play'
 import { Result } from './components/Result'
+import { Bgm } from './components/Bgm'
 import { fetchHistory } from './lib/yahoo'
 import { pickRandomTicker, type Category } from './lib/tickers'
 import { initGame, pickWindow, WARMUP_DAYS, type GameState, type RoundSize } from './lib/engine'
@@ -57,11 +58,18 @@ export default function App() {
     setPhase('setup')
   }
 
+  let screen
   if (phase === 'setup' || !game) {
-    return <Setup onStart={start} loading={loading} error={error} />
+    screen = <Setup onStart={start} loading={loading} error={error} />
+  } else if (phase === 'playing') {
+    screen = <Play game={game} onChange={bump} onEnd={() => setPhase('ended')} />
+  } else {
+    screen = <Result game={game} onReplay={replay} />
   }
-  if (phase === 'playing') {
-    return <Play game={game} onChange={bump} onEnd={() => setPhase('ended')} />
-  }
-  return <Result game={game} onReplay={replay} />
+  return (
+    <>
+      {screen}
+      <Bgm />
+    </>
+  )
 }
