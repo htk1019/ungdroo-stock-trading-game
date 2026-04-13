@@ -45,9 +45,17 @@ export function Setup({ onStart, loading, error }: SetupProps) {
             />
             <div className="absolute -top-2 -right-4 text-3xl rotate-12 select-none">ㅋㅋㅋ</div>
           </div>
-          <h1 className="text-5xl font-extrabold tracking-tight mt-2 bg-gradient-to-b from-amber-200 to-amber-400 bg-clip-text text-transparent">
-            주식을 이겨라!
-          </h1>
+          <div className="flex items-center justify-center gap-4 mt-2">
+            <h1 className="text-5xl font-extrabold tracking-tight bg-gradient-to-b from-amber-200 to-amber-400 bg-clip-text text-transparent">
+              주식을 이겨라!
+            </h1>
+            <img
+              src="/niga.png"
+              alt="ㅋ 니가?"
+              className="h-20 w-auto rounded-lg border border-[#252a36] select-none"
+              draggable={false}
+            />
+          </div>
           <p className="text-[#8b93a7] mt-3 text-sm">
             종목은 비밀. 최근 1년 차트만 보고 판단해서 <span className="text-amber-300 font-semibold">Buy &amp; Hold</span>를 이기면 승리.
           </p>
