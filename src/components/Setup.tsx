@@ -40,7 +40,7 @@ export function Setup({ onStart, loading, error }: SetupProps) {
             <img
               src="/duck.png"
               alt="trader duck"
-              className="w-56 h-56 object-contain drop-shadow-2xl select-none"
+              className="w-80 h-80 object-contain drop-shadow-2xl select-none"
               draggable={false}
             />
             <div className="absolute -top-2 -right-4 text-3xl rotate-12 select-none">ㅋㅋㅋ</div>
