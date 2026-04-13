@@ -52,7 +52,7 @@ export function Setup({ onStart, loading, error }: SetupProps) {
             <img
               src="/niga.png"
               alt="ㅋ 니가?"
-              className="h-20 w-auto rounded-lg border border-[#252a36] select-none"
+              className="h-12 w-auto rounded-md border border-[#252a36] select-none"
               draggable={false}
             />
           </div>
