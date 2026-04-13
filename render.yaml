@@ -1,0 +1,13 @@
+# Render Blueprint — https://render.com/docs/blueprint-spec
+# Deploy this repo as a single Web Service running the Express server
+# defined in server.js.
+services:
+  - type: web
+    name: ungdroo-stock-trading-game
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
