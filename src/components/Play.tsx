@@ -73,7 +73,7 @@ export function Play({ game, onChange, onEnd }: PlayProps) {
 
   return (
     <div className="h-screen flex flex-col">
-      <header className="px-6 py-3 border-b border-[#252a36] flex items-center justify-between bg-[#12151c]">
+      <header className="px-6 py-4 border-b border-[#252a36] flex items-center justify-between bg-[#12151c]">
         <div className="flex items-center gap-6">
           <h1 className="font-bold text-lg">🦆 주식을 이겨라!</h1>
           <div className="flex items-center gap-3 text-sm">
@@ -84,7 +84,7 @@ export function Play({ game, onChange, onEnd }: PlayProps) {
             <span className="text-[#8b93a7]">+{game.roundSize}d/회</span>
           </div>
         </div>
-        <div className="flex items-center gap-6 text-sm">
+        <div className="flex items-center gap-8">
           <Stat label="현재가" value={`$${price.toFixed(2)}`} />
           <Stat label="현금" value={`$${game.cash.toFixed(2)}`} />
           <Stat label="보유" value={`${game.shares.toFixed(4)}`} />
@@ -167,8 +167,8 @@ function PositionBadge({ pos }: { pos: ReturnType<typeof positionOf> }) {
 function Stat({ label, value, color }: { label: string; value: string; color?: string }) {
   return (
     <div className="flex flex-col items-end leading-tight">
-      <span className="text-[10px] text-[#8b93a7] uppercase tracking-wider">{label}</span>
-      <span className={`font-mono text-sm ${color ?? 'text-[#e5e7eb]'}`}>{value}</span>
+      <span className="text-xs text-[#8b93a7] uppercase tracking-wider mb-0.5">{label}</span>
+      <span className={`font-mono text-2xl font-bold ${color ?? 'text-[#e5e7eb]'}`}>{value}</span>
     </div>
   )
 }
