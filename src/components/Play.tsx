@@ -15,6 +15,7 @@ interface PlayProps {
 
 export function Play({ game, onChange, onEnd }: PlayProps) {
   const [flash, setFlash] = useState<string | null>(null)
+  const [cheer, setCheer] = useState<{ text: string; good: boolean; key: number } | null>(null)
 
   const visibleCandles = useMemo(
     () => [...game.warmup, ...game.reveal.slice(0, game.step)],
@@ -33,11 +34,29 @@ export function Play({ game, onChange, onEnd }: PlayProps) {
     window.setTimeout(() => setFlash((cur) => (cur === m ? null : cur)), 1500)
   }
   const handle = (d: Decision) => {
+    const before = game.equityCurve[game.equityCurve.length - 1]
     const r = submitRound(game, d)
     if (!r.ok) setFlashMsg(`실패: ${r.reason ?? d}`)
+    const after = game.equityCurve[game.equityCurve.length - 1]
+    const delta = after - before
+    if (r.ok && delta !== 0) {
+      const pct = (delta / before) * 100
+      const good = delta > 0
+      setCheer({
+        text: good ? `굿! +${pct.toFixed(2)}%` : `땡! ${pct.toFixed(2)}%`,
+        good,
+        key: Date.now(),
+      })
+    }
     onChange()
     if (r.done) onEnd()
   }
+
+  useEffect(() => {
+    if (!cheer) return
+    const t = window.setTimeout(() => setCheer((c) => (c?.key === cheer.key ? null : c)), 1200)
+    return () => window.clearTimeout(t)
+  }, [cheer])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -83,6 +102,16 @@ export function Play({ game, onChange, onEnd }: PlayProps) {
         {flash && (
           <div className="absolute top-3 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded bg-red-500/20 border border-red-500/50 text-red-200 text-sm">
             {flash}
+          </div>
+        )}
+        {cheer && (
+          <div
+            key={cheer.key}
+            className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none animate-cheer text-6xl md:text-7xl font-extrabold drop-shadow-2xl ${
+              cheer.good ? 'text-emerald-400' : 'text-red-400'
+            }`}
+          >
+            {cheer.text}
           </div>
         )}
       </main>
