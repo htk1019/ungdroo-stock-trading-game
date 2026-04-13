@@ -28,8 +28,10 @@ export function Chart({ candles, trades, hideVolume = false }: ChartProps) {
   const chartRef = useRef<IChartApi | null>(null)
   const candleSeriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null)
   const volSeriesRef = useRef<ISeriesApi<'Histogram'> | null>(null)
+  const sma5Ref = useRef<ISeriesApi<'Line'> | null>(null)
   const sma20Ref = useRef<ISeriesApi<'Line'> | null>(null)
   const sma50Ref = useRef<ISeriesApi<'Line'> | null>(null)
+  const sma120Ref = useRef<ISeriesApi<'Line'> | null>(null)
   const ema12Ref = useRef<ISeriesApi<'Line'> | null>(null)
   const rsiRef = useRef<ISeriesApi<'Line'> | null>(null)
   const rsi30Ref = useRef<ISeriesApi<'Line'> | null>(null)
@@ -68,14 +70,20 @@ export function Chart({ candles, trades, hideVolume = false }: ChartProps) {
       wickUpColor: '#22c55e', wickDownColor: '#ef4444',
       borderVisible: false,
     }, 0)
+    sma5Ref.current = chart.addSeries(LineSeries, {
+      color: '#f472b6', lineWidth: 1, priceLineVisible: false, lastValueVisible: false,
+    }, 0)
     sma20Ref.current = chart.addSeries(LineSeries, {
-      color: '#fbbf24', lineWidth: 1, priceLineVisible: false, lastValueVisible: false, title: 'SMA20',
+      color: '#fbbf24', lineWidth: 1, priceLineVisible: false, lastValueVisible: false,
     }, 0)
     sma50Ref.current = chart.addSeries(LineSeries, {
-      color: '#a78bfa', lineWidth: 1, priceLineVisible: false, lastValueVisible: false, title: 'SMA50',
+      color: '#a78bfa', lineWidth: 1, priceLineVisible: false, lastValueVisible: false,
+    }, 0)
+    sma120Ref.current = chart.addSeries(LineSeries, {
+      color: '#14b8a6', lineWidth: 1, priceLineVisible: false, lastValueVisible: false,
     }, 0)
     ema12Ref.current = chart.addSeries(LineSeries, {
-      color: '#38bdf8', lineWidth: 1, priceLineVisible: false, lastValueVisible: false, title: 'EMA12',
+      color: '#38bdf8', lineWidth: 1, priceLineVisible: false, lastValueVisible: false,
     }, 0)
 
     if (!hideVolume) {
@@ -89,7 +97,7 @@ export function Chart({ candles, trades, hideVolume = false }: ChartProps) {
     }
 
     rsiRef.current = chart.addSeries(LineSeries, {
-      color: '#e879f9', lineWidth: 1, priceLineVisible: false, lastValueVisible: false, title: 'RSI',
+      color: '#e879f9', lineWidth: 1, priceLineVisible: false, lastValueVisible: false,
     }, rsiPane)
     rsi30Ref.current = chart.addSeries(LineSeries, {
       color: '#475569', lineWidth: 1, lineStyle: LineStyle.Dashed,
@@ -104,20 +112,20 @@ export function Chart({ candles, trades, hideVolume = false }: ChartProps) {
       priceLineVisible: false, lastValueVisible: false,
     }, macdPane)
     macdRef.current = chart.addSeries(LineSeries, {
-      color: '#60a5fa', lineWidth: 1, priceLineVisible: false, lastValueVisible: false, title: 'MACD',
+      color: '#60a5fa', lineWidth: 1, priceLineVisible: false, lastValueVisible: false,
     }, macdPane)
     macdSignalRef.current = chart.addSeries(LineSeries, {
-      color: '#f97316', lineWidth: 1, priceLineVisible: false, lastValueVisible: false, title: 'Signal',
+      color: '#f97316', lineWidth: 1, priceLineVisible: false, lastValueVisible: false,
     }, macdPane)
 
     markersRef.current = createSeriesMarkers(candleSeriesRef.current, [])
 
     requestAnimationFrame(() => {
       const panes = chart.panes()
-      if (panes[0]) panes[0].setHeight(360)
-      if (!hideVolume && panes[1]) panes[1].setHeight(80)
-      if (panes[rsiPane]) panes[rsiPane].setHeight(90)
-      if (panes[macdPane]) panes[macdPane].setHeight(90)
+      if (panes[0]) panes[0].setHeight(440)
+      if (!hideVolume && panes[1]) panes[1].setHeight(60)
+      if (panes[rsiPane]) panes[rsiPane].setHeight(55)
+      if (panes[macdPane]) panes[macdPane].setHeight(55)
     })
 
     return () => {
@@ -145,11 +153,15 @@ export function Chart({ candles, trades, hideVolume = false }: ChartProps) {
       volSeriesRef.current.setData(volData)
     }
 
-    const sma20 = smaSeries(candles, 20).map((p) => ({ time: p.time as UTCTimestamp, value: p.value }))
-    const sma50 = smaSeries(candles, 50).map((p) => ({ time: p.time as UTCTimestamp, value: p.value }))
-    const ema12 = emaSeries(candles, 12).map((p) => ({ time: p.time as UTCTimestamp, value: p.value }))
+    const sma5   = smaSeries(candles, 5).map((p) => ({ time: p.time as UTCTimestamp, value: p.value }))
+    const sma20  = smaSeries(candles, 20).map((p) => ({ time: p.time as UTCTimestamp, value: p.value }))
+    const sma50  = smaSeries(candles, 50).map((p) => ({ time: p.time as UTCTimestamp, value: p.value }))
+    const sma120 = smaSeries(candles, 120).map((p) => ({ time: p.time as UTCTimestamp, value: p.value }))
+    const ema12  = emaSeries(candles, 12).map((p) => ({ time: p.time as UTCTimestamp, value: p.value }))
+    sma5Ref.current!.setData(sma5)
     sma20Ref.current!.setData(sma20)
     sma50Ref.current!.setData(sma50)
+    sma120Ref.current!.setData(sma120)
     ema12Ref.current!.setData(ema12)
 
     const rsi = rsiSeries(candles, 14).map((p) => ({ time: p.time as UTCTimestamp, value: p.value }))

@@ -1,9 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 
+interface BgmProps {
+  active: boolean   // when false, music is paused (e.g. on result screen)
+}
+
 // Persistent background music with a mute toggle.
 // Browsers block raw autoplay, so we start the audio on the first user
 // gesture (click / keydown) that happens anywhere in the app.
-export function Bgm() {
+export function Bgm({ active }: BgmProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const [muted, setMuted] = useState<boolean>(() => {
     return localStorage.getItem('bgm-muted') === '1'
@@ -11,7 +15,7 @@ export function Bgm() {
   const [started, setStarted] = useState(false)
 
   useEffect(() => {
-    if (started) return
+    if (!active || started) return
     const tryStart = () => {
       const el = audioRef.current
       if (!el) return
@@ -21,13 +25,23 @@ export function Bgm() {
     }
     window.addEventListener('click', tryStart, { once: false })
     window.addEventListener('keydown', tryStart, { once: false })
-    // Attempt immediately too (works if the tab has prior interaction).
     tryStart()
     return () => {
       window.removeEventListener('click', tryStart)
       window.removeEventListener('keydown', tryStart)
     }
-  }, [started, muted])
+  }, [active, started, muted])
+
+  // Pause / resume when the active flag flips (e.g. game ends → stop music).
+  useEffect(() => {
+    const el = audioRef.current
+    if (!el) return
+    if (!active) {
+      el.pause()
+    } else if (started && !muted) {
+      el.play().catch(() => {})
+    }
+  }, [active, started, muted])
 
   useEffect(() => {
     if (audioRef.current) audioRef.current.muted = muted

@@ -69,7 +69,7 @@ export default function App() {
   return (
     <>
       {screen}
-      <Bgm />
+      <Bgm active={phase !== 'ended'} />
     </>
   )
 }
