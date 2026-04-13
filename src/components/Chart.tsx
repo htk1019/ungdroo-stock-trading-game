@@ -9,6 +9,7 @@ import {
   LineStyle,
   type IChartApi,
   type ISeriesApi,
+  type ISeriesMarkersPluginApi,
   type UTCTimestamp,
   type SeriesMarker,
   type Time,
@@ -39,7 +40,7 @@ export function Chart({ candles, trades, hideVolume = false }: ChartProps) {
   const macdRef = useRef<ISeriesApi<'Line'> | null>(null)
   const macdSignalRef = useRef<ISeriesApi<'Line'> | null>(null)
   const macdHistRef = useRef<ISeriesApi<'Histogram'> | null>(null)
-  const markersRef = useRef<ReturnType<typeof createSeriesMarkers> | null>(null)
+  const markersRef = useRef<ISeriesMarkersPluginApi<Time> | null>(null)
 
   // Build chart once — re-init if hideVolume flips (different pane layout).
   useEffect(() => {
