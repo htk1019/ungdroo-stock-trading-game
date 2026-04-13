@@ -78,7 +78,7 @@ export function Setup({ onStart, loading, error }: SetupProps) {
           <h2 className="text-xs font-semibold text-[#8b93a7] uppercase tracking-widest mb-2">
             몇 라운드?
           </h2>
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-6 gap-2">
             {ROUND_COUNTS.map((n) => (
               <button
                 key={n}

@@ -1,7 +1,8 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { computeStats, type GameState, INTERVAL_LABEL } from '../lib/engine'
 import { findTicker } from '../lib/tickers'
 import { EquityChart } from './EquityChart'
+import { playWin, playLose } from '../lib/sfx'
 
 interface ResultProps {
   game: GameState
@@ -29,22 +30,36 @@ export function Result({ game, onReplay }: ResultProps) {
     ? 'bg-emerald-500/15 border-emerald-500/60 text-emerald-200'
     : 'bg-red-500/15 border-red-500/60 text-red-200'
 
+  // Play the win/lose sting once on mount.
+  useEffect(() => {
+    if (beat) playWin(); else playLose()
+    // intentionally ignore beat in deps — play only on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   return (
     <div className="min-h-screen p-6 flex flex-col gap-6">
       {/* Header */}
-      <header className="flex items-start justify-between flex-wrap gap-4">
-        <div className="flex items-center gap-4">
-          <div
-            className={`px-4 py-2 rounded-xl border text-2xl font-extrabold tracking-wider ${
-              beat
-                ? 'bg-emerald-500/15 border-emerald-500/60 text-emerald-300'
-                : 'bg-red-500/15 border-red-500/60 text-red-300'
-            }`}
-          >
-            {beat ? '승리' : '패배'}
-          </div>
+      <header className="flex items-center justify-between flex-wrap gap-4">
+        <div className="flex items-center gap-5">
+          <img
+            src={beat ? '/happy.png' : '/sad.png'}
+            alt={beat ? '승리' : '패배'}
+            className={`w-28 h-28 object-contain rounded-xl bg-black/40 border ${
+              beat ? 'border-emerald-500/40' : 'border-red-500/40'
+            } ${beat ? 'animate-bounce-slow' : 'animate-shake'}`}
+            draggable={false}
+          />
           <div>
-            <h1 className="text-3xl font-bold mb-1">결과</h1>
+            <div
+              className={`inline-block px-4 py-1.5 rounded-xl border text-3xl font-extrabold tracking-wider mb-2 ${
+                beat
+                  ? 'bg-emerald-500/15 border-emerald-500/60 text-emerald-300'
+                  : 'bg-red-500/15 border-red-500/60 text-red-300'
+              }`}
+            >
+              {beat ? '승리!' : '패배…'}
+            </div>
             <p className="text-[#8b93a7]">
               <span className="font-semibold text-[#e5e7eb]">{info?.name ?? game.symbol}</span>
               <span className="ml-2 text-xs px-2 py-0.5 bg-[#1a1e27] rounded">{game.symbol}</span>

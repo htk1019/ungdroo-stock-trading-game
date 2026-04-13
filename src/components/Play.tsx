@@ -24,7 +24,9 @@ export function Play({ game, onChange, onEnd }: PlayProps) {
 
   const price = currentPrice(game)
   const equity = equityAt(game, price)
+  const earned = equity - STARTING_CASH
   const pnlPct = (equity / STARTING_CASH - 1) * 100
+  const bmEquity = game.buyHoldCurve[game.buyHoldCurve.length - 1]
   const currentRound = Math.ceil(game.step / game.roundSize)
   const pos = positionOf(game)
   const hideVolume = findTicker(game.symbol)?.category === 'index'
@@ -74,8 +76,8 @@ export function Play({ game, onChange, onEnd }: PlayProps) {
   return (
     <div className="h-screen flex flex-col">
       <header className="px-6 py-4 border-b border-[#252a36] flex items-center justify-between bg-[#12151c]">
-        <div className="flex items-center gap-6">
-          <h1 className="font-bold text-lg">🦆 주식을 이겨라!</h1>
+        <div className="flex items-center gap-5">
+          <h1 className="font-bold text-lg">🦆</h1>
           <div className="flex items-center gap-3 text-sm">
             <PositionBadge pos={pos} />
             <span className="text-[#8b93a7]">
@@ -83,12 +85,20 @@ export function Play({ game, onChange, onEnd }: PlayProps) {
             </span>
             <span className="text-[#8b93a7]">+{game.roundSize}d/회</span>
           </div>
+          <div className="flex flex-col items-start leading-tight">
+            <span className="text-[10px] text-[#8b93a7] uppercase tracking-wider">현재가</span>
+            <span className="font-mono text-base font-bold text-[#e5e7eb]">${price.toFixed(2)}</span>
+          </div>
         </div>
         <div className="flex items-center gap-8">
-          <Stat label="현재가" value={`$${price.toFixed(2)}`} />
-          <Stat label="현금" value={`$${game.cash.toFixed(2)}`} />
-          <Stat label="보유" value={`${game.shares.toFixed(4)}`} />
+          <Stat label="보유현금" value={`$${game.cash.toFixed(2)}`} />
+          <Stat
+            label="번돈"
+            value={`${earned >= 0 ? '+' : ''}$${earned.toFixed(2)}`}
+            color={earned >= 0 ? 'text-emerald-400' : 'text-red-400'}
+          />
           <Stat label="평가" value={`$${equity.toFixed(2)}`} />
+          <Stat label="BM 금액" value={`$${bmEquity.toFixed(2)}`} />
           <Stat
             label="수익률"
             value={`${pnlPct >= 0 ? '+' : ''}${pnlPct.toFixed(2)}%`}
@@ -129,7 +139,7 @@ export function Play({ game, onChange, onEnd }: PlayProps) {
         <Decide onClick={() => handle('FLAT')}  active={pos === 'FLAT'}
           bg="bg-slate-500 hover:bg-slate-400" label="플랫 (F)" />
         <Decide onClick={() => handle('HOLD')}  active={false}
-          bg="bg-indigo-500 hover:bg-indigo-400" label={`홀드 +${game.roundSize}d (Space)`} />
+          bg="bg-indigo-500 hover:bg-indigo-400" label={`다음 스텝 +${game.roundSize}d (Space)`} />
       </footer>
     </div>
   )

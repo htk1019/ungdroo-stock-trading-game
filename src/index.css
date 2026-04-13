@@ -30,3 +30,19 @@ button:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2
   100% { opacity: 0; transform: translate(-50%, -70%) scale(1); }
 }
 .animate-cheer { animation: cheer 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+
+@keyframes bounce-slow {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50%      { transform: translateY(-8px) rotate(3deg); }
+}
+.animate-bounce-slow { animation: bounce-slow 1.6s ease-in-out infinite; }
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  15%      { transform: translateX(-6px) rotate(-3deg); }
+  30%      { transform: translateX(6px)  rotate(3deg); }
+  45%      { transform: translateX(-4px); }
+  60%      { transform: translateX(4px); }
+  80%      { transform: translateX(-2px); }
+}
+.animate-shake { animation: shake 1.4s ease-in-out; }

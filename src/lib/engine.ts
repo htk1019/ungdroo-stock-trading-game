@@ -19,7 +19,7 @@ export const ROUND_SIZES: RoundSize[] = [
   { key: 'q', label: '분기', days: 63 },
   { key: 'h', label: '반기', days: 126 },
 ]
-export const ROUND_COUNTS = [3, 5, 10, 20] as const
+export const ROUND_COUNTS = [3, 5, 10, 20, 50, 100] as const
 
 export const STARTING_CASH = 10_000
 export const FEE_RATE = 0.001 // 0.1% per side
@@ -117,6 +117,26 @@ export function currentPrice(g: GameState): number {
 
 export function equityAt(g: GameState, price: number): number {
   return g.cash + g.shares * price
+}
+
+// Average entry price for the currently open position (from the most recent
+// open trade that hasn't been closed yet). Returns null when flat.
+export function openEntryPrice(g: GameState): number | null {
+  for (let i = g.trades.length - 1; i >= 0; i--) {
+    const t = g.trades[i]
+    if (t.side === 'BUY' || t.side === 'SHORT') return t.price
+    if (t.side === 'SELL' || t.side === 'COVER') return null
+  }
+  return null
+}
+
+// Unrealized P&L of the current position in dollars (sign matches profit:
+// long & price-up → positive; short & price-down → positive).
+export function unrealizedPnl(g: GameState, price: number): number {
+  const entry = openEntryPrice(g)
+  if (entry == null || g.shares === 0) return 0
+  // shares is positive for long, negative for short.
+  return (price - entry) * g.shares
 }
 
 export interface ActionResult {
