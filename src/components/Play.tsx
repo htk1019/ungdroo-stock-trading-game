@@ -128,34 +128,70 @@ export function Play({ game, onChange, onEnd }: PlayProps) {
 
       <footer className="px-6 py-4 border-t border-[#252a36] bg-[#12151c] flex items-center gap-3 flex-wrap">
         <span className="text-xs text-[#8b93a7] uppercase tracking-widest mr-2">
-          다음 라운드 포지션
+          {pos === 'FLAT' ? '다음 라운드 결정' :
+           pos === 'LONG' ? '롱 보유 중 — 어떻게?' :
+                            '숏 보유 중 — 어떻게?'}
         </span>
         <div className="flex-1" />
 
-        <Decide onClick={() => handle('LONG')}  active={pos === 'LONG'}
-          bg="bg-emerald-500 hover:bg-emerald-400" label="롱 (B)" />
-        <Decide onClick={() => handle('SHORT')} active={pos === 'SHORT'}
-          bg="bg-amber-500 hover:bg-amber-400" label="숏 (S)" />
-        <Decide onClick={() => handle('FLAT')}  active={pos === 'FLAT'}
-          bg="bg-slate-500 hover:bg-slate-400" label="플랫 (F)" />
-        <Decide onClick={() => handle('HOLD')}  active={false}
-          bg="bg-indigo-500 hover:bg-indigo-400" label={`다음 스텝 +${game.roundSize}d (Space)`} />
+        {pos === 'FLAT' && (
+          <>
+            <Decide onClick={() => handle('LONG')}
+              bg="bg-emerald-500 hover:bg-emerald-400"
+              label="📈 오른다! 롱(매수) 진입" hint="B" />
+            <Decide onClick={() => handle('SHORT')}
+              bg="bg-amber-500 hover:bg-amber-400"
+              label="📉 내린다! 숏(공매도) 진입" hint="S" />
+            <Decide onClick={() => handle('HOLD')}
+              bg="bg-indigo-500 hover:bg-indigo-400"
+              label={`🪙 관망 · 현금 유지하고 +${game.roundSize}d 진행`} hint="Space" />
+          </>
+        )}
+        {pos === 'LONG' && (
+          <>
+            <Decide onClick={() => handle('FLAT')}
+              bg="bg-red-500 hover:bg-red-400"
+              label="💰 롱 청산하고 현금(플랫)으로" hint="F" />
+            <Decide onClick={() => handle('SHORT')}
+              bg="bg-amber-500 hover:bg-amber-400"
+              label="🔁 롱 청산 후 숏으로 전환" hint="S" />
+            <Decide onClick={() => handle('HOLD')}
+              bg="bg-indigo-500 hover:bg-indigo-400"
+              label={`✊ 롱 그대로 유지하고 +${game.roundSize}d 진행`} hint="Space" />
+          </>
+        )}
+        {pos === 'SHORT' && (
+          <>
+            <Decide onClick={() => handle('FLAT')}
+              bg="bg-red-500 hover:bg-red-400"
+              label="💰 숏 청산하고 현금(플랫)으로" hint="F" />
+            <Decide onClick={() => handle('LONG')}
+              bg="bg-emerald-500 hover:bg-emerald-400"
+              label="🔁 숏 청산 후 롱으로 전환" hint="B" />
+            <Decide onClick={() => handle('HOLD')}
+              bg="bg-indigo-500 hover:bg-indigo-400"
+              label={`✊ 숏 그대로 유지하고 +${game.roundSize}d 진행`} hint="Space" />
+          </>
+        )}
       </footer>
     </div>
   )
 }
 
 function Decide({
-  onClick, active, bg, label,
-}: { onClick: () => void; active: boolean; bg: string; label: string }) {
+  onClick, bg, label, hint,
+}: { onClick: () => void; bg: string; label: string; hint?: string }) {
   return (
     <button
       onClick={onClick}
-      className={`px-5 py-3 rounded-lg text-white font-semibold transition ${bg} ${
-        active ? 'ring-2 ring-white/40' : ''
-      }`}
+      className={`px-5 py-3 rounded-lg text-white font-semibold transition ${bg} flex items-center gap-2`}
     >
-      {label}
+      <span>{label}</span>
+      {hint && (
+        <kbd className="text-[10px] font-mono font-bold bg-black/25 px-1.5 py-0.5 rounded">
+          {hint}
+        </kbd>
+      )}
     </button>
   )
 }
