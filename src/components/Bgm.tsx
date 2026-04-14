@@ -11,8 +11,11 @@ interface Track {
 }
 
 const TRACKS: Track[] = [
-  { key: 'pingpong', label: '🏓 핑퐁',   src: '/bgm-pingpong.mp3' },
-  { key: 'duck',     label: '🦆 오리',   src: '/bgm-duck.mp3'     },
+  { key: 'duck',     label: '🦆 오리',     src: '/bgm-duck.mp3'     },
+  { key: 'arcade',   label: '🎮 아케이드', src: '/bgm-arcade.mp3'   },
+  { key: 'pingpong', label: '🏓 핑퐁',     src: '/bgm-pingpong.mp3' },
+  { key: 'phantasy', label: '⚔️ 판타지',   src: '/bgm-phantasy.mp4' },
+  { key: 'ys',       label: '💎 이스',     src: '/bgm-ys.mp3'       },
 ]
 
 function pickTrack(key: string): Track {
@@ -38,34 +41,35 @@ export function Bgm({ active }: BgmProps) {
   const [started, setStarted] = useState(false)
   const track = pickTrack(trackKey)
 
+  // Try to start playback. Browsers require a user gesture for the first
+  // play, so we attach click/keydown listeners until it succeeds.
   useEffect(() => {
     if (!active || started) return
     const tryStart = () => {
       const el = audioRef.current
       if (!el) return
-      el.volume = 0.35
+      el.volume = 0.18
       el.muted = muted
-      el.play().then(() => setStarted(true)).catch(() => { /* will retry on next gesture */ })
+      el.play().then(() => setStarted(true)).catch(() => { /* retry on next gesture */ })
     }
-    window.addEventListener('click', tryStart, { once: false })
-    window.addEventListener('keydown', tryStart, { once: false })
+    window.addEventListener('click', tryStart)
+    window.addEventListener('keydown', tryStart)
+    window.addEventListener('touchstart', tryStart)
     tryStart()
     return () => {
       window.removeEventListener('click', tryStart)
       window.removeEventListener('keydown', tryStart)
+      window.removeEventListener('touchstart', tryStart)
     }
   }, [active, started, muted])
 
-  // Pause / resume when the active flag flips (e.g. game ends → stop music).
+  // Pause when leaving the active phase (result screen). Don't restart from 0
+  // here — that interferes with smooth playback during setup→playing.
   useEffect(() => {
     const el = audioRef.current
     if (!el) return
-    if (!active) {
-      el.pause()
-    } else if (started && !muted) {
-      el.currentTime = 0
-      el.play().catch(() => {})
-    }
+    if (!active) el.pause()
+    else if (started && !muted) el.play().catch(() => {})
   }, [active, started, muted])
 
   useEffect(() => {
@@ -73,15 +77,16 @@ export function Bgm({ active }: BgmProps) {
     localStorage.setItem('bgm-muted', muted ? '1' : '0')
   }, [muted])
 
-  // When the selected track changes, reload and (if appropriate) resume play.
-  // Not persisted: every refresh picks a fresh random track.
+  // When the user picks a different track, reload the element and resume
+  // playback if we're already past the first gesture.
+  const prevTrack = useRef(trackKey)
   useEffect(() => {
+    if (prevTrack.current === trackKey) return
+    prevTrack.current = trackKey
     const el = audioRef.current
     if (!el) return
     el.load()
-    if (started && active && !muted) {
-      el.play().catch(() => {})
-    }
+    if (started && active && !muted) el.play().catch(() => {})
   }, [trackKey, started, active, muted])
 
   return (
