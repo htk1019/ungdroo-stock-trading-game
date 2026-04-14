@@ -1,8 +1,9 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { computeStats, type GameState, INTERVAL_LABEL } from '../lib/engine'
 import { findTicker } from '../lib/tickers'
 import { EquityChart } from './EquityChart'
 import { playWin, playLose } from '../lib/sfx'
+import { recordHighScore, type HighScore } from '../lib/highscore'
 
 interface ResultProps {
   game: GameState
@@ -66,6 +67,18 @@ export function Result({ game, onReplay }: ResultProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // Record / retrieve high score (highest absolute return ever).
+  const [hs, setHs] = useState<{ best: HighScore; isNew: boolean } | null>(null)
+  useEffect(() => {
+    setHs(recordHighScore({
+      returnPct: stats.returnPct,
+      symbol: game.symbol,
+      symbolName: info?.name,
+      at: Date.now(),
+    }))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   return (
     <div className="min-h-screen p-3 sm:p-6 flex flex-col gap-4 sm:gap-6">
       {/* Header */}
@@ -95,12 +108,33 @@ export function Result({ game, onReplay }: ResultProps) {
             </p>
           </div>
         </div>
-        <button
-          onClick={onReplay}
-          className="px-4 sm:px-6 py-2 sm:py-3 rounded-lg bg-indigo-500 hover:bg-indigo-400 text-white font-semibold text-sm sm:text-base"
-        >
-          다시 도전
-        </button>
+        <div className="flex items-center gap-2 sm:gap-3">
+          {hs && (
+            <div className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg border text-xs sm:text-sm ${
+              hs.isNew
+                ? 'bg-amber-500/15 border-amber-400/60 text-amber-200 animate-pulse'
+                : 'bg-[#1a1e27] border-[#252a36] text-[#8b93a7]'
+            }`}>
+              <div className="text-[9px] sm:text-[10px] uppercase tracking-widest font-bold">
+                {hs.isNew ? '🏆 신기록!' : '🏆 최고 기록'}
+              </div>
+              <div className={`font-mono font-black text-sm sm:text-lg ${
+                hs.best.returnPct >= 0 ? 'text-emerald-300' : 'text-red-300'
+              }`}>
+                {hs.best.returnPct >= 0 ? '+' : ''}{hs.best.returnPct.toFixed(2)}%
+              </div>
+              <div className="text-[9px] sm:text-[10px] opacity-80 truncate max-w-[120px] sm:max-w-[160px]">
+                {hs.best.symbolName ?? hs.best.symbol}
+              </div>
+            </div>
+          )}
+          <button
+            onClick={onReplay}
+            className="px-4 sm:px-6 py-2 sm:py-3 rounded-lg bg-indigo-500 hover:bg-indigo-400 text-white font-semibold text-sm sm:text-base"
+          >
+            다시 도전
+          </button>
+        </div>
       </header>
 
       {/* Headline cards — total return */}

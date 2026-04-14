@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ALL_CATEGORIES, CATEGORY_LABEL, type Category } from '../lib/tickers'
 import { ROUND_SIZES, ROUND_COUNTS, type RoundSize } from '../lib/engine'
 import { HelpModal } from './HelpModal'
+import { loadHighScore } from '../lib/highscore'
 
 interface SetupProps {
   onStart: (args: { categories: Category[]; roundCount: number; roundSize: RoundSize }) => void
@@ -14,6 +15,7 @@ export function Setup({ onStart, loading, error }: SetupProps) {
   const [roundCount, setRoundCount] = useState<number>(20)
   const [roundSize, setRoundSize] = useState<RoundSize>(ROUND_SIZES[1]) // 주
   const [showHelp, setShowHelp] = useState(false)
+  const highScore = loadHighScore()
 
   const toggleCat = (c: Category) => {
     const next = new Set(categories)
@@ -173,6 +175,18 @@ export function Setup({ onStart, loading, error }: SetupProps) {
         {error && (
           <div className="mt-4 p-3 rounded-lg bg-red-500/10 border-2 border-red-500/60 text-red-200 text-sm font-bold">
             ⚠️ {error}
+          </div>
+        )}
+
+        {highScore && (
+          <div className="mt-4 flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-amber-500/10 border-2 border-amber-400/50 text-amber-100 text-sm font-bold">
+            <span>🏆 최고 기록</span>
+            <span className={`font-mono font-black text-base ${highScore.returnPct >= 0 ? 'text-emerald-300' : 'text-red-300'}`}>
+              {highScore.returnPct >= 0 ? '+' : ''}{highScore.returnPct.toFixed(2)}%
+            </span>
+            <span className="text-amber-200/80 text-xs">
+              ({highScore.symbolName ?? highScore.symbol})
+            </span>
           </div>
         )}
 
