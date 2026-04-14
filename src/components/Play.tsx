@@ -6,6 +6,7 @@ import {
 } from '../lib/engine'
 import { Chart } from './Chart'
 import { findTicker } from '../lib/tickers'
+import { playDing } from '../lib/sfx'
 
 interface PlayProps {
   game: GameState
@@ -15,7 +16,7 @@ interface PlayProps {
 
 export function Play({ game, onChange, onEnd }: PlayProps) {
   const [flash, setFlash] = useState<string | null>(null)
-  const [cheer, setCheer] = useState<{ text: string; good: boolean; key: number } | null>(null)
+  const [cheer, setCheer] = useState<{ dollars: number; pct: number; good: boolean; key: number } | null>(null)
 
   const visibleCandles = useMemo(
     () => [...game.warmup, ...game.reveal.slice(0, game.step)],
@@ -44,11 +45,8 @@ export function Play({ game, onChange, onEnd }: PlayProps) {
     if (r.ok && delta !== 0) {
       const pct = (delta / before) * 100
       const good = delta > 0
-      setCheer({
-        text: good ? `굿! +${pct.toFixed(2)}%` : `땡! ${pct.toFixed(2)}%`,
-        good,
-        key: Date.now(),
-      })
+      setCheer({ dollars: delta, pct, good, key: Date.now() })
+      playDing(good)
     }
     onChange()
     if (r.done) onEnd()
@@ -56,7 +54,7 @@ export function Play({ game, onChange, onEnd }: PlayProps) {
 
   useEffect(() => {
     if (!cheer) return
-    const t = window.setTimeout(() => setCheer((c) => (c?.key === cheer.key ? null : c)), 1200)
+    const t = window.setTimeout(() => setCheer((c) => (c?.key === cheer.key ? null : c)), 1600)
     return () => window.clearTimeout(t)
   }, [cheer])
 
@@ -138,11 +136,21 @@ export function Play({ game, onChange, onEnd }: PlayProps) {
         {cheer && (
           <div
             key={cheer.key}
-            className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none animate-cheer text-6xl md:text-7xl font-extrabold drop-shadow-2xl ${
-              cheer.good ? 'text-emerald-400' : 'text-red-400'
+            className={`absolute top-4 right-4 sm:top-6 sm:right-6 pointer-events-none select-none animate-pnl-pop z-10 rounded-xl px-3 py-2 sm:px-4 sm:py-3 backdrop-blur border-2 shadow-xl flex flex-col items-end leading-tight ${
+              cheer.good
+                ? 'bg-emerald-500/20 border-emerald-400/70 text-emerald-200'
+                : 'bg-red-500/20 border-red-400/70 text-red-200'
             }`}
           >
-            {cheer.text}
+            <div className="text-[10px] sm:text-xs uppercase tracking-widest font-bold opacity-80">
+              {cheer.good ? '💰 수익' : '💥 손실'}
+            </div>
+            <div className="font-mono font-black text-xl sm:text-3xl">
+              {cheer.dollars >= 0 ? '+' : ''}${Math.abs(cheer.dollars).toFixed(2)}
+            </div>
+            <div className="font-mono font-bold text-xs sm:text-sm opacity-90">
+              {cheer.pct >= 0 ? '+' : ''}{cheer.pct.toFixed(2)}%
+            </div>
           </div>
         )}
       </main>

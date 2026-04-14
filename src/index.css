@@ -31,6 +31,15 @@ button:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2
 }
 .animate-cheer { animation: cheer 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
 
+@keyframes pnl-pop {
+  0%   { opacity: 0; transform: translateY(-8px) scale(0.8); }
+  15%  { opacity: 1; transform: translateY(0)    scale(1.08); }
+  30%  { transform: translateY(0) scale(1); }
+  75%  { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-4px) scale(0.98); }
+}
+.animate-pnl-pop { animation: pnl-pop 1.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+
 @keyframes bounce-slow {
   0%, 100% { transform: translateY(0) rotate(-2deg); }
   50%      { transform: translateY(-8px) rotate(3deg); }

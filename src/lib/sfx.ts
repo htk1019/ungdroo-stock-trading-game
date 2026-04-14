@@ -112,6 +112,17 @@ export function playLose() {
   src.stop(c.currentTime + 1.2)
 }
 
+// Tiny "띠링" — two quick bell chimes for per-trade P&L pops.
+// Slightly different pitches for profit vs. loss so feedback is learnable
+// by ear without being harsh.
+export function playDing(good: boolean) {
+  const base = good ? 1318.5 : 987.77 // profit: E6, loss: B5
+  playNotes([
+    { freq: base,        start: 0.00, duration: 0.14, type: 'sine', gain: 0.22 },
+    { freq: base * 1.26, start: 0.06, duration: 0.18, type: 'sine', gain: 0.22 },
+  ])
+}
+
 // "뭐지?" sample — plays the prerecorded clip at /meh.mp3.
 export function playMeh() {
   if (typeof window === 'undefined') return
