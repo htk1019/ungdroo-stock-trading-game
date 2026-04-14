@@ -32,7 +32,13 @@ export function Bgm({ active }: BgmProps) {
     return localStorage.getItem('bgm-muted') === '1'
   })
   const [trackKey, setTrackKey] = useState<string>(() => {
-    return localStorage.getItem('bgm-track') ?? randomTrackKey()
+    const saved = localStorage.getItem('bgm-track')
+    if (saved) return saved
+    // First-ever visit: pick random and persist so the same track plays on
+    // subsequent loads until the user changes it.
+    const picked = randomTrackKey()
+    localStorage.setItem('bgm-track', picked)
+    return picked
   })
   const [pickerOpen, setPickerOpen] = useState(false)
   const [started, setStarted] = useState(false)
