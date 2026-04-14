@@ -149,7 +149,7 @@ export function Play({ game, onChange, onEnd }: PlayProps) {
 
       <footer className="px-3 sm:px-6 py-2 sm:py-3 border-t border-[#252a36] bg-[#12151c]">
         <div className="text-[10px] sm:text-xs text-[#8b93a7] uppercase tracking-widest mb-2 font-bold">
-          {isFirstRound  && <>첫 라운드 — <span className="text-amber-300">반드시 롱 또는 숏 선택</span> (관망 불가)</>}
+          {isFirstRound  && <>1라운드 — <span className="text-amber-300">반드시 롱 또는 숏 선택</span> (관망 불가)</>}
           {!isFirstRound && pos === 'FLAT'  && <>현재 <span className="text-slate-300">무포지션(현금)</span> — 다음 라운드?</>}
           {!isFirstRound && pos === 'LONG'  && <>현재 <span className="text-emerald-300">롱(매수)</span> 보유 중 — 다음 라운드?</>}
           {!isFirstRound && pos === 'SHORT' && <>현재 <span className="text-amber-300">숏(공매도)</span> 보유 중 — 다음 라운드?</>}
