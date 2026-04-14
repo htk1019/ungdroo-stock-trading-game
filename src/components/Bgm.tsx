@@ -14,10 +14,13 @@ const TRACKS: Track[] = [
   { key: 'pingpong', label: '🏓 핑퐁',   src: '/bgm-pingpong.mp3' },
   { key: 'duck',     label: '🦆 오리',   src: '/bgm-duck.mp3'     },
 ]
-const DEFAULT_TRACK_KEY = 'pingpong'
 
 function pickTrack(key: string): Track {
   return TRACKS.find((t) => t.key === key) ?? TRACKS[0]
+}
+
+function randomTrackKey(): string {
+  return TRACKS[Math.floor(Math.random() * TRACKS.length)].key
 }
 
 // Persistent background music with a mute toggle and a track picker.
@@ -29,7 +32,7 @@ export function Bgm({ active }: BgmProps) {
     return localStorage.getItem('bgm-muted') === '1'
   })
   const [trackKey, setTrackKey] = useState<string>(() => {
-    return localStorage.getItem('bgm-track') ?? DEFAULT_TRACK_KEY
+    return localStorage.getItem('bgm-track') ?? randomTrackKey()
   })
   const [pickerOpen, setPickerOpen] = useState(false)
   const [started, setStarted] = useState(false)
