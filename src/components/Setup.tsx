@@ -25,55 +25,87 @@ export function Setup({ onStart, loading, error }: SetupProps) {
   const tradingDays = roundCount * roundSize.days
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6">
+    <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
       {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
-      <div className="w-full max-w-3xl bg-[#12151c] border border-[#252a36] rounded-3xl p-10 shadow-2xl relative overflow-hidden">
+
+      {/* 쌈마이 배경 장식 */}
+      <div aria-hidden className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-gradient-to-br from-fuchsia-900/20 via-purple-900/10 to-amber-900/20" />
+        <span className="absolute top-8  left-10  text-5xl animate-spin-slow">✨</span>
+        <span className="absolute top-16 right-24 text-6xl animate-bounce">💰</span>
+        <span className="absolute bottom-24 left-16 text-5xl animate-pulse">📈</span>
+        <span className="absolute bottom-12 right-12 text-5xl animate-spin-slow">🎰</span>
+        <span className="absolute top-1/2 left-4 text-4xl animate-bounce">🪙</span>
+        <span className="absolute top-1/3 right-6 text-4xl animate-pulse">💸</span>
+        <span className="absolute top-6    right-1/3 text-3xl rotate-12 animate-blink">★</span>
+        <span className="absolute bottom-6 left-1/3  text-3xl -rotate-12 animate-blink">★</span>
+      </div>
+
+      <div className="w-full max-w-3xl bg-[#12151c] border-4 border-amber-400/70 rounded-3xl p-10 shadow-[0_0_60px_rgba(251,191,36,0.25)] relative overflow-hidden z-10">
+        {/* 레인보우 테두리 스트라이프 */}
+        <div className="absolute top-0 left-0 right-0 h-2 bg-rainbow-stripe" />
+        <div className="absolute bottom-0 left-0 right-0 h-2 bg-rainbow-stripe" />
+
         <button
           onClick={() => setShowHelp(true)}
-          className="absolute top-4 right-4 w-9 h-9 rounded-full bg-[#1a1e27] border border-[#252a36] hover:border-amber-400/60 text-[#e5e7eb] font-bold text-sm"
+          className="absolute top-5 right-5 w-10 h-10 rounded-full bg-[#1a1e27] border-2 border-amber-400/60 hover:border-amber-300 text-amber-200 font-black text-lg z-20"
           title="도움말"
         >
           ?
         </button>
-        <div className="flex flex-col items-center text-center mb-8">
-          <div className="relative">
+
+        {/* Hero */}
+        <div className="flex flex-col items-center text-center mb-6 mt-4 relative">
+          <div className="absolute -top-1 left-2 text-amber-300 text-xs font-black rotate-[-18deg] select-none leading-tight">
+            🔥 오늘의<br/>한탕 🔥
+          </div>
+          <div className="absolute -top-1 right-14 text-pink-300 text-xs font-black rotate-[12deg] select-none leading-tight animate-blink">
+            🚨 대박 🚨<br/>신호 감지!
+          </div>
+
+          <div className="relative animate-wobble">
             <img
               src="/duck.png"
               alt="trader duck"
-              className="w-80 h-80 object-contain drop-shadow-2xl select-none"
+              className="w-64 h-64 object-contain drop-shadow-[0_10px_30px_rgba(251,191,36,0.35)] select-none"
               draggable={false}
             />
-            <div className="absolute -top-2 -right-4 text-3xl rotate-12 select-none">ㅋㅋㅋ</div>
+            <div className="absolute -top-2 -right-2 text-3xl rotate-12 select-none">ㅋㅋㅋ</div>
+            <div className="absolute -top-4 -left-4 text-2xl -rotate-12 select-none animate-bounce">💸</div>
+            <div className="absolute -bottom-2 -right-8 text-2xl rotate-6 select-none animate-bounce">📈</div>
           </div>
-          <div className="flex items-center justify-center gap-4 mt-2">
-            <h1 className="text-5xl font-extrabold tracking-tight bg-gradient-to-b from-amber-200 to-amber-400 bg-clip-text text-transparent">
+
+          <div className="flex items-center justify-center gap-3 mt-4 flex-wrap">
+            <span className="text-amber-300 text-xl font-black animate-blink">★</span>
+            <h1 className="text-4xl md:text-5xl font-black tracking-tight text-amber-300 animate-neon">
               4848로 주식을 이겨라!
             </h1>
             <img
               src="/niga.png"
               alt="ㅋ 니가?"
-              className="h-12 w-auto rounded-md border border-[#252a36] select-none"
+              className="h-12 w-auto rounded-md border-2 border-amber-400/60 select-none animate-wobble"
               draggable={false}
             />
+            <span className="text-amber-300 text-xl font-black animate-blink">★</span>
           </div>
-          <p className="text-[#8b93a7] mt-3 text-sm">
-            종목은 비밀. 최근 1년 차트만 보고 판단해서 <span className="text-amber-300 font-semibold">Buy &amp; Hold</span>를 이기면 승리.
+          <p className="text-pink-200 mt-3 text-base font-bold">
+            ❗ 종목은 <u>비밀</u>! 차트만 보고 <span className="text-amber-300">Buy &amp; Hold</span> ⚡️발라버려⚡️ 승리! ❗
           </p>
         </div>
 
-        <section className="mb-5">
-          <h2 className="text-xs font-semibold text-[#8b93a7] uppercase tracking-widest mb-2">
-            어떤 종목에서 뽑을까?
+        <section className="mb-4">
+          <h2 className="text-sm font-black text-amber-300 uppercase tracking-widest mb-2">
+            🎯 어떤 종목?
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {ALL_CATEGORIES.map((c) => (
               <button
                 key={c}
                 onClick={() => toggleCat(c)}
-                className={`py-2.5 rounded-xl border text-sm font-bold transition ${
+                className={`py-3 rounded-xl border-2 text-sm font-black transition ${
                   categories.has(c)
-                    ? 'bg-amber-400/15 border-amber-400/60 text-amber-200'
-                    : 'bg-[#1a1e27] border-[#252a36] text-[#8b93a7] hover:border-[#3a4154]'
+                    ? 'bg-amber-400/20 border-amber-400 text-amber-100 shadow-[0_0_12px_rgba(251,191,36,0.35)]'
+                    : 'bg-[#1a1e27] border-[#252a36] text-[#8b93a7] hover:border-amber-400/40'
                 }`}
               >
                 {CATEGORY_LABEL[c]}
@@ -82,48 +114,48 @@ export function Setup({ onStart, loading, error }: SetupProps) {
           </div>
         </section>
 
-        <section className="mb-5">
-          <h2 className="text-xs font-semibold text-[#8b93a7] uppercase tracking-widest mb-2">
-            몇 라운드?
+        <section className="mb-4">
+          <h2 className="text-sm font-black text-fuchsia-300 uppercase tracking-widest mb-2">
+            🔥 몇 라운드?
           </h2>
           <div className="grid grid-cols-6 gap-2">
             {ROUND_COUNTS.map((n) => (
               <button
                 key={n}
                 onClick={() => setRoundCount(n)}
-                className={`py-2.5 rounded-xl border text-sm font-bold transition ${
+                className={`py-3 rounded-xl border-2 text-sm font-black transition ${
                   roundCount === n
-                    ? 'bg-indigo-500/20 border-indigo-400 text-indigo-200'
-                    : 'bg-[#1a1e27] border-[#252a36] text-[#8b93a7] hover:border-[#3a4154]'
+                    ? 'bg-fuchsia-500/20 border-fuchsia-400 text-fuchsia-100 shadow-[0_0_12px_rgba(217,70,239,0.4)]'
+                    : 'bg-[#1a1e27] border-[#252a36] text-[#8b93a7] hover:border-fuchsia-400/40'
                 }`}
               >
-                {n}라운드
+                {n}
               </button>
             ))}
           </div>
         </section>
 
         <section className="mb-6">
-          <h2 className="text-xs font-semibold text-[#8b93a7] uppercase tracking-widest mb-2">
-            라운드별 리밸런싱 주기
+          <h2 className="text-sm font-black text-sky-300 uppercase tracking-widest mb-2">
+            ⚡ 리밸런싱 주기
           </h2>
           <div className="grid grid-cols-5 gap-2">
             {ROUND_SIZES.map((r) => (
               <button
                 key={r.key}
                 onClick={() => setRoundSize(r)}
-                className={`py-2.5 rounded-xl border text-sm font-bold transition ${
+                className={`py-3 rounded-xl border-2 text-sm font-black transition ${
                   roundSize.key === r.key
-                    ? 'bg-sky-500/20 border-sky-400 text-sky-200'
-                    : 'bg-[#1a1e27] border-[#252a36] text-[#8b93a7] hover:border-[#3a4154]'
+                    ? 'bg-sky-500/20 border-sky-400 text-sky-100 shadow-[0_0_12px_rgba(56,189,248,0.4)]'
+                    : 'bg-[#1a1e27] border-[#252a36] text-[#8b93a7] hover:border-sky-400/40'
                 }`}
               >
                 {r.label}
               </button>
             ))}
           </div>
-          <p className="text-xs text-[#8b93a7] mt-2 text-center">
-            총 트레이딩 기간 ≈ <span className="text-[#e5e7eb] font-mono">{tradingDays}거래일</span>
+          <p className="text-xs text-amber-200 mt-2 text-center font-bold">
+            총 트레이딩 기간 ≈ <span className="font-mono text-amber-100">{tradingDays}거래일</span>
             {' '}({(tradingDays / 252).toFixed(1)}년)
           </p>
         </section>
@@ -131,26 +163,26 @@ export function Setup({ onStart, loading, error }: SetupProps) {
         <button
           onClick={() => onStart({ categories: Array.from(categories), roundCount, roundSize })}
           disabled={loading}
-          className="w-full py-4 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-300 hover:to-orange-400 disabled:from-[#1a1e27] disabled:to-[#1a1e27] disabled:text-[#5a6175] text-[#0b0d12] font-extrabold text-lg transition shadow-lg shadow-amber-500/20"
+          className="btn-shine w-full py-5 rounded-2xl bg-gradient-to-r from-pink-500 via-amber-400 to-orange-500 hover:from-pink-400 hover:via-amber-300 hover:to-orange-400 disabled:from-[#1a1e27] disabled:via-[#1a1e27] disabled:to-[#1a1e27] disabled:text-[#5a6175] text-[#0b0d12] font-black text-xl transition shadow-[0_0_30px_rgba(251,191,36,0.5)] relative overflow-hidden border-2 border-amber-200"
         >
-          {loading ? '딸깍… 딸깍…' : '딸깍! 시작하기'}
+          {loading ? '⏳ 딸깍… 딸깍… 딸깍…' : '🎰 딸깍! 시작하기 🎰'}
         </button>
 
         {error && (
-          <div className="mt-4 p-3 rounded-lg bg-red-500/10 border border-red-500/40 text-red-300 text-sm">
-            {error}
+          <div className="mt-4 p-3 rounded-lg bg-red-500/10 border-2 border-red-500/60 text-red-200 text-sm font-bold">
+            ⚠️ {error}
           </div>
         )}
 
-        <div className="mt-6 text-xs text-[#8b93a7] space-y-1 text-center">
+        <div className="mt-5 text-xs text-amber-200/80 space-y-1 text-center font-bold">
           <p>
-            과거 {WARMUP_DAYS}일(약 1년) 차트 공개 · 시작자금 $10,000 · 수수료 0.1% · 포지션 100%
+            💵 시작자금 $10,000 · 💸 수수료 0.1% · 🎯 포지션 100%
           </p>
           <p>
-            ⌨️ <kbd className="px-1.5 py-0.5 bg-[#1a1e27] rounded">Space</kbd> 다음 라운드
-            · <kbd className="px-1.5 py-0.5 bg-[#1a1e27] rounded">B</kbd> 매수/환매
-            · <kbd className="px-1.5 py-0.5 bg-[#1a1e27] rounded">S</kbd> 매도/공매도
-            · <kbd className="px-1.5 py-0.5 bg-[#1a1e27] rounded">H</kbd> 홀드
+            ⌨️ <kbd className="px-1.5 py-0.5 bg-[#1a1e27] rounded border border-amber-400/30">Space</kbd> 다음
+            · <kbd className="px-1.5 py-0.5 bg-[#1a1e27] rounded border border-emerald-400/30">B</kbd> 매수
+            · <kbd className="px-1.5 py-0.5 bg-[#1a1e27] rounded border border-rose-400/30">S</kbd> 숏
+            · <kbd className="px-1.5 py-0.5 bg-[#1a1e27] rounded border border-slate-400/30">F</kbd> 플랫
           </p>
         </div>
       </div>
