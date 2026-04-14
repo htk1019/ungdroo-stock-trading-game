@@ -112,27 +112,25 @@ export function playLose() {
   src.stop(c.currentTime + 1.2)
 }
 
-// Goofy "waah-waah-waaaah" — sad-trombone slides. Each note bends
-// downward in pitch so it feels silly and disappointed.
+// Gentle "흐음…?" — two soft sine tones that drift down. Quiet and
+// mellow; reads as mildly puzzled rather than aggressive.
 export function playMeh() {
   const c = getCtx()
   if (!c) return
   const now = c.currentTime
-  const slide = (start: number, dur: number, fromHz: number, toHz: number, peak = 0.22) => {
+  const slide = (start: number, dur: number, fromHz: number, toHz: number, peak = 0.12) => {
     const osc = c.createOscillator()
     const g = c.createGain()
-    osc.type = 'sawtooth'
+    osc.type = 'sine'
     osc.frequency.setValueAtTime(fromHz, now + start)
     osc.frequency.exponentialRampToValueAtTime(toHz, now + start + dur)
     g.gain.setValueAtTime(0, now + start)
-    g.gain.linearRampToValueAtTime(peak, now + start + 0.02)
-    g.gain.linearRampToValueAtTime(peak * 0.9, now + start + dur * 0.7)
+    g.gain.linearRampToValueAtTime(peak, now + start + 0.08)
     g.gain.exponentialRampToValueAtTime(0.0001, now + start + dur)
     osc.connect(g).connect(c.destination)
     osc.start(now + start)
     osc.stop(now + start + dur + 0.02)
   }
-  slide(0.00, 0.22, 392.0, 329.6, 0.22) // waah (G4 → E4)
-  slide(0.28, 0.22, 349.2, 293.7, 0.22) // waah (F4 → D4)
-  slide(0.56, 0.70, 311.1, 196.0, 0.24) // waaaah (Eb4 → G3, longer)
+  slide(0.00, 0.55, 392.0, 349.2, 0.12) // 흐음 (G4 → F4)
+  slide(0.40, 0.80, 329.6, 277.2, 0.10) // …음? (E4 → C#4)
 }
