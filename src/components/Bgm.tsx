@@ -84,7 +84,25 @@ export function Bgm({ active }: BgmProps) {
   return (
     <>
       <audio ref={audioRef} src={track.src} loop preload="auto" />
-      <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2">
+      <div className="fixed top-2 left-2 z-50 flex flex-col items-start gap-1.5 opacity-60 hover:opacity-100 focus-within:opacity-100 transition-opacity">
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={() => setMuted((m) => !m)}
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#1a1e27]/85 border border-[#252a36] hover:border-amber-400/60 text-base shadow-lg backdrop-blur"
+            title={muted ? '음악 켜기' : '음악 끄기'}
+            aria-label="음악 토글"
+          >
+            {muted ? '🔇' : '🔊'}
+          </button>
+          <button
+            onClick={() => setPickerOpen((v) => !v)}
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#1a1e27]/85 border border-[#252a36] hover:border-amber-400/60 text-base shadow-lg backdrop-blur"
+            title="배경음 선택"
+            aria-label="배경음 선택"
+          >
+            🎵
+          </button>
+        </div>
         {pickerOpen && (
           <div className="rounded-lg bg-[#1a1e27]/95 border border-[#252a36] shadow-lg backdrop-blur p-1 flex flex-col">
             {TRACKS.map((t) => (
@@ -102,24 +120,6 @@ export function Bgm({ active }: BgmProps) {
             ))}
           </div>
         )}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setPickerOpen((v) => !v)}
-            className="w-11 h-11 rounded-full bg-[#1a1e27]/90 border border-[#252a36] hover:border-amber-400/60 text-lg shadow-lg backdrop-blur"
-            title="배경음 선택"
-            aria-label="배경음 선택"
-          >
-            🎵
-          </button>
-          <button
-            onClick={() => setMuted((m) => !m)}
-            className="w-11 h-11 rounded-full bg-[#1a1e27]/90 border border-[#252a36] hover:border-amber-400/60 text-lg shadow-lg backdrop-blur"
-            title={muted ? '음악 켜기' : '음악 끄기'}
-            aria-label="음악 토글"
-          >
-            {muted ? '🔇' : '🔊'}
-          </button>
-        </div>
       </div>
     </>
   )
