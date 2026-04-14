@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ALL_CATEGORIES, CATEGORY_LABEL, type Category } from '../lib/tickers'
-import { ROUND_SIZES, ROUND_COUNTS, WARMUP_DAYS, type RoundSize } from '../lib/engine'
+import { ROUND_SIZES, ROUND_COUNTS, type RoundSize } from '../lib/engine'
 import { HelpModal } from './HelpModal'
 
 interface SetupProps {
