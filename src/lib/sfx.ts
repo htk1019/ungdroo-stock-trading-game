@@ -74,3 +74,13 @@ export function playLose() {
   src.start(c.currentTime + 1.0)
   src.stop(c.currentTime + 1.2)
 }
+
+// Ambiguous "음…?" — hesitant rise then fall, ending on an unresolved
+// note so it feels awkward rather than decisive.
+export function playMeh() {
+  playNotes([
+    { freq: 523.25, start: 0.00, duration: 0.20, type: 'triangle', gain: 0.28 }, // C5
+    { freq: 622.25, start: 0.14, duration: 0.22, type: 'triangle', gain: 0.28 }, // Eb5 — unresolved minor
+    { freq: 554.37, start: 0.32, duration: 0.55, type: 'triangle', gain: 0.25 }, // C#5 — awkward half-step
+  ])
+}

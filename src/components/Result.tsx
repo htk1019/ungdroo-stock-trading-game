@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { computeStats, type GameState, INTERVAL_LABEL } from '../lib/engine'
 import { findTicker } from '../lib/tickers'
 import { EquityChart } from './EquityChart'
-import { playWin, playLose } from '../lib/sfx'
+import { playWin, playLose, playMeh } from '../lib/sfx'
 import { recordHighScore, type HighScore } from '../lib/highscore'
 
 interface ResultProps {
@@ -60,10 +60,12 @@ export function Result({ game, onReplay }: ResultProps) {
         ? `🤔 애매 — B&H는 이겼지만(${stats.alphaPct >= 0 ? '+' : ''}${stats.alphaPct.toFixed(2)}%p) 절대수익이 마이너스(${stats.returnPct.toFixed(2)}%)입니다.`
         : `🤔 애매 — 돈은 벌었지만(+${stats.returnPct.toFixed(2)}%) B&H에 뒤졌습니다(${stats.alphaPct.toFixed(2)}%p).`
 
-  // Play the win/lose sting once on mount.
+  // Play the win/lose/meh sting once on mount.
   useEffect(() => {
-    if (beat) playWin(); else playLose()
-    // intentionally ignore beat in deps — play only on mount
+    if (verdict === 'win') playWin()
+    else if (verdict === 'mixed') playMeh()
+    else playLose()
+    // intentionally ignore verdict in deps — play only on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
