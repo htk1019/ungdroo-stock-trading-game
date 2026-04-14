@@ -32,19 +32,32 @@ export function Result({ game, onReplay }: ResultProps) {
   const mixed = !beat && !bothFail
   const verdict: 'win' | 'mixed' | 'lose' = beat ? 'win' : mixed ? 'mixed' : 'lose'
   const verdictImg = verdict === 'win' ? '/happy.png' : verdict === 'lose' ? '/sad.png' : '/meh.png'
-  const verdictAlt = verdict === 'win' ? '승리' : verdict === 'lose' ? '패배' : '절반의 성공'
+  const verdictAlt = verdict === 'win' ? '승리' : verdict === 'lose' ? '패배' : '애매'
+  const verdictLabel = verdict === 'win' ? '승리!' : verdict === 'lose' ? '패배…' : '애매…'
   const verdictBorder = verdict === 'win' ? 'border-emerald-500/40' : verdict === 'lose' ? 'border-red-500/40' : 'border-amber-500/40'
   const verdictAnim = verdict === 'win' ? 'animate-bounce-slow' : verdict === 'lose' ? 'animate-shake' : ''
-  const beatBadge = beat
+  const verdictLabelCls = verdict === 'win'
+    ? 'bg-emerald-500/15 border-emerald-500/60 text-emerald-300'
+    : verdict === 'lose'
+      ? 'bg-red-500/15 border-red-500/60 text-red-300'
+      : 'bg-amber-500/15 border-amber-500/60 text-amber-300'
+  const verdictMsgCls = verdict === 'win'
+    ? 'text-emerald-200'
+    : verdict === 'lose'
+      ? 'text-red-200'
+      : 'text-amber-200'
+  const beatBadge = verdict === 'win'
     ? 'bg-emerald-500/15 border-emerald-500/60 text-emerald-200'
-    : 'bg-red-500/15 border-red-500/60 text-red-200'
-  const verdictMsg = beat
+    : verdict === 'lose'
+      ? 'bg-red-500/15 border-red-500/60 text-red-200'
+      : 'bg-amber-500/15 border-amber-500/60 text-amber-200'
+  const verdictMsg = verdict === 'win'
     ? `🎉 절대수익 +${stats.returnPct.toFixed(2)}% & B&H 대비 +${stats.alphaPct.toFixed(2)}%p — 둘 다 이겼습니다.`
-    : !profitable && !beatBM
+    : verdict === 'lose'
       ? `📉 패배 — 돈도 잃고(${stats.returnPct.toFixed(2)}%) B&H에도 뒤졌습니다(${stats.alphaPct.toFixed(2)}%p).`
       : !profitable
-        ? `📉 패배 — B&H는 이겼지만(${stats.alphaPct >= 0 ? '+' : ''}${stats.alphaPct.toFixed(2)}%p) 절대수익이 마이너스(${stats.returnPct.toFixed(2)}%)입니다.`
-        : `📉 패배 — 돈은 벌었지만(+${stats.returnPct.toFixed(2)}%) B&H에 뒤졌습니다(${stats.alphaPct.toFixed(2)}%p).`
+        ? `🤔 애매 — B&H는 이겼지만(${stats.alphaPct >= 0 ? '+' : ''}${stats.alphaPct.toFixed(2)}%p) 절대수익이 마이너스(${stats.returnPct.toFixed(2)}%)입니다.`
+        : `🤔 애매 — 돈은 벌었지만(+${stats.returnPct.toFixed(2)}%) B&H에 뒤졌습니다(${stats.alphaPct.toFixed(2)}%p).`
 
   // Play the win/lose sting once on mount.
   useEffect(() => {
@@ -67,15 +80,11 @@ export function Result({ game, onReplay }: ResultProps) {
           <div>
             <div className="flex items-center gap-2 sm:gap-3 flex-wrap mb-1 sm:mb-2">
               <div
-                className={`inline-block px-3 sm:px-4 py-1 sm:py-1.5 rounded-xl border text-xl sm:text-3xl font-extrabold tracking-wider ${
-                  beat
-                    ? 'bg-emerald-500/15 border-emerald-500/60 text-emerald-300'
-                    : 'bg-red-500/15 border-red-500/60 text-red-300'
-                }`}
+                className={`inline-block px-3 sm:px-4 py-1 sm:py-1.5 rounded-xl border text-xl sm:text-3xl font-extrabold tracking-wider ${verdictLabelCls}`}
               >
-                {beat ? '승리!' : '패배…'}
+                {verdictLabel}
               </div>
-              <span className={`text-xs sm:text-sm font-semibold ${beat ? 'text-emerald-200' : 'text-red-200'}`}>
+              <span className={`text-xs sm:text-sm font-semibold ${verdictMsgCls}`}>
                 {verdictMsg}
               </span>
             </div>
