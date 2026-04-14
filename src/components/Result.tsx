@@ -97,7 +97,11 @@ export function Result({ game, onReplay }: ResultProps) {
         <div>
           {beat
             ? `🎉 절대수익 +${stats.returnPct.toFixed(2)}% & B&H 대비 +${stats.alphaPct.toFixed(2)}%p — 둘 다 이겼습니다.`
-            : `📉 승리 조건(절대수익 > 0 AND B&H 초과) 미달.`}
+            : !profitable && !beatBM
+              ? `📉 패배 — 돈도 잃고(${stats.returnPct.toFixed(2)}%) B&H에도 뒤졌습니다(${stats.alphaPct.toFixed(2)}%p).`
+              : !profitable
+                ? `📉 패배 — B&H는 이겼지만(${stats.alphaPct >= 0 ? '+' : ''}${stats.alphaPct.toFixed(2)}%p) 절대수익이 마이너스(${stats.returnPct.toFixed(2)}%)입니다.`
+                : `📉 패배 — 돈은 벌었지만(+${stats.returnPct.toFixed(2)}%) B&H에 뒤졌습니다(${stats.alphaPct.toFixed(2)}%p).`}
         </div>
         <div className="text-xs opacity-90 flex flex-wrap gap-x-3 gap-y-1">
           <span>절대수익 {profitable ? '✅' : '❌'} {stats.returnPct >= 0 ? '+' : ''}{stats.returnPct.toFixed(2)}%</span>
