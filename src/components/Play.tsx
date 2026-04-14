@@ -77,7 +77,7 @@ export function Play({ game, onChange, onEnd }: PlayProps) {
     <div className="h-screen flex flex-col">
       <header className="px-6 py-4 border-b border-[#252a36] flex items-center justify-between bg-[#12151c]">
         <div className="flex items-center gap-5">
-          <h1 className="font-bold text-lg">🦆</h1>
+          <h1 className="font-bold text-lg">🦆 4848</h1>
           <div className="flex items-center gap-3 text-sm">
             <PositionBadge pos={pos} />
             <span className="text-[#8b93a7]">

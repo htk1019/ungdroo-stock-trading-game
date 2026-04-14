@@ -47,7 +47,7 @@ export function Setup({ onStart, loading, error }: SetupProps) {
           </div>
           <div className="flex items-center justify-center gap-4 mt-2">
             <h1 className="text-5xl font-extrabold tracking-tight bg-gradient-to-b from-amber-200 to-amber-400 bg-clip-text text-transparent">
-              주식을 이겨라!
+              4848로 주식을 이겨라!
             </h1>
             <img
               src="/niga.png"

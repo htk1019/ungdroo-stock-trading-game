@@ -1,4 +1,4 @@
-# 🦆 주식을 이겨라! (Hidden Trader)
+# 🦆 4848로 주식을 이겨라! (Hidden Trader)
 
 > 종목은 비밀. 차트만 보고 매매해서 **Buy & Hold**를 이기면 승리.
 
