@@ -38,21 +38,21 @@ export function Result({ game, onReplay }: ResultProps) {
   }, [])
 
   return (
-    <div className="min-h-screen p-6 flex flex-col gap-6">
+    <div className="min-h-screen p-3 sm:p-6 flex flex-col gap-4 sm:gap-6">
       {/* Header */}
-      <header className="flex items-center justify-between flex-wrap gap-4">
-        <div className="flex items-center gap-5">
+      <header className="flex items-center justify-between flex-wrap gap-3 sm:gap-4">
+        <div className="flex items-center gap-3 sm:gap-5">
           <img
             src={beat ? '/happy.png' : '/sad.png'}
             alt={beat ? '승리' : '패배'}
-            className={`w-28 h-28 object-contain rounded-xl bg-black/40 border ${
+            className={`w-20 h-20 sm:w-28 sm:h-28 object-contain rounded-xl bg-black/40 border ${
               beat ? 'border-emerald-500/40' : 'border-red-500/40'
             } ${beat ? 'animate-bounce-slow' : 'animate-shake'}`}
             draggable={false}
           />
           <div>
             <div
-              className={`inline-block px-4 py-1.5 rounded-xl border text-3xl font-extrabold tracking-wider mb-2 ${
+              className={`inline-block px-3 sm:px-4 py-1 sm:py-1.5 rounded-xl border text-xl sm:text-3xl font-extrabold tracking-wider mb-1 sm:mb-2 ${
                 beat
                   ? 'bg-emerald-500/15 border-emerald-500/60 text-emerald-300'
                   : 'bg-red-500/15 border-red-500/60 text-red-300'
@@ -60,16 +60,16 @@ export function Result({ game, onReplay }: ResultProps) {
             >
               {beat ? '승리!' : '패배…'}
             </div>
-            <p className="text-[#8b93a7]">
+            <p className="text-[#8b93a7] text-xs sm:text-base">
               <span className="font-semibold text-[#e5e7eb]">{info?.name ?? game.symbol}</span>
-              <span className="ml-2 text-xs px-2 py-0.5 bg-[#1a1e27] rounded">{game.symbol}</span>
-              <span className="ml-3">{INTERVAL_LABEL[game.interval]} · {startDate} ~ {endDate}</span>
+              <span className="ml-2 text-[10px] sm:text-xs px-2 py-0.5 bg-[#1a1e27] rounded">{game.symbol}</span>
+              <span className="block sm:inline sm:ml-3 mt-1 sm:mt-0">{INTERVAL_LABEL[game.interval]} · {startDate} ~ {endDate}</span>
             </p>
           </div>
         </div>
         <button
           onClick={onReplay}
-          className="px-6 py-3 rounded-lg bg-indigo-500 hover:bg-indigo-400 text-white font-semibold"
+          className="px-4 sm:px-6 py-2 sm:py-3 rounded-lg bg-indigo-500 hover:bg-indigo-400 text-white font-semibold text-sm sm:text-base"
         >
           다시 도전
         </button>
@@ -91,7 +91,7 @@ export function Result({ game, onReplay }: ResultProps) {
         <Card label="기간" value={`${stats.years.toFixed(2)}년`} />
       </section>
 
-      <div className={`px-4 py-2 rounded-lg border text-sm ${beatBadge}`}>
+      <div className={`px-2 sm:px-4 py-2 rounded-lg border text-sm ${beatBadge}`}>
         {beat
           ? `🎉 Buy & Hold를 누적 ${stats.alphaPct.toFixed(2)}%p (연 ${stats.alphaCagrPct.toFixed(2)}%p) 이겼습니다.`
           : `📉 Buy & Hold에 누적 ${Math.abs(stats.alphaPct).toFixed(2)}%p (연 ${Math.abs(stats.alphaCagrPct).toFixed(2)}%p) 뒤졌습니다.`}
@@ -112,32 +112,32 @@ export function Result({ game, onReplay }: ResultProps) {
 
       {/* Trade log */}
       <section className="bg-[#12151c] border border-[#252a36] rounded-xl overflow-hidden">
-        <div className="px-4 py-2 text-sm text-[#8b93a7] border-b border-[#252a36]">
+        <div className="px-2 sm:px-4 py-2 text-sm text-[#8b93a7] border-b border-[#252a36]">
           거래 내역 ({game.trades.length})
         </div>
-        <div className="max-h-64 overflow-y-auto">
-          <table className="w-full text-sm">
+        <div className="max-h-64 overflow-auto">
+          <table className="w-full text-xs sm:text-sm whitespace-nowrap">
             <thead className="text-xs text-[#8b93a7] uppercase">
               <tr>
-                <th className="text-left px-4 py-2">#</th>
-                <th className="text-left px-4 py-2">날짜</th>
-                <th className="text-left px-4 py-2">구분</th>
-                <th className="text-right px-4 py-2">가격</th>
-                <th className="text-right px-4 py-2">수량</th>
-                <th className="text-right px-4 py-2">수수료</th>
+                <th className="text-left px-2 sm:px-4 py-2">#</th>
+                <th className="text-left px-2 sm:px-4 py-2">날짜</th>
+                <th className="text-left px-2 sm:px-4 py-2">구분</th>
+                <th className="text-right px-2 sm:px-4 py-2">가격</th>
+                <th className="text-right px-2 sm:px-4 py-2">수량</th>
+                <th className="text-right px-2 sm:px-4 py-2">수수료</th>
               </tr>
             </thead>
             <tbody>
               {game.trades.map((t, i) => (
                 <tr key={i} className="border-t border-[#1f2430]">
-                  <td className="px-4 py-2 text-[#8b93a7]">{i + 1}</td>
-                  <td className="px-4 py-2">{new Date(t.time * 1000).toISOString().slice(0, 10)}</td>
-                  <td className={`px-4 py-2 font-semibold ${t.side === 'BUY' ? 'text-emerald-400' : 'text-red-400'}`}>
+                  <td className="px-2 sm:px-4 py-2 text-[#8b93a7]">{i + 1}</td>
+                  <td className="px-2 sm:px-4 py-2">{new Date(t.time * 1000).toISOString().slice(0, 10)}</td>
+                  <td className={`px-2 sm:px-4 py-2 font-semibold ${t.side === 'BUY' ? 'text-emerald-400' : 'text-red-400'}`}>
                     {t.side}
                   </td>
-                  <td className="px-4 py-2 text-right font-mono">${t.price.toFixed(2)}</td>
-                  <td className="px-4 py-2 text-right font-mono">{t.shares.toFixed(4)}</td>
-                  <td className="px-4 py-2 text-right font-mono text-[#8b93a7]">${t.fee.toFixed(2)}</td>
+                  <td className="px-2 sm:px-4 py-2 text-right font-mono">${t.price.toFixed(2)}</td>
+                  <td className="px-2 sm:px-4 py-2 text-right font-mono">{t.shares.toFixed(4)}</td>
+                  <td className="px-2 sm:px-4 py-2 text-right font-mono text-[#8b93a7]">${t.fee.toFixed(2)}</td>
                 </tr>
               ))}
               {game.trades.length === 0 && (
@@ -156,9 +156,9 @@ function Card({
 }: { label: string; value: string; accent?: 'up' | 'down' }) {
   const color = accent === 'up' ? 'text-emerald-400' : accent === 'down' ? 'text-red-400' : 'text-[#e5e7eb]'
   return (
-    <div className="bg-[#12151c] border border-[#252a36] rounded-xl p-4">
-      <div className="text-xs text-[#8b93a7] uppercase tracking-wider mb-1">{label}</div>
-      <div className={`text-2xl font-mono font-semibold ${color}`}>{value}</div>
+    <div className="bg-[#12151c] border border-[#252a36] rounded-xl p-3 sm:p-4">
+      <div className="text-[10px] sm:text-xs text-[#8b93a7] uppercase tracking-wider mb-1">{label}</div>
+      <div className={`text-lg sm:text-2xl font-mono font-semibold ${color}`}>{value}</div>
     </div>
   )
 }

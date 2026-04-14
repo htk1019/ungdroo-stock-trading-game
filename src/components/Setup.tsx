@@ -25,11 +25,11 @@ export function Setup({ onStart, loading, error }: SetupProps) {
   const tradingDays = roundCount * roundSize.days
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center p-3 sm:p-6 relative overflow-hidden">
       {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
 
-      {/* 쌈마이 배경 장식 */}
-      <div aria-hidden className="absolute inset-0 pointer-events-none">
+      {/* 쌈마이 배경 장식 — 데스크톱 전용 */}
+      <div aria-hidden className="absolute inset-0 pointer-events-none hidden sm:block">
         <div className="absolute inset-0 bg-gradient-to-br from-fuchsia-900/20 via-purple-900/10 to-amber-900/20" />
         <span className="absolute top-8  left-10  text-5xl animate-spin-slow">✨</span>
         <span className="absolute top-16 right-24 text-6xl animate-bounce">💰</span>
@@ -40,26 +40,28 @@ export function Setup({ onStart, loading, error }: SetupProps) {
         <span className="absolute top-6    right-1/3 text-3xl rotate-12 animate-blink">★</span>
         <span className="absolute bottom-6 left-1/3  text-3xl -rotate-12 animate-blink">★</span>
       </div>
+      {/* 모바일용 은은한 배경 그라디언트 */}
+      <div aria-hidden className="absolute inset-0 pointer-events-none sm:hidden bg-gradient-to-br from-fuchsia-900/20 via-purple-900/10 to-amber-900/20" />
 
-      <div className="w-full max-w-3xl bg-[#12151c] border-4 border-amber-400/70 rounded-3xl p-10 shadow-[0_0_60px_rgba(251,191,36,0.25)] relative overflow-hidden z-10">
+      <div className="w-full max-w-3xl bg-[#12151c] border-2 sm:border-4 border-amber-400/70 rounded-2xl sm:rounded-3xl p-5 sm:p-10 shadow-[0_0_60px_rgba(251,191,36,0.25)] relative overflow-hidden z-10">
         {/* 레인보우 테두리 스트라이프 */}
         <div className="absolute top-0 left-0 right-0 h-2 bg-rainbow-stripe" />
         <div className="absolute bottom-0 left-0 right-0 h-2 bg-rainbow-stripe" />
 
         <button
           onClick={() => setShowHelp(true)}
-          className="absolute top-5 right-5 w-10 h-10 rounded-full bg-[#1a1e27] border-2 border-amber-400/60 hover:border-amber-300 text-amber-200 font-black text-lg z-20"
+          className="absolute top-3 right-3 sm:top-5 sm:right-5 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#1a1e27] border-2 border-amber-400/60 hover:border-amber-300 text-amber-200 font-black text-base sm:text-lg z-20"
           title="도움말"
         >
           ?
         </button>
 
         {/* Hero */}
-        <div className="flex flex-col items-center text-center mb-6 mt-4 relative">
-          <div className="absolute -top-1 left-2 text-amber-300 text-xs font-black rotate-[-18deg] select-none leading-tight">
+        <div className="flex flex-col items-center text-center mb-4 sm:mb-6 mt-2 sm:mt-4 relative">
+          <div className="hidden sm:block absolute -top-1 left-2 text-amber-300 text-xs font-black rotate-[-18deg] select-none leading-tight">
             🔥 오늘의<br/>한탕 🔥
           </div>
-          <div className="absolute -top-1 right-14 text-pink-300 text-xs font-black rotate-[12deg] select-none leading-tight animate-blink">
+          <div className="hidden sm:block absolute -top-1 right-14 text-pink-300 text-xs font-black rotate-[12deg] select-none leading-tight animate-blink">
             🚨 대박 🚨<br/>신호 감지!
           </div>
 
@@ -67,28 +69,28 @@ export function Setup({ onStart, loading, error }: SetupProps) {
             <img
               src="/duck.png"
               alt="trader duck"
-              className="w-64 h-64 object-contain drop-shadow-[0_10px_30px_rgba(251,191,36,0.35)] select-none"
+              className="w-36 h-36 sm:w-64 sm:h-64 object-contain drop-shadow-[0_10px_30px_rgba(251,191,36,0.35)] select-none"
               draggable={false}
             />
-            <div className="absolute -top-2 -right-2 text-3xl rotate-12 select-none">ㅋㅋㅋ</div>
-            <div className="absolute -top-4 -left-4 text-2xl -rotate-12 select-none animate-bounce">💸</div>
-            <div className="absolute -bottom-2 -right-8 text-2xl rotate-6 select-none animate-bounce">📈</div>
+            <div className="absolute -top-2 -right-2 text-xl sm:text-3xl rotate-12 select-none">ㅋㅋㅋ</div>
+            <div className="absolute -top-4 -left-4 text-lg sm:text-2xl -rotate-12 select-none animate-bounce">💸</div>
+            <div className="absolute -bottom-2 -right-6 sm:-right-8 text-lg sm:text-2xl rotate-6 select-none animate-bounce">📈</div>
           </div>
 
-          <div className="flex items-center justify-center gap-3 mt-4 flex-wrap">
-            <span className="text-amber-300 text-xl font-black animate-blink">★</span>
-            <h1 className="text-4xl md:text-5xl font-black tracking-tight text-amber-300 animate-neon">
+          <div className="flex items-center justify-center gap-2 sm:gap-3 mt-3 sm:mt-4 flex-wrap">
+            <span className="text-amber-300 text-lg sm:text-xl font-black animate-blink">★</span>
+            <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-amber-300 animate-neon">
               4848로 주식을 이겨라!
             </h1>
             <img
               src="/niga.png"
               alt="ㅋ 니가?"
-              className="h-12 w-auto rounded-md border-2 border-amber-400/60 select-none animate-wobble"
+              className="h-8 sm:h-12 w-auto rounded-md border-2 border-amber-400/60 select-none animate-wobble"
               draggable={false}
             />
-            <span className="text-amber-300 text-xl font-black animate-blink">★</span>
+            <span className="text-amber-300 text-lg sm:text-xl font-black animate-blink">★</span>
           </div>
-          <p className="text-pink-200 mt-3 text-base font-bold">
+          <p className="text-pink-200 mt-2 sm:mt-3 text-sm sm:text-base font-bold px-2">
             ❗ 종목은 <u>비밀</u>! 차트만 보고 <span className="text-amber-300">Buy &amp; Hold</span> ⚡️발라버려⚡️ 승리! ❗
           </p>
         </div>
@@ -102,7 +104,7 @@ export function Setup({ onStart, loading, error }: SetupProps) {
               <button
                 key={c}
                 onClick={() => toggleCat(c)}
-                className={`py-3 rounded-xl border-2 text-sm font-black transition ${
+                className={`py-2 sm:py-3 rounded-xl border-2 text-sm font-black transition ${
                   categories.has(c)
                     ? 'bg-amber-400/20 border-amber-400 text-amber-100 shadow-[0_0_12px_rgba(251,191,36,0.35)]'
                     : 'bg-[#1a1e27] border-[#252a36] text-[#8b93a7] hover:border-amber-400/40'
@@ -118,12 +120,12 @@ export function Setup({ onStart, loading, error }: SetupProps) {
           <h2 className="text-sm font-black text-fuchsia-300 uppercase tracking-widest mb-2">
             🔥 몇 라운드?
           </h2>
-          <div className="grid grid-cols-6 gap-2">
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
             {ROUND_COUNTS.map((n) => (
               <button
                 key={n}
                 onClick={() => setRoundCount(n)}
-                className={`py-3 rounded-xl border-2 text-sm font-black transition ${
+                className={`py-2 sm:py-3 rounded-xl border-2 text-sm font-black transition ${
                   roundCount === n
                     ? 'bg-fuchsia-500/20 border-fuchsia-400 text-fuchsia-100 shadow-[0_0_12px_rgba(217,70,239,0.4)]'
                     : 'bg-[#1a1e27] border-[#252a36] text-[#8b93a7] hover:border-fuchsia-400/40'
@@ -144,7 +146,7 @@ export function Setup({ onStart, loading, error }: SetupProps) {
               <button
                 key={r.key}
                 onClick={() => setRoundSize(r)}
-                className={`py-3 rounded-xl border-2 text-sm font-black transition ${
+                className={`py-2 sm:py-3 rounded-xl border-2 text-sm font-black transition ${
                   roundSize.key === r.key
                     ? 'bg-sky-500/20 border-sky-400 text-sky-100 shadow-[0_0_12px_rgba(56,189,248,0.4)]'
                     : 'bg-[#1a1e27] border-[#252a36] text-[#8b93a7] hover:border-sky-400/40'
@@ -163,7 +165,7 @@ export function Setup({ onStart, loading, error }: SetupProps) {
         <button
           onClick={() => onStart({ categories: Array.from(categories), roundCount, roundSize })}
           disabled={loading}
-          className="btn-shine w-full py-5 rounded-2xl bg-gradient-to-r from-pink-500 via-amber-400 to-orange-500 hover:from-pink-400 hover:via-amber-300 hover:to-orange-400 disabled:from-[#1a1e27] disabled:via-[#1a1e27] disabled:to-[#1a1e27] disabled:text-[#5a6175] text-[#0b0d12] font-black text-xl transition shadow-[0_0_30px_rgba(251,191,36,0.5)] relative overflow-hidden border-2 border-amber-200"
+          className="btn-shine w-full py-4 sm:py-5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-pink-500 via-amber-400 to-orange-500 hover:from-pink-400 hover:via-amber-300 hover:to-orange-400 disabled:from-[#1a1e27] disabled:via-[#1a1e27] disabled:to-[#1a1e27] disabled:text-[#5a6175] text-[#0b0d12] font-black text-lg sm:text-xl transition shadow-[0_0_30px_rgba(251,191,36,0.5)] relative overflow-hidden border-2 border-amber-200"
         >
           {loading ? '⏳ 딸깍… 딸깍… 딸깍…' : '🎰 딸깍! 시작하기 🎰'}
         </button>

@@ -75,30 +75,31 @@ export function Play({ game, onChange, onEnd }: PlayProps) {
 
   return (
     <div className="h-screen flex flex-col">
-      <header className="px-6 py-4 border-b border-[#252a36] flex items-center justify-between bg-[#12151c]">
-        <div className="flex items-center gap-5">
-          <h1 className="font-bold text-lg">🦆 4848</h1>
-          <div className="flex items-center gap-3 text-sm">
+      <header className="px-3 sm:px-6 py-2 sm:py-4 border-b border-[#252a36] flex items-center justify-between gap-3 flex-wrap bg-[#12151c]">
+        <div className="flex items-center gap-2 sm:gap-5 flex-wrap">
+          <h1 className="font-bold text-base sm:text-lg">🦆 4848</h1>
+          <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm">
             <PositionBadge pos={pos} />
             <span className="text-[#8b93a7]">
-              라운드 <span className="text-[#e5e7eb] font-mono">{currentRound}/{game.roundCount}</span>
+              <span className="hidden sm:inline">라운드 </span>
+              <span className="text-[#e5e7eb] font-mono">{currentRound}/{game.roundCount}</span>
             </span>
-            <span className="text-[#8b93a7]">+{game.roundSize}d/회</span>
+            <span className="text-[#8b93a7] hidden sm:inline">+{game.roundSize}d/회</span>
           </div>
           <div className="flex flex-col items-start leading-tight">
             <span className="text-[10px] text-[#8b93a7] uppercase tracking-wider">현재가</span>
-            <span className="font-mono text-base font-bold text-[#e5e7eb]">${price.toFixed(2)}</span>
+            <span className="font-mono text-sm sm:text-base font-bold text-[#e5e7eb]">${price.toFixed(2)}</span>
           </div>
         </div>
-        <div className="flex items-center gap-8">
-          <Stat label="보유현금" value={`$${game.cash.toFixed(2)}`} />
+        <div className="flex items-center gap-3 sm:gap-8 flex-wrap">
+          <Stat label="현금" fullLabel="보유현금" value={`$${game.cash.toFixed(2)}`} />
           <Stat
             label="번돈"
             value={`${earned >= 0 ? '+' : ''}$${earned.toFixed(2)}`}
             color={earned >= 0 ? 'text-emerald-400' : 'text-red-400'}
           />
           <Stat label="평가" value={`$${equity.toFixed(2)}`} />
-          <Stat label="BM 금액" value={`$${bmEquity.toFixed(2)}`} />
+          <Stat label="BM" fullLabel="BM 금액" value={`$${bmEquity.toFixed(2)}`} />
           <Stat
             label="수익률"
             value={`${pnlPct >= 0 ? '+' : ''}${pnlPct.toFixed(2)}%`}
@@ -108,18 +109,18 @@ export function Play({ game, onChange, onEnd }: PlayProps) {
       </header>
 
       {/* Round progress bar */}
-      <div className="px-6 py-2 bg-[#0d1016] border-b border-[#252a36]">
-        <div className="flex items-center gap-3">
-          <span className="text-xs font-bold text-[#8b93a7] uppercase tracking-widest w-20">
+      <div className="px-3 sm:px-6 py-2 bg-[#0d1016] border-b border-[#252a36]">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <span className="hidden sm:inline text-xs font-bold text-[#8b93a7] uppercase tracking-widest w-20">
             진행도
           </span>
-          <div className="flex-1 h-3 bg-[#1a1e27] rounded-full overflow-hidden border border-[#252a36]">
+          <div className="flex-1 h-2 sm:h-3 bg-[#1a1e27] rounded-full overflow-hidden border border-[#252a36]">
             <div
               className="h-full bg-gradient-to-r from-emerald-500 via-amber-400 to-red-500 transition-all"
               style={{ width: `${(currentRound / game.roundCount) * 100}%` }}
             />
           </div>
-          <span className="text-xs font-mono text-[#e5e7eb] w-20 text-right">
+          <span className="text-[10px] sm:text-xs font-mono text-[#e5e7eb] w-14 sm:w-20 text-right">
             {currentRound} / {game.roundCount}
           </span>
         </div>
@@ -144,13 +145,13 @@ export function Play({ game, onChange, onEnd }: PlayProps) {
         )}
       </main>
 
-      <footer className="px-6 py-3 border-t border-[#252a36] bg-[#12151c]">
-        <div className="text-xs text-[#8b93a7] uppercase tracking-widest mb-2 font-bold">
-          {pos === 'FLAT'  && <>현재 <span className="text-slate-300">무포지션(현금)</span> — 다음 라운드 어떻게?</>}
-          {pos === 'LONG'  && <>현재 <span className="text-emerald-300">롱(매수)</span> 보유 중 — 다음 라운드 어떻게?</>}
-          {pos === 'SHORT' && <>현재 <span className="text-amber-300">숏(공매도)</span> 보유 중 — 다음 라운드 어떻게?</>}
+      <footer className="px-3 sm:px-6 py-2 sm:py-3 border-t border-[#252a36] bg-[#12151c]">
+        <div className="text-[10px] sm:text-xs text-[#8b93a7] uppercase tracking-widest mb-2 font-bold">
+          {pos === 'FLAT'  && <>현재 <span className="text-slate-300">무포지션(현금)</span> — 다음 라운드?</>}
+          {pos === 'LONG'  && <>현재 <span className="text-emerald-300">롱(매수)</span> 보유 중 — 다음 라운드?</>}
+          {pos === 'SHORT' && <>현재 <span className="text-amber-300">숏(공매도)</span> 보유 중 — 다음 라운드?</>}
         </div>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
           {pos === 'FLAT' && (
             <>
               <ActionCard icon="📈" title="롱(매수) 진입" desc="오른다에 베팅" hotkey="B"
@@ -209,14 +210,14 @@ function ActionCard({
   return (
     <button
       onClick={onClick}
-      className={`relative rounded-xl ${bg} text-white text-left p-4 transition shadow-lg hover:scale-[1.02] active:scale-100 flex items-center gap-3`}
+      className={`relative rounded-lg sm:rounded-xl ${bg} text-white text-left p-2 sm:p-4 transition shadow-lg hover:scale-[1.02] active:scale-100 flex flex-col sm:flex-row items-center sm:items-center gap-1 sm:gap-3`}
     >
-      <span className="text-4xl leading-none">{icon}</span>
-      <div className="flex-1 min-w-0">
-        <div className="font-black text-base leading-tight">{title}</div>
-        <div className="text-xs opacity-85 mt-0.5">{desc}</div>
+      <span className="text-2xl sm:text-4xl leading-none">{icon}</span>
+      <div className="flex-1 min-w-0 text-center sm:text-left">
+        <div className="font-black text-[11px] sm:text-base leading-tight">{title}</div>
+        <div className="hidden sm:block text-xs opacity-85 mt-0.5">{desc}</div>
       </div>
-      <kbd className="text-[10px] font-mono font-bold bg-black/30 border border-white/20 px-2 py-1 rounded self-start">
+      <kbd className="hidden sm:block text-[10px] font-mono font-bold bg-black/30 border border-white/20 px-2 py-1 rounded self-start">
         {hotkey}
       </kbd>
     </button>
@@ -237,11 +238,14 @@ function PositionBadge({ pos }: { pos: ReturnType<typeof positionOf> }) {
   )
 }
 
-function Stat({ label, value, color }: { label: string; value: string; color?: string }) {
+function Stat({ label, fullLabel, value, color }: { label: string; fullLabel?: string; value: string; color?: string }) {
   return (
     <div className="flex flex-col items-end leading-tight">
-      <span className="text-xs text-[#8b93a7] uppercase tracking-wider mb-0.5">{label}</span>
-      <span className={`font-mono text-2xl font-bold ${color ?? 'text-[#e5e7eb]'}`}>{value}</span>
+      <span className="text-[10px] sm:text-xs text-[#8b93a7] uppercase tracking-wider mb-0.5">
+        <span className="sm:hidden">{label}</span>
+        <span className="hidden sm:inline">{fullLabel ?? label}</span>
+      </span>
+      <span className={`font-mono text-sm sm:text-2xl font-bold ${color ?? 'text-[#e5e7eb]'}`}>{value}</span>
     </div>
   )
 }

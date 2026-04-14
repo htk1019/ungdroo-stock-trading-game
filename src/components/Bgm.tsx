@@ -39,6 +39,7 @@ export function Bgm({ active }: BgmProps) {
     if (!active) {
       el.pause()
     } else if (started && !muted) {
+      el.currentTime = 0
       el.play().catch(() => {})
     }
   }, [active, started, muted])
