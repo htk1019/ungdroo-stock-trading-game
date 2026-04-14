@@ -40,13 +40,50 @@ function playNotes(notes: Note[]) {
   }
 }
 
-// Cheerful "띠링!" — two bright bell-like notes rising quickly.
+// Single hand-clap: bright, short noise burst shaped by a bandpass filter
+// so it sounds percussive rather than like static.
+function playClap(at: number, gain: number) {
+  const c = getCtx()
+  if (!c) return
+  const dur = 0.06
+  const bufferSize = Math.max(1, Math.floor(c.sampleRate * dur))
+  const buf = c.createBuffer(1, bufferSize, c.sampleRate)
+  const data = buf.getChannelData(0)
+  for (let i = 0; i < bufferSize; i++) {
+    // Sharp attack, quick decay shape.
+    const env = Math.pow(1 - i / bufferSize, 2)
+    data[i] = (Math.random() * 2 - 1) * env
+  }
+  const src = c.createBufferSource()
+  src.buffer = buf
+  const bp = c.createBiquadFilter()
+  bp.type = 'bandpass'
+  bp.frequency.value = 1400 + Math.random() * 400
+  bp.Q.value = 0.7
+  const g = c.createGain()
+  g.gain.setValueAtTime(gain, c.currentTime + at)
+  g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + at + dur)
+  src.connect(bp).connect(g).connect(c.destination)
+  src.start(c.currentTime + at)
+  src.stop(c.currentTime + at + dur + 0.02)
+}
+
+// Cheerful "띠링!" chime + a burst of applause.
 export function playWin() {
   playNotes([
     { freq: 1318.5, start: 0.00, duration: 0.22, type: 'triangle', gain: 0.35 }, // E6
     { freq: 1760.0, start: 0.09, duration: 0.28, type: 'triangle', gain: 0.35 }, // A6
     { freq: 2093.0, start: 0.20, duration: 0.45, type: 'triangle', gain: 0.35 }, // C7
   ])
+  // Applause: many slightly randomized claps over ~1.8 seconds.
+  const start = 0.45
+  const end = 2.2
+  for (let t = start; t < end; t += 0.035 + Math.random() * 0.04) {
+    const progress = (t - start) / (end - start)
+    // Swell in, sustain, then taper off.
+    const env = progress < 0.2 ? progress / 0.2 : 1 - Math.max(0, (progress - 0.6) / 0.4)
+    playClap(t, 0.10 + 0.08 * env * Math.random())
+  }
 }
 
 // Sad "두둥탁" — two descending low tones and a short noise "thud".
@@ -75,12 +112,27 @@ export function playLose() {
   src.stop(c.currentTime + 1.2)
 }
 
-// Ambiguous "음…?" — hesitant rise then fall, ending on an unresolved
-// note so it feels awkward rather than decisive.
+// Goofy "waah-waah-waaaah" — sad-trombone slides. Each note bends
+// downward in pitch so it feels silly and disappointed.
 export function playMeh() {
-  playNotes([
-    { freq: 523.25, start: 0.00, duration: 0.20, type: 'triangle', gain: 0.28 }, // C5
-    { freq: 622.25, start: 0.14, duration: 0.22, type: 'triangle', gain: 0.28 }, // Eb5 — unresolved minor
-    { freq: 554.37, start: 0.32, duration: 0.55, type: 'triangle', gain: 0.25 }, // C#5 — awkward half-step
-  ])
+  const c = getCtx()
+  if (!c) return
+  const now = c.currentTime
+  const slide = (start: number, dur: number, fromHz: number, toHz: number, peak = 0.22) => {
+    const osc = c.createOscillator()
+    const g = c.createGain()
+    osc.type = 'sawtooth'
+    osc.frequency.setValueAtTime(fromHz, now + start)
+    osc.frequency.exponentialRampToValueAtTime(toHz, now + start + dur)
+    g.gain.setValueAtTime(0, now + start)
+    g.gain.linearRampToValueAtTime(peak, now + start + 0.02)
+    g.gain.linearRampToValueAtTime(peak * 0.9, now + start + dur * 0.7)
+    g.gain.exponentialRampToValueAtTime(0.0001, now + start + dur)
+    osc.connect(g).connect(c.destination)
+    osc.start(now + start)
+    osc.stop(now + start + dur + 0.02)
+  }
+  slide(0.00, 0.22, 392.0, 329.6, 0.22) // waah (G4 → E4)
+  slide(0.28, 0.22, 349.2, 293.7, 0.22) // waah (F4 → D4)
+  slide(0.56, 0.70, 311.1, 196.0, 0.24) // waaaah (Eb4 → G3, longer)
 }
