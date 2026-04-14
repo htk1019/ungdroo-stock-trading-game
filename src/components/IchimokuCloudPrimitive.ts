@@ -16,7 +16,8 @@ export interface CloudPoint { time: number; value: number }
 type Pt = { x: number; yA: number; yB: number; bullish: boolean }
 
 class CloudRenderer implements IPrimitivePaneRenderer {
-  constructor(private _segments: Pt[][]) {}
+  private _segments: Pt[][]
+  constructor(segments: Pt[][]) { this._segments = segments }
 
   draw(target: CanvasRenderingTarget2D) {
     target.useBitmapCoordinateSpace((scope) => {
@@ -70,7 +71,8 @@ function fillTrap(
 }
 
 class CloudPaneView implements IPrimitivePaneView {
-  constructor(private _src: IchimokuCloudPrimitive) {}
+  private _src: IchimokuCloudPrimitive
+  constructor(src: IchimokuCloudPrimitive) { this._src = src }
 
   zOrder(): 'bottom' | 'normal' | 'top' { return 'bottom' }
 
