@@ -60,12 +60,14 @@ export function Play({ game, onChange, onEnd }: PlayProps) {
     return () => window.clearTimeout(t)
   }, [cheer])
 
+  const isFirstRound = game.step === 0
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement) return
-      if (e.code === 'Space') { e.preventDefault(); handle('HOLD') }
-      else if (e.key === 'b' || e.key === 'B') handle('LONG')
+      if (e.key === 'b' || e.key === 'B') handle('LONG')
       else if (e.key === 's' || e.key === 'S') handle('SHORT')
+      else if (isFirstRound) return  // first round: no HOLD/FLAT
+      else if (e.code === 'Space') { e.preventDefault(); handle('HOLD') }
       else if (e.key === 'f' || e.key === 'F') handle('FLAT')
       else if (e.key === 'h' || e.key === 'H') handle('HOLD')
     }
@@ -147,12 +149,23 @@ export function Play({ game, onChange, onEnd }: PlayProps) {
 
       <footer className="px-3 sm:px-6 py-2 sm:py-3 border-t border-[#252a36] bg-[#12151c]">
         <div className="text-[10px] sm:text-xs text-[#8b93a7] uppercase tracking-widest mb-2 font-bold">
-          {pos === 'FLAT'  && <>현재 <span className="text-slate-300">무포지션(현금)</span> — 다음 라운드?</>}
-          {pos === 'LONG'  && <>현재 <span className="text-emerald-300">롱(매수)</span> 보유 중 — 다음 라운드?</>}
-          {pos === 'SHORT' && <>현재 <span className="text-amber-300">숏(공매도)</span> 보유 중 — 다음 라운드?</>}
+          {isFirstRound  && <>첫 라운드 — <span className="text-amber-300">반드시 롱 또는 숏 선택</span> (관망 불가)</>}
+          {!isFirstRound && pos === 'FLAT'  && <>현재 <span className="text-slate-300">무포지션(현금)</span> — 다음 라운드?</>}
+          {!isFirstRound && pos === 'LONG'  && <>현재 <span className="text-emerald-300">롱(매수)</span> 보유 중 — 다음 라운드?</>}
+          {!isFirstRound && pos === 'SHORT' && <>현재 <span className="text-amber-300">숏(공매도)</span> 보유 중 — 다음 라운드?</>}
         </div>
-        <div className="grid grid-cols-3 gap-2 sm:gap-3">
-          {pos === 'FLAT' && (
+        <div className={`grid ${isFirstRound ? 'grid-cols-2' : 'grid-cols-3'} gap-2 sm:gap-3`}>
+          {isFirstRound && (
+            <>
+              <ActionCard icon="📈" title="롱(매수) 진입" desc="오른다에 베팅" hotkey="B"
+                onClick={() => handle('LONG')}
+                bg="bg-emerald-500 hover:bg-emerald-400" />
+              <ActionCard icon="📉" title="숏(공매도) 진입" desc="내린다에 베팅" hotkey="S"
+                onClick={() => handle('SHORT')}
+                bg="bg-amber-500 hover:bg-amber-400" />
+            </>
+          )}
+          {!isFirstRound && pos === 'FLAT' && (
             <>
               <ActionCard icon="📈" title="롱(매수) 진입" desc="오른다에 베팅" hotkey="B"
                 onClick={() => handle('LONG')}
