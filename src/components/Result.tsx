@@ -38,6 +38,13 @@ export function Result({ game, onReplay }: ResultProps) {
   const beatBadge = beat
     ? 'bg-emerald-500/15 border-emerald-500/60 text-emerald-200'
     : 'bg-red-500/15 border-red-500/60 text-red-200'
+  const verdictMsg = beat
+    ? `🎉 절대수익 +${stats.returnPct.toFixed(2)}% & B&H 대비 +${stats.alphaPct.toFixed(2)}%p — 둘 다 이겼습니다.`
+    : !profitable && !beatBM
+      ? `📉 패배 — 돈도 잃고(${stats.returnPct.toFixed(2)}%) B&H에도 뒤졌습니다(${stats.alphaPct.toFixed(2)}%p).`
+      : !profitable
+        ? `📉 패배 — B&H는 이겼지만(${stats.alphaPct >= 0 ? '+' : ''}${stats.alphaPct.toFixed(2)}%p) 절대수익이 마이너스(${stats.returnPct.toFixed(2)}%)입니다.`
+        : `📉 패배 — 돈은 벌었지만(+${stats.returnPct.toFixed(2)}%) B&H에 뒤졌습니다(${stats.alphaPct.toFixed(2)}%p).`
 
   // Play the win/lose sting once on mount.
   useEffect(() => {
@@ -58,14 +65,19 @@ export function Result({ game, onReplay }: ResultProps) {
             draggable={false}
           />
           <div>
-            <div
-              className={`inline-block px-3 sm:px-4 py-1 sm:py-1.5 rounded-xl border text-xl sm:text-3xl font-extrabold tracking-wider mb-1 sm:mb-2 ${
-                beat
-                  ? 'bg-emerald-500/15 border-emerald-500/60 text-emerald-300'
-                  : 'bg-red-500/15 border-red-500/60 text-red-300'
-              }`}
-            >
-              {beat ? '승리!' : '패배…'}
+            <div className="flex items-center gap-2 sm:gap-3 flex-wrap mb-1 sm:mb-2">
+              <div
+                className={`inline-block px-3 sm:px-4 py-1 sm:py-1.5 rounded-xl border text-xl sm:text-3xl font-extrabold tracking-wider ${
+                  beat
+                    ? 'bg-emerald-500/15 border-emerald-500/60 text-emerald-300'
+                    : 'bg-red-500/15 border-red-500/60 text-red-300'
+                }`}
+              >
+                {beat ? '승리!' : '패배…'}
+              </div>
+              <span className={`text-xs sm:text-sm font-semibold ${beat ? 'text-emerald-200' : 'text-red-200'}`}>
+                {verdictMsg}
+              </span>
             </div>
             <p className="text-[#8b93a7] text-xs sm:text-base">
               <span className="font-semibold text-[#e5e7eb]">{info?.name ?? game.symbol}</span>
@@ -98,20 +110,9 @@ export function Result({ game, onReplay }: ResultProps) {
         <Card label="기간" value={`${stats.years.toFixed(2)}년`} />
       </section>
 
-      <div className={`px-2 sm:px-4 py-2 rounded-lg border text-sm space-y-1 ${beatBadge}`}>
-        <div>
-          {beat
-            ? `🎉 절대수익 +${stats.returnPct.toFixed(2)}% & B&H 대비 +${stats.alphaPct.toFixed(2)}%p — 둘 다 이겼습니다.`
-            : !profitable && !beatBM
-              ? `📉 패배 — 돈도 잃고(${stats.returnPct.toFixed(2)}%) B&H에도 뒤졌습니다(${stats.alphaPct.toFixed(2)}%p).`
-              : !profitable
-                ? `📉 패배 — B&H는 이겼지만(${stats.alphaPct >= 0 ? '+' : ''}${stats.alphaPct.toFixed(2)}%p) 절대수익이 마이너스(${stats.returnPct.toFixed(2)}%)입니다.`
-                : `📉 패배 — 돈은 벌었지만(+${stats.returnPct.toFixed(2)}%) B&H에 뒤졌습니다(${stats.alphaPct.toFixed(2)}%p).`}
-        </div>
-        <div className="text-xs opacity-90 flex flex-wrap gap-x-3 gap-y-1">
-          <span>절대수익 {profitable ? '✅' : '❌'} {stats.returnPct >= 0 ? '+' : ''}{stats.returnPct.toFixed(2)}%</span>
-          <span>B&H 초과 {beatBM ? '✅' : '❌'} {stats.alphaPct >= 0 ? '+' : ''}{stats.alphaPct.toFixed(2)}%p (연 {stats.alphaCagrPct >= 0 ? '+' : ''}{stats.alphaCagrPct.toFixed(2)}%p)</span>
-        </div>
+      <div className={`px-2 sm:px-4 py-2 rounded-lg border text-xs opacity-90 flex flex-wrap gap-x-3 gap-y-1 ${beatBadge}`}>
+        <span>절대수익 {profitable ? '✅' : '❌'} {stats.returnPct >= 0 ? '+' : ''}{stats.returnPct.toFixed(2)}%</span>
+        <span>B&H 초과 {beatBM ? '✅' : '❌'} {stats.alphaPct >= 0 ? '+' : ''}{stats.alphaPct.toFixed(2)}%p (연 {stats.alphaCagrPct >= 0 ? '+' : ''}{stats.alphaCagrPct.toFixed(2)}%p)</span>
       </div>
 
       {/* Equity chart */}
