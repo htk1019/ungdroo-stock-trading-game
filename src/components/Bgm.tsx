@@ -31,15 +31,9 @@ export function Bgm({ active }: BgmProps) {
   const [muted, setMuted] = useState<boolean>(() => {
     return localStorage.getItem('bgm-muted') === '1'
   })
-  const [trackKey, setTrackKey] = useState<string>(() => {
-    const saved = localStorage.getItem('bgm-track')
-    if (saved) return saved
-    // First-ever visit: pick random and persist so the same track plays on
-    // subsequent loads until the user changes it.
-    const picked = randomTrackKey()
-    localStorage.setItem('bgm-track', picked)
-    return picked
-  })
+  // Random on every page load. Manual picks via the picker only persist
+  // for the current session (intentionally not written to localStorage).
+  const [trackKey, setTrackKey] = useState<string>(() => randomTrackKey())
   const [pickerOpen, setPickerOpen] = useState(false)
   const [started, setStarted] = useState(false)
   const track = pickTrack(trackKey)
@@ -80,8 +74,8 @@ export function Bgm({ active }: BgmProps) {
   }, [muted])
 
   // When the selected track changes, reload and (if appropriate) resume play.
+  // Not persisted: every refresh picks a fresh random track.
   useEffect(() => {
-    localStorage.setItem('bgm-track', trackKey)
     const el = audioRef.current
     if (!el) return
     el.load()
