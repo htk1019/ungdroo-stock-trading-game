@@ -28,6 +28,13 @@ export function Result({ game, onReplay }: ResultProps) {
   const beatBM = stats.alphaPct >= 0
   const profitable = stats.returnPct > 0
   const beat = beatBM && profitable
+  const bothFail = !beatBM && !profitable
+  const mixed = !beat && !bothFail
+  const verdict: 'win' | 'mixed' | 'lose' = beat ? 'win' : mixed ? 'mixed' : 'lose'
+  const verdictImg = verdict === 'win' ? '/happy.png' : verdict === 'lose' ? '/sad.png' : '/meh.png'
+  const verdictAlt = verdict === 'win' ? '승리' : verdict === 'lose' ? '패배' : '절반의 성공'
+  const verdictBorder = verdict === 'win' ? 'border-emerald-500/40' : verdict === 'lose' ? 'border-red-500/40' : 'border-amber-500/40'
+  const verdictAnim = verdict === 'win' ? 'animate-bounce-slow' : verdict === 'lose' ? 'animate-shake' : ''
   const beatBadge = beat
     ? 'bg-emerald-500/15 border-emerald-500/60 text-emerald-200'
     : 'bg-red-500/15 border-red-500/60 text-red-200'
@@ -44,19 +51,12 @@ export function Result({ game, onReplay }: ResultProps) {
       {/* Header */}
       <header className="flex items-center justify-between flex-wrap gap-3 sm:gap-4">
         <div className="flex items-center gap-3 sm:gap-5">
-          {beat ? (
-            <img
-              src="/happy.png"
-              alt="승리"
-              className="w-20 h-20 sm:w-28 sm:h-28 object-contain rounded-xl bg-black/40 border border-emerald-500/40 animate-bounce-slow"
-              draggable={false}
-            />
-          ) : (
-            <div className="flex gap-2 sm:gap-3">
-              <VerdictIcon pass={profitable} label="절대수익" />
-              <VerdictIcon pass={beatBM} label="B&H 초과" />
-            </div>
-          )}
+          <img
+            src={verdictImg}
+            alt={verdictAlt}
+            className={`w-20 h-20 sm:w-28 sm:h-28 object-contain rounded-xl bg-black/40 border ${verdictBorder} ${verdictAnim}`}
+            draggable={false}
+          />
           <div>
             <div
               className={`inline-block px-3 sm:px-4 py-1 sm:py-1.5 rounded-xl border text-xl sm:text-3xl font-extrabold tracking-wider mb-1 sm:mb-2 ${
@@ -164,24 +164,6 @@ export function Result({ game, onReplay }: ResultProps) {
           </table>
         </div>
       </section>
-    </div>
-  )
-}
-
-function VerdictIcon({ pass, label }: { pass: boolean; label: string }) {
-  return (
-    <div className="flex flex-col items-center gap-1">
-      <img
-        src={pass ? '/happy.png' : '/sad.png'}
-        alt={label}
-        className={`w-16 h-16 sm:w-24 sm:h-24 object-contain rounded-xl bg-black/40 border-2 ${
-          pass ? 'border-emerald-500/60' : 'border-red-500/60'
-        } ${pass ? 'animate-bounce-slow' : 'animate-shake'}`}
-        draggable={false}
-      />
-      <span className={`text-[10px] sm:text-xs font-bold ${pass ? 'text-emerald-300' : 'text-red-300'}`}>
-        {label} {pass ? '✅' : '❌'}
-      </span>
     </div>
   )
 }
