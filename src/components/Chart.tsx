@@ -192,18 +192,24 @@ export function Chart({ candles, trades, hideVolume = false }: ChartProps) {
 
   useEffect(() => {
     if (!markersRef.current) return
-    const style: Record<typeof trades[number]['side'], { color: string; pos: 'aboveBar' | 'belowBar'; shape: 'arrowUp' | 'arrowDown' }> = {
-      BUY:   { color: '#22c55e', pos: 'belowBar', shape: 'arrowUp' },
-      SELL:  { color: '#ef4444', pos: 'aboveBar', shape: 'arrowDown' },
-      SHORT: { color: '#f59e0b', pos: 'aboveBar', shape: 'arrowDown' },
-      COVER: { color: '#38bdf8', pos: 'belowBar', shape: 'arrowUp' },
+    // Korean labels + stronger colors so buy/sell points pop against the
+    // candle chart.
+    const style: Record<
+      typeof trades[number]['side'],
+      { color: string; pos: 'aboveBar' | 'belowBar'; shape: 'arrowUp' | 'arrowDown'; label: string }
+    > = {
+      BUY:   { color: '#16a34a', pos: 'belowBar', shape: 'arrowUp',   label: '매수' },
+      SELL:  { color: '#dc2626', pos: 'aboveBar', shape: 'arrowDown', label: '매도' },
+      SHORT: { color: '#d97706', pos: 'aboveBar', shape: 'arrowDown', label: '공매도' },
+      COVER: { color: '#0284c7', pos: 'belowBar', shape: 'arrowUp',   label: '환매' },
     }
     const markers: SeriesMarker<Time>[] = trades.map((t) => ({
       time: t.time as UTCTimestamp,
       position: style[t.side].pos,
       color: style[t.side].color,
       shape: style[t.side].shape,
-      text: `${t.side} ${t.shares.toFixed(2)}`,
+      size: 2,
+      text: style[t.side].label,
     }))
     markersRef.current.setMarkers(markers)
   }, [trades])
