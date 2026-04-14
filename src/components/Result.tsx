@@ -25,7 +25,9 @@ export function Result({ game, onReplay }: ResultProps) {
   const startDate = new Date(game.warmup[0].time * 1000).toISOString().slice(0, 10)
   const endDate = new Date(game.reveal[game.reveal.length - 1].time * 1000).toISOString().slice(0, 10)
 
-  const beat = stats.alphaPct >= 0
+  const beatBM = stats.alphaPct >= 0
+  const profitable = stats.returnPct > 0
+  const beat = beatBM && profitable
   const beatBadge = beat
     ? 'bg-emerald-500/15 border-emerald-500/60 text-emerald-200'
     : 'bg-red-500/15 border-red-500/60 text-red-200'
@@ -91,10 +93,16 @@ export function Result({ game, onReplay }: ResultProps) {
         <Card label="기간" value={`${stats.years.toFixed(2)}년`} />
       </section>
 
-      <div className={`px-2 sm:px-4 py-2 rounded-lg border text-sm ${beatBadge}`}>
-        {beat
-          ? `🎉 Buy & Hold를 누적 ${stats.alphaPct.toFixed(2)}%p (연 ${stats.alphaCagrPct.toFixed(2)}%p) 이겼습니다.`
-          : `📉 Buy & Hold에 누적 ${Math.abs(stats.alphaPct).toFixed(2)}%p (연 ${Math.abs(stats.alphaCagrPct).toFixed(2)}%p) 뒤졌습니다.`}
+      <div className={`px-2 sm:px-4 py-2 rounded-lg border text-sm space-y-1 ${beatBadge}`}>
+        <div>
+          {beat
+            ? `🎉 절대수익 +${stats.returnPct.toFixed(2)}% & B&H 대비 +${stats.alphaPct.toFixed(2)}%p — 둘 다 이겼습니다.`
+            : `📉 승리 조건(절대수익 > 0 AND B&H 초과) 미달.`}
+        </div>
+        <div className="text-xs opacity-90 flex flex-wrap gap-x-3 gap-y-1">
+          <span>절대수익 {profitable ? '✅' : '❌'} {stats.returnPct >= 0 ? '+' : ''}{stats.returnPct.toFixed(2)}%</span>
+          <span>B&H 초과 {beatBM ? '✅' : '❌'} {stats.alphaPct >= 0 ? '+' : ''}{stats.alphaPct.toFixed(2)}%p (연 {stats.alphaCagrPct >= 0 ? '+' : ''}{stats.alphaCagrPct.toFixed(2)}%p)</span>
+        </div>
       </div>
 
       {/* Equity chart */}
