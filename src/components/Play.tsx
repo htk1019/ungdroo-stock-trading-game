@@ -5,8 +5,10 @@ import {
   STARTING_CASH,
 } from '../lib/engine'
 import { Chart } from './Chart'
+import { HintModal } from './HintModal'
 import { findTicker } from '../lib/tickers'
 import { playDing } from '../lib/sfx'
+import { getAdvice, type Analyst } from '../lib/advice'
 
 interface PlayProps {
   game: GameState
@@ -29,6 +31,7 @@ function useIsLandscapeMobile() {
 export function Play({ game, onChange, onEnd }: PlayProps) {
   const [flash, setFlash] = useState<string | null>(null)
   const [cheer, setCheer] = useState<{ dollars: number; pct: number; good: boolean; key: number } | null>(null)
+  const [hintAnalysts, setHintAnalysts] = useState<Analyst[] | null>(null)
   const isLandscape = useIsLandscapeMobile()
 
   const visibleCandles = useMemo(
@@ -63,6 +66,17 @@ export function Play({ game, onChange, onEnd }: PlayProps) {
     }
     onChange()
     if (r.done) onEnd()
+  }
+
+  const requestHint = () => {
+    if (game.hintsRemaining <= 0) {
+      setFlashMsg('훈수 기회를 다 썼습니다.')
+      return
+    }
+    const advice = getAdvice(visibleCandles)
+    game.hintsRemaining--
+    setHintAnalysts(advice)
+    onChange()
   }
 
   useEffect(() => {
@@ -184,6 +198,14 @@ export function Play({ game, onChange, onEnd }: PlayProps) {
             </div>
           </div>
 
+          <button
+            onClick={requestHint}
+            disabled={game.hintsRemaining <= 0}
+            className="mx-1.5 mt-1.5 rounded-md px-2 py-1 bg-purple-600 hover:bg-purple-500 disabled:bg-[#1a1e27] disabled:text-[#4a5162] disabled:cursor-not-allowed text-white text-[11px] font-bold flex items-center justify-center gap-1 shadow transition active:scale-95"
+          >
+            🔮 훈수 <span className="font-mono opacity-80">({game.hintsRemaining})</span>
+          </button>
+
           <div className="flex-1 min-h-0 p-1.5 flex flex-col gap-1">
             {actions.map((a) => (
               <button
@@ -197,6 +219,13 @@ export function Play({ game, onChange, onEnd }: PlayProps) {
             ))}
           </div>
         </aside>
+        {hintAnalysts && (
+          <HintModal
+            analysts={hintAnalysts}
+            hintsRemaining={game.hintsRemaining}
+            onClose={() => setHintAnalysts(null)}
+          />
+        )}
       </div>
     )
   }
@@ -218,6 +247,14 @@ export function Play({ game, onChange, onEnd }: PlayProps) {
             <span className="text-[10px] text-[#8b93a7] uppercase tracking-wider">현재가</span>
             <span className="font-mono text-sm sm:text-base font-bold text-[#e5e7eb]">${price.toFixed(2)}</span>
           </div>
+          <button
+            onClick={requestHint}
+            disabled={game.hintsRemaining <= 0}
+            className="rounded-lg px-2.5 sm:px-3 py-1 sm:py-1.5 bg-purple-600 hover:bg-purple-500 disabled:bg-[#1a1e27] disabled:text-[#4a5162] disabled:cursor-not-allowed text-white text-xs sm:text-sm font-bold flex items-center gap-1 shadow transition active:scale-95"
+            title="분석가들의 의견 보기"
+          >
+            🔮 훈수 <span className="font-mono opacity-80">({game.hintsRemaining})</span>
+          </button>
         </div>
         <div className="flex items-center gap-3 sm:gap-8 flex-wrap">
           <Stat label="현금" fullLabel="보유현금" value={`$${game.cash.toFixed(2)}`} />
@@ -296,6 +333,13 @@ export function Play({ game, onChange, onEnd }: PlayProps) {
           ))}
         </div>
       </footer>
+      {hintAnalysts && (
+        <HintModal
+          analysts={hintAnalysts}
+          hintsRemaining={game.hintsRemaining}
+          onClose={() => setHintAnalysts(null)}
+        />
+      )}
     </div>
   )
 }

@@ -23,6 +23,7 @@ export const ROUND_COUNTS = [3, 5, 10, 20, 50, 100] as const
 
 export const STARTING_CASH = 10_000
 export const FEE_RATE = 0.001 // 0.1% per side
+export const HINTS_PER_GAME = 5
 
 // BUY/SELL are long open/close. SHORT/COVER are short open/close.
 export type Side = 'BUY' | 'SELL' | 'SHORT' | 'COVER'
@@ -67,6 +68,7 @@ export interface GameState {
   equityCurve: number[]
   buyHoldCurve: number[]
   ended: boolean
+  hintsRemaining: number
 }
 
 export function pickWindow(
@@ -104,6 +106,7 @@ export function initGame(init: GameInit): GameState {
     equityCurve: [STARTING_CASH],
     buyHoldCurve: [buyHoldShares * entryPrice],
     ended: false,
+    hintsRemaining: HINTS_PER_GAME,
   }
 }
 
