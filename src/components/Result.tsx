@@ -138,10 +138,18 @@ export function Result({ game, onReplay }: ResultProps) {
         </div>
       </header>
 
-      {/* 복기 모드 + Stats cards 나란히 (데스크탑) / 세로 (모바일) */}
-      <div className="flex flex-col lg:flex-row gap-3 sm:gap-4">
-        <div className="flex-1 min-w-0">
-          <ReplaySection game={game} hideVolume={findTicker(game.symbol)?.category === 'index'} />
+      {/* 복기 모드 + 수익 그래프 (좌) + Stats cards (우) 나란히 (데스크탑) / 세로 (모바일) */}
+      <div className="flex flex-col lg:flex-row gap-3 sm:gap-4 lg:items-stretch">
+        <div className="flex-1 min-w-0 flex flex-col gap-3 sm:gap-4">
+          <ReplaySection
+            game={game}
+            hideVolume={findTicker(game.symbol)?.category === 'index'}
+            className="lg:flex-1 lg:min-h-0 flex flex-col"
+            chartClass="h-[60vh] sm:h-[70vh] lg:!h-auto lg:flex-1 lg:min-h-0"
+          />
+          <section className="h-72 lg:h-auto lg:flex-1 lg:min-h-0 bg-[#12151c] border border-[#252a36] rounded-xl overflow-hidden">
+            <EquityChart times={times} player={game.equityCurve} buyHold={game.buyHoldCurve} />
+          </section>
         </div>
         <section className="grid grid-cols-2 gap-3 lg:w-[26rem] lg:grid-cols-2 lg:auto-rows-min">
           <Card label="내 수익률 (누적)" value={fmtPct(stats.returnPct)} accent={stats.returnPct >= 0 ? 'up' : 'down'} />
@@ -166,11 +174,6 @@ export function Result({ game, onReplay }: ResultProps) {
           />
         </section>
       </div>
-
-      {/* Equity chart */}
-      <section className="h-72 bg-[#12151c] border border-[#252a36] rounded-xl overflow-hidden">
-        <EquityChart times={times} player={game.equityCurve} buyHold={game.buyHoldCurve} />
-      </section>
 
       {/* Trade log */}
       <section className="bg-[#12151c] border border-[#252a36] rounded-xl overflow-hidden">
@@ -228,7 +231,14 @@ function Card({
   )
 }
 
-function ReplaySection({ game, hideVolume }: { game: GameState; hideVolume: boolean }) {
+function ReplaySection({
+  game, hideVolume, className = '', chartClass = 'h-[70vh] sm:h-[75vh]',
+}: {
+  game: GameState
+  hideVolume: boolean
+  className?: string
+  chartClass?: string
+}) {
   const [open, setOpen] = useState(true)
   const allCandles = useMemo(
     () => [...game.warmup, ...game.reveal.slice(0, game.step)],
@@ -236,11 +246,11 @@ function ReplaySection({ game, hideVolume }: { game: GameState; hideVolume: bool
   )
 
   return (
-    <section>
+    <section className={className}>
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-[#12151c] border border-[#252a36] hover:border-[#333a4d] transition text-sm font-bold text-[#e5e7eb]"
+        className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-[#12151c] border border-[#252a36] hover:border-[#333a4d] transition text-sm font-bold text-[#e5e7eb] shrink-0"
       >
         <span className="flex items-center gap-2">
           <span>복기 모드</span>
@@ -249,7 +259,7 @@ function ReplaySection({ game, hideVolume }: { game: GameState; hideVolume: bool
         <span className={`transition-transform text-[#8b93a7] ${open ? 'rotate-180' : ''}`}>▾</span>
       </button>
       {open && (
-        <div className="mt-2 h-[70vh] sm:h-[75vh] bg-[#12151c] border border-[#252a36] rounded-xl overflow-hidden">
+        <div className={`mt-2 bg-[#12151c] border border-[#252a36] rounded-xl overflow-hidden ${chartClass}`}>
           <Chart candles={allCandles} trades={game.trades} hideVolume={hideVolume} hideIndicators />
         </div>
       )}
