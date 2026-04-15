@@ -33,9 +33,10 @@ export function Result({ game, onReplay }: ResultProps) {
   const bothFail = !beatBM && !profitable
   const mixed = !beat && !bothFail
   const verdict: 'win' | 'mixed' | 'lose' = beat ? 'win' : mixed ? 'mixed' : 'lose'
+  const perfect = verdict === 'win' && stats.winRate >= 90
   const verdictImg = verdict === 'win' ? '/happy.png' : verdict === 'lose' ? '/sad.png' : '/meh.png'
-  const verdictAlt = verdict === 'win' ? '승리' : verdict === 'lose' ? '패배' : '애매'
-  const verdictLabel = verdict === 'win' ? '승리!' : verdict === 'lose' ? '패배…' : '애매…'
+  const verdictAlt = perfect ? '완벽승리' : verdict === 'win' ? '승리' : verdict === 'lose' ? '패배' : '애매'
+  const verdictLabel = perfect ? '👑 완벽승리!' : verdict === 'win' ? '승리!' : verdict === 'lose' ? '패배…' : '애매…'
   const verdictBorder = verdict === 'win' ? 'border-emerald-500/40' : verdict === 'lose' ? 'border-red-500/40' : 'border-amber-500/40'
   const verdictAnim = verdict === 'win' ? 'animate-bounce-slow' : verdict === 'lose' ? 'animate-shake' : ''
   const verdictLabelCls = verdict === 'win'
