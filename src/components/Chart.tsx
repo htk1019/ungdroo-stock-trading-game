@@ -29,6 +29,7 @@ interface ChartProps {
   candles: Candle[]
   trades: Trade[]
   hideVolume?: boolean   // true for indices (no volume data)
+  hideIndicators?: boolean  // true to render a vanilla candles+markers chart (no overlays/panes/toggle UI)
 }
 
 type LineData = { time: UTCTimestamp; value: number }
@@ -298,7 +299,7 @@ const GROUPS: { label: string; keys: string[] }[] = [
 const OVERLAY_BY_KEY = new Map(OVERLAY_DEFS.map((d) => [d.key, d]))
 const PANE_BY_KEY = new Map(PANE_DEFS.map((d) => [d.key, d]))
 
-export function Chart({ candles, trades, hideVolume = false }: ChartProps) {
+export function Chart({ candles, trades, hideVolume = false, hideIndicators = false }: ChartProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const chartRef = useRef<IChartApi | null>(null)
   const candleSeriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null)
@@ -310,12 +311,12 @@ export function Chart({ candles, trades, hideVolume = false }: ChartProps) {
 
   const [overlayOn, setOverlayOn] = useState<Record<string, boolean>>(() => {
     const o: Record<string, boolean> = {}
-    for (const d of OVERLAY_DEFS) o[d.key] = d.defaultOn
+    for (const d of OVERLAY_DEFS) o[d.key] = hideIndicators ? false : d.defaultOn
     return o
   })
   const [paneOn, setPaneOn] = useState<Record<string, boolean>>(() => {
     const o: Record<string, boolean> = {}
-    for (const d of PANE_DEFS) o[d.key] = d.defaultOn
+    for (const d of PANE_DEFS) o[d.key] = hideIndicators ? false : d.defaultOn
     return o
   })
 
@@ -562,6 +563,14 @@ export function Chart({ candles, trades, hideVolume = false }: ChartProps) {
       </div>
     )
   })
+
+  if (hideIndicators) {
+    return (
+      <div className="w-full h-full flex flex-col">
+        <div ref={containerRef} className="flex-1 min-h-0" />
+      </div>
+    )
+  }
 
   return (
     <div className="w-full h-full flex flex-col">

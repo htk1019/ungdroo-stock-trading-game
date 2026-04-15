@@ -143,37 +143,39 @@ export function Result({ game, onReplay }: ResultProps) {
         </div>
       </header>
 
-      {/* Stats cards */}
-      <section className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Card label="내 수익률 (누적)" value={fmtPct(stats.returnPct)} accent={stats.returnPct >= 0 ? 'up' : 'down'} />
-        <Card label="Buy & Hold (누적)" value={fmtPct(stats.buyHoldReturnPct)} accent={stats.buyHoldReturnPct >= 0 ? 'up' : 'down'} />
-        <Card label="알파 (vs B&H)" value={fmtPct(stats.alphaPct)} accent={beat ? 'up' : 'down'} />
-        <Card label={`내 수익률 (연환산, ${stats.years.toFixed(1)}년)`} value={fmtPct(stats.cagrPct)} accent={stats.cagrPct >= 0 ? 'up' : 'down'} />
-        <Card label="Buy & Hold (연환산)" value={fmtPct(stats.buyHoldCagrPct)} accent={stats.buyHoldCagrPct >= 0 ? 'up' : 'down'} />
-        <Card label="알파 (연환산)" value={fmtPct(stats.alphaCagrPct)} accent={stats.alphaCagrPct >= 0 ? 'up' : 'down'} />
-        <Card label="기간" value={`${stats.years.toFixed(2)}년`} />
-        <Card label="최대 낙폭 (MDD)" value={`${stats.maxDrawdownPct.toFixed(2)}%`} accent="down" />
-        <Card label="샤프 (연환산)" value={stats.sharpe.toFixed(2)} />
-        <Card label="총 거래" value={`${stats.trades}회`} />
-        <Card
-          label="승률 (포지션)"
-          value={`${stats.winRate.toFixed(1)}%`}
-          hint="진입→청산 왕복 거래 중 수익 난 비율"
-        />
-        <Card
-          label="승률 (라운드)"
-          value={`${stats.winRateByRound.toFixed(1)}%`}
-          hint="포지션 보유 라운드에서 방향 맞춘 비율 (현금 제외)"
-        />
-      </section>
+      {/* 복기 모드 + Stats cards 나란히 (데스크탑) / 세로 (모바일) */}
+      <div className="flex flex-col lg:flex-row gap-3 sm:gap-4">
+        <div className="flex-1 min-w-0">
+          <ReplaySection game={game} hideVolume={findTicker(game.symbol)?.category === 'index'} />
+        </div>
+        <section className="grid grid-cols-2 gap-3 lg:w-[26rem] lg:grid-cols-2 lg:auto-rows-min">
+          <Card label="내 수익률 (누적)" value={fmtPct(stats.returnPct)} accent={stats.returnPct >= 0 ? 'up' : 'down'} />
+          <Card label="Buy & Hold (누적)" value={fmtPct(stats.buyHoldReturnPct)} accent={stats.buyHoldReturnPct >= 0 ? 'up' : 'down'} />
+          <Card label="알파 (vs B&H)" value={fmtPct(stats.alphaPct)} accent={beat ? 'up' : 'down'} />
+          <Card label={`내 수익률 (연환산, ${stats.years.toFixed(1)}년)`} value={fmtPct(stats.cagrPct)} accent={stats.cagrPct >= 0 ? 'up' : 'down'} />
+          <Card label="Buy & Hold (연환산)" value={fmtPct(stats.buyHoldCagrPct)} accent={stats.buyHoldCagrPct >= 0 ? 'up' : 'down'} />
+          <Card label="알파 (연환산)" value={fmtPct(stats.alphaCagrPct)} accent={stats.alphaCagrPct >= 0 ? 'up' : 'down'} />
+          <Card label="기간" value={`${stats.years.toFixed(2)}년`} />
+          <Card label="최대 낙폭 (MDD)" value={`${stats.maxDrawdownPct.toFixed(2)}%`} accent="down" />
+          <Card label="샤프 (연환산)" value={stats.sharpe.toFixed(2)} />
+          <Card label="총 거래" value={`${stats.trades}회`} />
+          <Card
+            label="승률 (포지션)"
+            value={`${stats.winRate.toFixed(1)}%`}
+            hint="진입→청산 왕복 거래 중 수익 난 비율"
+          />
+          <Card
+            label="승률 (라운드)"
+            value={`${stats.winRateByRound.toFixed(1)}%`}
+            hint="포지션 보유 라운드에서 방향 맞춘 비율 (현금 제외)"
+          />
+        </section>
+      </div>
 
       <div className={`px-2 sm:px-4 py-2 rounded-lg border text-xs opacity-90 flex flex-wrap gap-x-3 gap-y-1 ${beatBadge}`}>
         <span>절대수익 {profitable ? '✅' : '❌'} {stats.returnPct >= 0 ? '+' : ''}{stats.returnPct.toFixed(2)}%</span>
         <span>B&H 초과 {beatBM ? '✅' : '❌'} {stats.alphaPct >= 0 ? '+' : ''}{stats.alphaPct.toFixed(2)}%p (연 {stats.alphaCagrPct >= 0 ? '+' : ''}{stats.alphaCagrPct.toFixed(2)}%p)</span>
       </div>
-
-      {/* 복기 모드 */}
-      <ReplaySection game={game} hideVolume={findTicker(game.symbol)?.category === 'index'} />
 
       {/* Equity chart */}
       <section className="h-72 bg-[#12151c] border border-[#252a36] rounded-xl overflow-hidden">
@@ -258,7 +260,7 @@ function ReplaySection({ game, hideVolume }: { game: GameState; hideVolume: bool
       </button>
       {open && (
         <div className="mt-2 h-[70vh] sm:h-[75vh] bg-[#12151c] border border-[#252a36] rounded-xl overflow-hidden">
-          <Chart candles={allCandles} trades={game.trades} hideVolume={hideVolume} />
+          <Chart candles={allCandles} trades={game.trades} hideVolume={hideVolume} hideIndicators />
         </div>
       )}
     </section>
