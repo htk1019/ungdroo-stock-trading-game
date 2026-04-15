@@ -565,13 +565,13 @@ export function Chart({ candles, trades, hideVolume = false }: ChartProps) {
 
   return (
     <div className="w-full h-full flex flex-col">
-      {/* Desktop: always show chips */}
-      <div className="hidden sm:flex shrink-0 flex-col gap-1 p-2 bg-[#12151c]/90 border-b border-[#252a36]">
+      {/* Desktop: always show chips. Hidden on short viewports (e.g. phone landscape) to keep chart visible. */}
+      <div className="hidden sm:flex [@media(max-height:500px)]:!hidden shrink-0 flex-col gap-1 p-2 bg-[#12151c]/90 border-b border-[#252a36]">
         {chipPanel}
       </div>
 
-      {/* Mobile: collapsible */}
-      <div className="sm:hidden shrink-0 bg-[#12151c]/90 border-b border-[#252a36]">
+      {/* Mobile (or any short viewport): collapsible */}
+      <div className="sm:hidden [@media(max-height:500px)]:!block shrink-0 bg-[#12151c]/90 border-b border-[#252a36]">
         <button
           type="button"
           onClick={() => setIndicatorOpen((o) => !o)}
