@@ -41,9 +41,15 @@ export function Setup({ onStart, loading, error }: SetupProps) {
         <span className="absolute top-1/3 right-6 text-4xl animate-pulse">💸</span>
         <span className="absolute top-6    right-1/3 text-3xl rotate-12 animate-blink">★</span>
         <span className="absolute bottom-6 left-1/3  text-3xl -rotate-12 animate-blink">★</span>
+        <img src="/meme1.png" alt="" className="absolute bottom-6 left-6 w-28 opacity-60 rotate-[-8deg] rounded-lg border border-white/10 select-none" draggable={false} />
+        <img src="/meme2.png" alt="" className="absolute top-6 right-6 w-24 opacity-60 rotate-[6deg] rounded-lg border border-white/10 select-none" draggable={false} />
       </div>
-      {/* 모바일용 은은한 배경 그라디언트 */}
-      <div aria-hidden className="absolute inset-0 pointer-events-none sm:hidden bg-gradient-to-br from-fuchsia-900/20 via-purple-900/10 to-amber-900/20" />
+      {/* 모바일용 은은한 배경 그라디언트 + 밈 */}
+      <div aria-hidden className="absolute inset-0 pointer-events-none sm:hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-fuchsia-900/20 via-purple-900/10 to-amber-900/20" />
+        <img src="/meme1.png" alt="" className="absolute bottom-2 left-2 w-16 opacity-40 rotate-[-8deg] rounded select-none" draggable={false} />
+        <img src="/meme2.png" alt="" className="absolute top-2 right-2 w-14 opacity-40 rotate-[6deg] rounded select-none" draggable={false} />
+      </div>
 
       <div className="w-full max-w-3xl bg-[#12151c] border-2 sm:border-4 border-amber-400/70 rounded-2xl sm:rounded-3xl p-5 sm:p-10 shadow-[0_0_60px_rgba(251,191,36,0.25)] relative overflow-hidden z-10">
         {/* 레인보우 테두리 스트라이프 */}
