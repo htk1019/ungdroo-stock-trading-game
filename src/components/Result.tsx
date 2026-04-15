@@ -49,11 +49,6 @@ export function Result({ game, onReplay }: ResultProps) {
     : verdict === 'lose'
       ? 'text-red-200'
       : 'text-amber-200'
-  const beatBadge = verdict === 'win'
-    ? 'bg-emerald-500/15 border-emerald-500/60 text-emerald-200'
-    : verdict === 'lose'
-      ? 'bg-red-500/15 border-red-500/60 text-red-200'
-      : 'bg-amber-500/15 border-amber-500/60 text-amber-200'
   const verdictMsg = verdict === 'win'
     ? `🎉 절대수익 +${stats.returnPct.toFixed(2)}% & B&H 대비 +${stats.alphaPct.toFixed(2)}%p — 둘 다 이겼습니다.`
     : verdict === 'lose'
@@ -170,11 +165,6 @@ export function Result({ game, onReplay }: ResultProps) {
             hint="포지션 보유 라운드에서 방향 맞춘 비율 (현금 제외)"
           />
         </section>
-      </div>
-
-      <div className={`px-2 sm:px-4 py-2 rounded-lg border text-xs opacity-90 flex flex-wrap gap-x-3 gap-y-1 ${beatBadge}`}>
-        <span>절대수익 {profitable ? '✅' : '❌'} {stats.returnPct >= 0 ? '+' : ''}{stats.returnPct.toFixed(2)}%</span>
-        <span>B&H 초과 {beatBM ? '✅' : '❌'} {stats.alphaPct >= 0 ? '+' : ''}{stats.alphaPct.toFixed(2)}%p (연 {stats.alphaCagrPct >= 0 ? '+' : ''}{stats.alphaCagrPct.toFixed(2)}%p)</span>
       </div>
 
       {/* Equity chart */}
