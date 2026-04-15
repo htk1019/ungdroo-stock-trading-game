@@ -138,20 +138,58 @@ export function Result({ game, onReplay }: ResultProps) {
         </div>
       </header>
 
-      {/* 복기 모드 + 수익 그래프 (좌) + Stats cards (우) 나란히 (데스크탑) / 세로 (모바일) */}
-      <div className="flex flex-col lg:flex-row gap-3 sm:gap-4 lg:items-stretch">
-        <div className="flex-1 min-w-0 flex flex-col gap-3 sm:gap-4">
+      {/* 복기 모드 + 수익 그래프 + 거래내역 (좌) + Stats cards (우) 나란히 (데스크탑) / 세로 (모바일) */}
+      <div className="flex flex-col lg:flex-row gap-3 sm:gap-4 lg:items-stretch lg:h-[calc(100vh-13rem)]">
+        <div className="flex-1 min-w-0 flex flex-col gap-3 sm:gap-4 lg:min-h-0">
           <ReplaySection
             game={game}
             hideVolume={findTicker(game.symbol)?.category === 'index'}
-            className="lg:flex-1 lg:min-h-0 flex flex-col"
+            className="lg:flex-[2] lg:min-h-0 flex flex-col"
             chartClass="h-[60vh] sm:h-[70vh] lg:!h-auto lg:flex-1 lg:min-h-0"
           />
-          <section className="h-72 lg:h-auto lg:flex-1 lg:min-h-0 bg-[#12151c] border border-[#252a36] rounded-xl overflow-hidden">
-            <EquityChart times={times} player={game.equityCurve} buyHold={game.buyHoldCurve} />
-          </section>
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 lg:flex-1 lg:min-h-0">
+            <section className="h-72 sm:h-auto sm:flex-1 min-w-0 bg-[#12151c] border border-[#252a36] rounded-xl overflow-hidden">
+              <EquityChart times={times} player={game.equityCurve} buyHold={game.buyHoldCurve} />
+            </section>
+            <section className="sm:flex-1 min-w-0 bg-[#12151c] border border-[#252a36] rounded-xl overflow-hidden flex flex-col">
+              <div className="px-2 sm:px-4 py-2 text-sm text-[#8b93a7] border-b border-[#252a36] shrink-0">
+                거래 내역 ({game.trades.length})
+              </div>
+              <div className="flex-1 min-h-0 overflow-auto max-h-64 sm:max-h-none">
+                <table className="w-full text-xs sm:text-sm whitespace-nowrap">
+                  <thead className="text-xs text-[#8b93a7] uppercase sticky top-0 bg-[#12151c]">
+                    <tr>
+                      <th className="text-left px-2 sm:px-4 py-2">#</th>
+                      <th className="text-left px-2 sm:px-4 py-2">날짜</th>
+                      <th className="text-left px-2 sm:px-4 py-2">구분</th>
+                      <th className="text-right px-2 sm:px-4 py-2">가격</th>
+                      <th className="text-right px-2 sm:px-4 py-2">수량</th>
+                      <th className="text-right px-2 sm:px-4 py-2">수수료</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {game.trades.map((t, i) => (
+                      <tr key={i} className="border-t border-[#1f2430]">
+                        <td className="px-2 sm:px-4 py-2 text-[#8b93a7]">{i + 1}</td>
+                        <td className="px-2 sm:px-4 py-2">{new Date(t.time * 1000).toISOString().slice(0, 10)}</td>
+                        <td className={`px-2 sm:px-4 py-2 font-semibold ${t.side === 'BUY' ? 'text-emerald-400' : 'text-red-400'}`}>
+                          {t.side}
+                        </td>
+                        <td className="px-2 sm:px-4 py-2 text-right font-mono">${t.price.toFixed(2)}</td>
+                        <td className="px-2 sm:px-4 py-2 text-right font-mono">{t.shares.toFixed(4)}</td>
+                        <td className="px-2 sm:px-4 py-2 text-right font-mono text-[#8b93a7]">${t.fee.toFixed(2)}</td>
+                      </tr>
+                    ))}
+                    {game.trades.length === 0 && (
+                      <tr><td colSpan={6} className="px-4 py-6 text-center text-[#8b93a7]">매매 기록 없음</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>
         </div>
-        <section className="grid grid-cols-2 gap-3 lg:w-[26rem] lg:grid-cols-2 lg:auto-rows-min">
+        <section className="grid grid-cols-2 gap-3 lg:w-[26rem] lg:grid-cols-2 lg:grid-rows-6 lg:auto-rows-fr">
           <Card label="내 수익률 (누적)" value={fmtPct(stats.returnPct)} accent={stats.returnPct >= 0 ? 'up' : 'down'} />
           <Card label="Buy & Hold (누적)" value={fmtPct(stats.buyHoldReturnPct)} accent={stats.buyHoldReturnPct >= 0 ? 'up' : 'down'} />
           <Card label="알파 (vs B&H)" value={fmtPct(stats.alphaPct)} accent={beat ? 'up' : 'down'} />
@@ -175,43 +213,6 @@ export function Result({ game, onReplay }: ResultProps) {
         </section>
       </div>
 
-      {/* Trade log */}
-      <section className="bg-[#12151c] border border-[#252a36] rounded-xl overflow-hidden">
-        <div className="px-2 sm:px-4 py-2 text-sm text-[#8b93a7] border-b border-[#252a36]">
-          거래 내역 ({game.trades.length})
-        </div>
-        <div className="max-h-64 overflow-auto">
-          <table className="w-full text-xs sm:text-sm whitespace-nowrap">
-            <thead className="text-xs text-[#8b93a7] uppercase">
-              <tr>
-                <th className="text-left px-2 sm:px-4 py-2">#</th>
-                <th className="text-left px-2 sm:px-4 py-2">날짜</th>
-                <th className="text-left px-2 sm:px-4 py-2">구분</th>
-                <th className="text-right px-2 sm:px-4 py-2">가격</th>
-                <th className="text-right px-2 sm:px-4 py-2">수량</th>
-                <th className="text-right px-2 sm:px-4 py-2">수수료</th>
-              </tr>
-            </thead>
-            <tbody>
-              {game.trades.map((t, i) => (
-                <tr key={i} className="border-t border-[#1f2430]">
-                  <td className="px-2 sm:px-4 py-2 text-[#8b93a7]">{i + 1}</td>
-                  <td className="px-2 sm:px-4 py-2">{new Date(t.time * 1000).toISOString().slice(0, 10)}</td>
-                  <td className={`px-2 sm:px-4 py-2 font-semibold ${t.side === 'BUY' ? 'text-emerald-400' : 'text-red-400'}`}>
-                    {t.side}
-                  </td>
-                  <td className="px-2 sm:px-4 py-2 text-right font-mono">${t.price.toFixed(2)}</td>
-                  <td className="px-2 sm:px-4 py-2 text-right font-mono">{t.shares.toFixed(4)}</td>
-                  <td className="px-2 sm:px-4 py-2 text-right font-mono text-[#8b93a7]">${t.fee.toFixed(2)}</td>
-                </tr>
-              ))}
-              {game.trades.length === 0 && (
-                <tr><td colSpan={6} className="px-4 py-6 text-center text-[#8b93a7]">매매 기록 없음</td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </section>
     </div>
   )
 }
