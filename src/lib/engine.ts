@@ -272,7 +272,8 @@ export interface FinalStats {
   maxDrawdownPct: number
   sharpe: number           // annualized Sharpe
   trades: number
-  winRate: number          // share of profitable closed lots (avg-cost approximation)
+  winRate: number          // 포지션 기준: 청산된 왕복 거래 중 수익 난 비율
+  winRateByRound: number   // 라운드 기준: 포지션(롱/숏) 보유 라운드에서 방향 맞춘 비율, 현금은 제외
 }
 
 // Per-interval periods-per-year — used to annualize Sharpe and CAGR fallback.
@@ -338,6 +339,32 @@ export function computeStats(g: GameState): FinalStats {
   }
   const winRate = closed > 0 ? (wins / closed) * 100 : 0
 
+  // Round-based win rate: walk each completed round, reconstruct position at
+  // start of round, and check if price moved in position's favor during round.
+  // FLAT rounds are excluded from both numerator and denominator.
+  const roundsDone = Math.floor(g.step / g.roundSize)
+  let rPos: Position = 'FLAT'
+  let rTradeIdx = 0
+  let rWins = 0, rTotal = 0
+  for (let r = 0; r < roundsDone; r++) {
+    const startStep = r * g.roundSize
+    const endStep = (r + 1) * g.roundSize - 1
+    while (rTradeIdx < g.trades.length && g.trades[rTradeIdx].step === startStep) {
+      const t = g.trades[rTradeIdx]
+      if (t.side === 'BUY') rPos = 'LONG'
+      else if (t.side === 'SHORT') rPos = 'SHORT'
+      else rPos = 'FLAT'  // SELL or COVER
+      rTradeIdx++
+    }
+    if (rPos === 'FLAT') continue
+    const startPrice = r === 0 ? g.reveal[0].open : g.reveal[startStep - 1].close
+    const endPrice = g.reveal[endStep].close
+    const up = endPrice > startPrice
+    rTotal++
+    if ((rPos === 'LONG' && up) || (rPos === 'SHORT' && !up)) rWins++
+  }
+  const winRateByRound = rTotal > 0 ? (rWins / rTotal) * 100 : 0
+
   return {
     finalEquity: final,
     returnPct,
@@ -351,5 +378,6 @@ export function computeStats(g: GameState): FinalStats {
     sharpe,
     trades: g.trades.length,
     winRate,
+    winRateByRound,
   }
 }

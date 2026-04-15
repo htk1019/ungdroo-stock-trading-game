@@ -156,7 +156,8 @@ export function Result({ game, onReplay }: ResultProps) {
         <Card label="최대 낙폭 (MDD)" value={`${stats.maxDrawdownPct.toFixed(2)}%`} accent="down" />
         <Card label="샤프 (연환산)" value={stats.sharpe.toFixed(2)} />
         <Card label="총 거래" value={`${stats.trades}회`} />
-        <Card label="승률" value={`${stats.winRate.toFixed(1)}%`} />
+        <Card label="승률 (포지션)" value={`${stats.winRate.toFixed(1)}%`} />
+        <Card label="승률 (라운드)" value={`${stats.winRateByRound.toFixed(1)}%`} />
       </section>
 
       <div className={`px-2 sm:px-4 py-2 rounded-lg border text-xs opacity-90 flex flex-wrap gap-x-3 gap-y-1 ${beatBadge}`}>
