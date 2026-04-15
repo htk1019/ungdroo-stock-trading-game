@@ -204,7 +204,10 @@ export function closePosition(g: GameState): ActionResult {
 }
 
 function lastVisibleTime(g: GameState): number {
-  if (g.step === 0) return g.warmup[g.warmup.length - 1].time
+  // At step 0 the player acts on reveal[0].open — the first reveal candle.
+  // Mapping the trade to reveal[0] keeps the BUY/SHORT arrow aligned with
+  // the actual entry candle (previously it fell on the last warmup day).
+  if (g.step === 0) return g.reveal[0].time
   return g.reveal[g.step - 1].time
 }
 

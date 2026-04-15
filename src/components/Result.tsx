@@ -199,7 +199,11 @@ export function Result({ game, onReplay }: ResultProps) {
           <Card label="기간" value={`${stats.years.toFixed(2)}년`} />
           <Card label="최대 낙폭 (MDD)" value={`${stats.maxDrawdownPct.toFixed(2)}%`} accent="down" />
           <Card label="샤프 (연환산)" value={stats.sharpe.toFixed(2)} />
-          <Card label="총 거래" value={`${stats.trades}회`} />
+          <Card
+            label="총 거래"
+            value={`${stats.trades}회`}
+            hint="진입·청산 각각 1회로 카운트 (승률 분모와 다름)"
+          />
           <Card
             label="승률 (포지션)"
             value={`${stats.winRate.toFixed(1)}%`}
