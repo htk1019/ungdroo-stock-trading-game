@@ -4,12 +4,20 @@ import {
 } from './indicators'
 
 export type Stance = 'LONG' | 'SHORT' | 'HOLD'
+export type AnalystGroup = 'trend' | 'band' | 'ichimoku'
+
+export const GROUP_LABEL: Record<AnalystGroup, string> = {
+  trend: '추세추종',
+  band: '밴드',
+  ichimoku: '일목균형표',
+}
 
 export interface Analyst {
   name: string
   emoji: string
   stance: Stance
   reason: string
+  group: AnalystGroup
 }
 
 const UNKNOWN_REASON = '데이터가 부족해서 말을 아끼겠다.'
@@ -70,7 +78,7 @@ export function getAdvice(candles: Candle[]): Analyst[] {
         ])
       }
     }
-    analysts.push({ name: '이평 할배', emoji: '🧓', stance, reason })
+    analysts.push({ name: '이평 할배', emoji: '🧓', stance, reason, group: 'trend' })
   }
 
   // 2. RSI 선생 — 엄격한 학원 강사 말투
@@ -105,7 +113,7 @@ export function getAdvice(candles: Candle[]): Analyst[] {
         ])
       }
     }
-    analysts.push({ name: 'RSI 선생', emoji: '📏', stance, reason })
+    analysts.push({ name: 'RSI 선생', emoji: '📏', stance, reason, group: 'band' })
   }
 
   // 3. MACD 박사 — 영어 섞는 잘난척 학자
@@ -143,7 +151,7 @@ export function getAdvice(candles: Candle[]): Analyst[] {
         ])
       }
     }
-    analysts.push({ name: 'MACD 박사', emoji: '🎯', stance, reason })
+    analysts.push({ name: 'MACD 박사', emoji: '🎯', stance, reason, group: 'trend' })
   }
 
   // 4. BB 형님 — 건달/형님 말투
@@ -180,7 +188,7 @@ export function getAdvice(candles: Candle[]): Analyst[] {
         ])
       }
     }
-    analysts.push({ name: 'BB 형님', emoji: '🎈', stance, reason })
+    analysts.push({ name: 'BB 형님', emoji: '🎈', stance, reason, group: 'band' })
   }
 
   // 5. 일목 도사 — 무협/선인 말투
@@ -212,7 +220,7 @@ export function getAdvice(candles: Candle[]): Analyst[] {
         ])
       }
     }
-    analysts.push({ name: '일목 도사', emoji: '🌫️', stance, reason })
+    analysts.push({ name: '일목 도사', emoji: '🌫️', stance, reason, group: 'ichimoku' })
   }
 
   return analysts
