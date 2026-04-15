@@ -497,21 +497,21 @@ export function Chart({ candles, trades, hideVolume = false }: ChartProps) {
       typeof trades[number]['side'],
       { color: string; pos: 'aboveBar' | 'belowBar'; shape: 'arrowUp' | 'arrowDown'; label: string }
     > = {
-      BUY:   { color: '#16a34a', pos: 'belowBar', shape: 'arrowUp',   label: '매수' },
-      SELL:  { color: '#dc2626', pos: 'aboveBar', shape: 'arrowDown', label: '매도' },
-      SHORT: { color: '#d97706', pos: 'aboveBar', shape: 'arrowDown', label: '공매도' },
-      COVER: { color: '#0284c7', pos: 'belowBar', shape: 'arrowUp',   label: '환매' },
+      BUY:   { color: '#22c55e', pos: 'belowBar', shape: 'arrowUp',   label: '▲ 매수' },
+      SELL:  { color: '#ef4444', pos: 'aboveBar', shape: 'arrowDown', label: '▼ 매도' },
+      SHORT: { color: '#f59e0b', pos: 'aboveBar', shape: 'arrowDown', label: '▼ 공매도' },
+      COVER: { color: '#3b82f6', pos: 'belowBar', shape: 'arrowUp',   label: '▲ 환매' },
     }
     const markers: SeriesMarker<Time>[] = trades.map((tr) => ({
       time: t(tr.time),
       position: style[tr.side].pos,
       color: style[tr.side].color,
       shape: style[tr.side].shape,
-      size: 2,
+      size: 3,
       text: style[tr.side].label,
     }))
     markersRef.current.setMarkers(markers)
-  }, [trades])
+  }, [trades, paneSig])
 
   const toggleKey = (key: string) => {
     if (OVERLAY_BY_KEY.has(key)) setOverlayOn((s) => ({ ...s, [key]: !s[key] }))

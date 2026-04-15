@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { computeStats, type GameState, INTERVAL_LABEL } from '../lib/engine'
 import { findTicker } from '../lib/tickers'
 import { EquityChart } from './EquityChart'
+import { Chart } from './Chart'
 import { playWin, playLose, playMeh } from '../lib/sfx'
 import { recordHighScore, type HighScore } from '../lib/highscore'
 
@@ -139,20 +140,20 @@ export function Result({ game, onReplay }: ResultProps) {
         </div>
       </header>
 
-      {/* Headline cards — total return */}
+      {/* Stats cards */}
       <section className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Card label="내 수익률 (누적)" value={fmtPct(stats.returnPct)} accent={stats.returnPct >= 0 ? 'up' : 'down'} />
         <Card label="Buy & Hold (누적)" value={fmtPct(stats.buyHoldReturnPct)} accent={stats.buyHoldReturnPct >= 0 ? 'up' : 'down'} />
         <Card label="알파 (vs B&H)" value={fmtPct(stats.alphaPct)} accent={beat ? 'up' : 'down'} />
         <Card label="최종 자산" value={`$${stats.finalEquity.toFixed(2)}`} />
-      </section>
-
-      {/* Annualized (CAGR) */}
-      <section className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Card label={`내 수익률 (연환산, ${stats.years.toFixed(1)}년)`} value={fmtPct(stats.cagrPct)} accent={stats.cagrPct >= 0 ? 'up' : 'down'} />
         <Card label="Buy & Hold (연환산)" value={fmtPct(stats.buyHoldCagrPct)} accent={stats.buyHoldCagrPct >= 0 ? 'up' : 'down'} />
         <Card label="알파 (연환산)" value={fmtPct(stats.alphaCagrPct)} accent={stats.alphaCagrPct >= 0 ? 'up' : 'down'} />
         <Card label="기간" value={`${stats.years.toFixed(2)}년`} />
+        <Card label="최대 낙폭 (MDD)" value={`${stats.maxDrawdownPct.toFixed(2)}%`} accent="down" />
+        <Card label="샤프 (연환산)" value={stats.sharpe.toFixed(2)} />
+        <Card label="총 거래" value={`${stats.trades}회`} />
+        <Card label="승률" value={`${stats.winRate.toFixed(1)}%`} />
       </section>
 
       <div className={`px-2 sm:px-4 py-2 rounded-lg border text-xs opacity-90 flex flex-wrap gap-x-3 gap-y-1 ${beatBadge}`}>
@@ -165,13 +166,8 @@ export function Result({ game, onReplay }: ResultProps) {
         <EquityChart times={times} player={game.equityCurve} buyHold={game.buyHoldCurve} />
       </section>
 
-      {/* Secondary stats */}
-      <section className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Card label="최대 낙폭 (MDD)" value={`${stats.maxDrawdownPct.toFixed(2)}%`} accent="down" />
-        <Card label="샤프 (연환산)" value={stats.sharpe.toFixed(2)} />
-        <Card label="총 거래" value={`${stats.trades}회`} />
-        <Card label="승률" value={`${stats.winRate.toFixed(1)}%`} />
-      </section>
+      {/* 복기 모드 */}
+      <ReplaySection game={game} hideVolume={findTicker(game.symbol)?.category === 'index'} />
 
       {/* Trade log */}
       <section className="bg-[#12151c] border border-[#252a36] rounded-xl overflow-hidden">
@@ -223,6 +219,35 @@ function Card({
       <div className="text-[10px] sm:text-xs text-[#8b93a7] uppercase tracking-wider mb-1">{label}</div>
       <div className={`text-lg sm:text-2xl font-mono font-semibold ${color}`}>{value}</div>
     </div>
+  )
+}
+
+function ReplaySection({ game, hideVolume }: { game: GameState; hideVolume: boolean }) {
+  const [open, setOpen] = useState(true)
+  const allCandles = useMemo(
+    () => [...game.warmup, ...game.reveal.slice(0, game.step)],
+    [game.warmup, game.reveal, game.step],
+  )
+
+  return (
+    <section>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-[#12151c] border border-[#252a36] hover:border-[#333a4d] transition text-sm font-bold text-[#e5e7eb]"
+      >
+        <span className="flex items-center gap-2">
+          <span>복기 모드</span>
+          <span className="text-xs font-normal text-[#8b93a7]">— 전체 차트 + 매매 포인트</span>
+        </span>
+        <span className={`transition-transform text-[#8b93a7] ${open ? 'rotate-180' : ''}`}>▾</span>
+      </button>
+      {open && (
+        <div className="mt-2 h-[70vh] sm:h-[75vh] bg-[#12151c] border border-[#252a36] rounded-xl overflow-hidden">
+          <Chart candles={allCandles} trades={game.trades} hideVolume={hideVolume} />
+        </div>
+      )}
+    </section>
   )
 }
 
