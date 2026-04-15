@@ -518,44 +518,82 @@ export function Chart({ candles, trades, hideVolume = false }: ChartProps) {
     else if (PANE_BY_KEY.has(key)) setPaneOn((s) => ({ ...s, [key]: !s[key] }))
   }
 
+  const [indicatorOpen, setIndicatorOpen] = useState(false)
+
+  // Count active indicators for the badge
+  const activeCount = useMemo(() => {
+    let count = 0
+    for (const d of OVERLAY_DEFS) if (overlayOn[d.key]) count++
+    for (const d of PANE_DEFS) if (paneOn[d.key]) count++
+    return count
+  }, [overlayOn, paneOn])
+
+  const chipPanel = GROUPS.map((g) => {
+    const chips = g.keys
+      .map((k) => {
+        const od = OVERLAY_BY_KEY.get(k)
+        if (od) {
+          if (od.requiresVolume && hideVolume) return null
+          return { key: k, label: od.label, color: od.chipColor, on: !!overlayOn[k] }
+        }
+        const pd = PANE_BY_KEY.get(k)
+        if (pd) {
+          if (pd.requiresVolume && hideVolume) return null
+          return { key: k, label: pd.label, color: pd.chipColor, on: !!paneOn[k] }
+        }
+        return null
+      })
+      .filter((x): x is NonNullable<typeof x> => x !== null)
+    if (chips.length === 0) return null
+    return (
+      <div key={g.label} className="flex flex-wrap items-center gap-1">
+        <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-[#64748b] w-12 sm:w-14 shrink-0">
+          {g.label}
+        </span>
+        {chips.map((c) => (
+          <Chip
+            key={c.key}
+            label={c.label}
+            color={c.color}
+            on={c.on}
+            onToggle={() => toggleKey(c.key)}
+          />
+        ))}
+      </div>
+    )
+  })
+
   return (
     <div className="w-full h-full flex flex-col">
-      <div className="shrink-0 flex flex-col gap-1 p-2 bg-[#12151c]/90 border-b border-[#252a36]">
-        {GROUPS.map((g) => {
-          const chips = g.keys
-            .map((k) => {
-              const od = OVERLAY_BY_KEY.get(k)
-              if (od) {
-                if (od.requiresVolume && hideVolume) return null
-                return { key: k, label: od.label, color: od.chipColor, on: !!overlayOn[k] }
-              }
-              const pd = PANE_BY_KEY.get(k)
-              if (pd) {
-                if (pd.requiresVolume && hideVolume) return null
-                return { key: k, label: pd.label, color: pd.chipColor, on: !!paneOn[k] }
-              }
-              return null
-            })
-            .filter((x): x is NonNullable<typeof x> => x !== null)
-          if (chips.length === 0) return null
-          return (
-            <div key={g.label} className="flex flex-wrap items-center gap-1">
-              <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-[#64748b] w-12 sm:w-14 shrink-0">
-                {g.label}
-              </span>
-              {chips.map((c) => (
-                <Chip
-                  key={c.key}
-                  label={c.label}
-                  color={c.color}
-                  on={c.on}
-                  onToggle={() => toggleKey(c.key)}
-                />
-              ))}
-            </div>
-          )
-        })}
+      {/* Desktop: always show chips */}
+      <div className="hidden sm:flex shrink-0 flex-col gap-1 p-2 bg-[#12151c]/90 border-b border-[#252a36]">
+        {chipPanel}
       </div>
+
+      {/* Mobile: collapsible */}
+      <div className="sm:hidden shrink-0 bg-[#12151c]/90 border-b border-[#252a36]">
+        <button
+          type="button"
+          onClick={() => setIndicatorOpen((o) => !o)}
+          className="w-full flex items-center justify-between px-3 py-1.5 text-xs font-bold text-[#8b93a7] active:bg-[#1a1e27]"
+        >
+          <span className="flex items-center gap-1.5">
+            <span>지표</span>
+            {activeCount > 0 && (
+              <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-1.5 py-0.5 rounded-full text-[10px] font-mono">
+                {activeCount}
+              </span>
+            )}
+          </span>
+          <span className={`transition-transform ${indicatorOpen ? 'rotate-180' : ''}`}>▾</span>
+        </button>
+        {indicatorOpen && (
+          <div className="flex flex-col gap-1 px-2 pb-2">
+            {chipPanel}
+          </div>
+        )}
+      </div>
+
       <div ref={containerRef} className="flex-1 min-h-0" />
     </div>
   )
