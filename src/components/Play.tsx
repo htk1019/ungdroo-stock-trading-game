@@ -14,9 +14,22 @@ interface PlayProps {
   onEnd: () => void
 }
 
+function useIsLandscapeMobile() {
+  const [isLandscape, setIsLandscape] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia('(max-height: 500px)')
+    const handler = () => setIsLandscape(mq.matches)
+    handler()
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [])
+  return isLandscape
+}
+
 export function Play({ game, onChange, onEnd }: PlayProps) {
   const [flash, setFlash] = useState<string | null>(null)
   const [cheer, setCheer] = useState<{ dollars: number; pct: number; good: boolean; key: number } | null>(null)
+  const isLandscape = useIsLandscapeMobile()
 
   const visibleCandles = useMemo(
     () => [...game.warmup, ...game.reveal.slice(0, game.step)],
@@ -72,6 +85,121 @@ export function Play({ game, onChange, onEnd }: PlayProps) {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   })
+
+  type ActionDef = { icon: string; title: string; desc: string; hotkey: string; onClick: () => void; bg: string }
+  const actions: ActionDef[] = (() => {
+    if (isFirstRound) return [
+      { icon: '📈', title: '롱(매수) 진입', desc: '오른다에 베팅', hotkey: 'B', onClick: () => handle('LONG'), bg: 'bg-emerald-500 hover:bg-emerald-400' },
+      { icon: '📉', title: '숏(공매도) 진입', desc: '내린다에 베팅', hotkey: 'S', onClick: () => handle('SHORT'), bg: 'bg-amber-500 hover:bg-amber-400' },
+    ]
+    if (pos === 'FLAT') return [
+      { icon: '📈', title: '롱(매수) 진입', desc: '오른다에 베팅', hotkey: 'B', onClick: () => handle('LONG'), bg: 'bg-emerald-500 hover:bg-emerald-400' },
+      { icon: '📉', title: '숏(공매도) 진입', desc: '내린다에 베팅', hotkey: 'S', onClick: () => handle('SHORT'), bg: 'bg-amber-500 hover:bg-amber-400' },
+      { icon: '🪙', title: '관망 / 현금 유지', desc: `+${game.roundSize}일 그냥 진행`, hotkey: 'Space', onClick: () => handle('HOLD'), bg: 'bg-slate-500 hover:bg-slate-400' },
+    ]
+    if (pos === 'LONG') return [
+      { icon: '💰', title: '롱 청산 → 현금', desc: '이익/손실 확정, 플랫으로', hotkey: 'F', onClick: () => handle('FLAT'), bg: 'bg-red-500 hover:bg-red-400' },
+      { icon: '🔁', title: '숏으로 전환', desc: '롱 청산 후 바로 숏', hotkey: 'S', onClick: () => handle('SHORT'), bg: 'bg-amber-500 hover:bg-amber-400' },
+      { icon: '✊', title: '롱 유지', desc: `+${game.roundSize}일 그대로 간다`, hotkey: 'Space', onClick: () => handle('HOLD'), bg: 'bg-indigo-500 hover:bg-indigo-400' },
+    ]
+    return [
+      { icon: '💰', title: '숏 청산 → 현금', desc: '이익/손실 확정, 플랫으로', hotkey: 'F', onClick: () => handle('FLAT'), bg: 'bg-red-500 hover:bg-red-400' },
+      { icon: '🔁', title: '롱으로 전환', desc: '숏 청산 후 바로 롱', hotkey: 'B', onClick: () => handle('LONG'), bg: 'bg-emerald-500 hover:bg-emerald-400' },
+      { icon: '✊', title: '숏 유지', desc: `+${game.roundSize}일 그대로 간다`, hotkey: 'Space', onClick: () => handle('HOLD'), bg: 'bg-indigo-500 hover:bg-indigo-400' },
+    ]
+  })()
+
+  if (isLandscape) {
+    return (
+      <div className="h-screen flex flex-row bg-[#0d1016]">
+        <main className="flex-1 min-h-0 relative">
+          <Chart candles={visibleCandles} trades={game.trades} hideVolume={hideVolume} />
+          {flash && (
+            <div className="absolute top-2 left-1/2 -translate-x-1/2 px-2 py-1 rounded bg-red-500/20 border border-red-500/50 text-red-200 text-xs z-20">
+              {flash}
+            </div>
+          )}
+          {cheer && (
+            <div
+              key={cheer.key}
+              className={`absolute top-2 right-2 pointer-events-none select-none animate-pnl-pop z-10 rounded-lg px-2 py-1 backdrop-blur border-2 shadow-xl flex flex-col items-end leading-tight ${
+                cheer.good
+                  ? 'bg-emerald-500/20 border-emerald-400/70 text-emerald-200'
+                  : 'bg-red-500/20 border-red-400/70 text-red-200'
+              }`}
+            >
+              <div className="font-mono font-black text-sm">
+                {cheer.dollars >= 0 ? '+' : ''}${Math.abs(cheer.dollars).toFixed(2)}
+              </div>
+              <div className="font-mono font-bold text-[10px] opacity-90">
+                {cheer.pct >= 0 ? '+' : ''}{cheer.pct.toFixed(2)}%
+              </div>
+            </div>
+          )}
+        </main>
+
+        <aside className="w-44 shrink-0 border-l border-[#252a36] bg-[#12151c] flex flex-col">
+          <div className="px-2 py-1.5 border-b border-[#252a36] flex items-center justify-between gap-2">
+            <h1 className="font-bold text-xs">🦆 4848</h1>
+            <PositionBadge pos={pos} />
+          </div>
+
+          <div className="px-2 py-1 border-b border-[#252a36] text-[10px]">
+            <div className="flex justify-between text-[#8b93a7]">
+              <span>R {currentRound}/{game.roundCount}</span>
+              <span className="font-mono text-[#e5e7eb]">${price.toFixed(2)}</span>
+            </div>
+            <div className="h-1 mt-1 bg-[#1a1e27] rounded-full overflow-hidden border border-[#252a36]">
+              <div
+                className="h-full bg-gradient-to-r from-emerald-500 via-amber-400 to-red-500 transition-all"
+                style={{ width: `${(currentRound / game.roundCount) * 100}%` }}
+              />
+            </div>
+          </div>
+
+          <div className="px-2 py-1.5 grid grid-cols-2 gap-x-2 gap-y-0.5 text-[10px] border-b border-[#252a36]">
+            <div className="flex justify-between col-span-2">
+              <span className="text-[#8b93a7]">현금</span>
+              <span className="font-mono">${game.cash.toFixed(0)}</span>
+            </div>
+            <div className="flex justify-between col-span-2">
+              <span className="text-[#8b93a7]">평가</span>
+              <span className="font-mono">${equity.toFixed(0)}</span>
+            </div>
+            <div className="flex justify-between col-span-2">
+              <span className="text-[#8b93a7]">BM</span>
+              <span className="font-mono text-[#8b93a7]">${bmEquity.toFixed(0)}</span>
+            </div>
+            <div className="flex justify-between col-span-2">
+              <span className="text-[#8b93a7]">번돈</span>
+              <span className={`font-mono font-bold ${earned >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                {earned >= 0 ? '+' : ''}${earned.toFixed(0)}
+              </span>
+            </div>
+            <div className="flex justify-between col-span-2">
+              <span className="text-[#8b93a7]">수익률</span>
+              <span className={`font-mono font-bold ${pnlPct >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                {pnlPct >= 0 ? '+' : ''}{pnlPct.toFixed(1)}%
+              </span>
+            </div>
+          </div>
+
+          <div className="flex-1 min-h-0 p-1.5 flex flex-col gap-1">
+            {actions.map((a) => (
+              <button
+                key={a.title}
+                onClick={a.onClick}
+                className={`flex-1 min-h-0 rounded-md ${a.bg} text-white flex items-center gap-2 px-2 py-1 shadow transition active:scale-95`}
+              >
+                <span className="text-xl leading-none shrink-0">{a.icon}</span>
+                <span className="font-black text-[11px] leading-tight text-left flex-1 min-w-0">{a.title}</span>
+              </button>
+            ))}
+          </div>
+        </aside>
+      </div>
+    )
+  }
 
   return (
     <div className="h-screen flex flex-col">
@@ -163,55 +291,9 @@ export function Play({ game, onChange, onEnd }: PlayProps) {
           {!isFirstRound && pos === 'SHORT' && <>현재 <span className="text-amber-300">숏(공매도)</span> 보유 중 — 다음 라운드?</>}
         </div>
         <div className={`grid ${isFirstRound ? 'grid-cols-2' : 'grid-cols-3'} gap-2 sm:gap-3`}>
-          {isFirstRound && (
-            <>
-              <ActionCard icon="📈" title="롱(매수) 진입" desc="오른다에 베팅" hotkey="B"
-                onClick={() => handle('LONG')}
-                bg="bg-emerald-500 hover:bg-emerald-400" />
-              <ActionCard icon="📉" title="숏(공매도) 진입" desc="내린다에 베팅" hotkey="S"
-                onClick={() => handle('SHORT')}
-                bg="bg-amber-500 hover:bg-amber-400" />
-            </>
-          )}
-          {!isFirstRound && pos === 'FLAT' && (
-            <>
-              <ActionCard icon="📈" title="롱(매수) 진입" desc="오른다에 베팅" hotkey="B"
-                onClick={() => handle('LONG')}
-                bg="bg-emerald-500 hover:bg-emerald-400" />
-              <ActionCard icon="📉" title="숏(공매도) 진입" desc="내린다에 베팅" hotkey="S"
-                onClick={() => handle('SHORT')}
-                bg="bg-amber-500 hover:bg-amber-400" />
-              <ActionCard icon="🪙" title="관망 / 현금 유지" desc={`+${game.roundSize}일 그냥 진행`} hotkey="Space"
-                onClick={() => handle('HOLD')}
-                bg="bg-slate-500 hover:bg-slate-400" />
-            </>
-          )}
-          {pos === 'LONG' && (
-            <>
-              <ActionCard icon="💰" title="롱 청산 → 현금" desc="이익/손실 확정, 플랫으로" hotkey="F"
-                onClick={() => handle('FLAT')}
-                bg="bg-red-500 hover:bg-red-400" />
-              <ActionCard icon="🔁" title="숏으로 전환" desc="롱 청산 후 바로 숏" hotkey="S"
-                onClick={() => handle('SHORT')}
-                bg="bg-amber-500 hover:bg-amber-400" />
-              <ActionCard icon="✊" title="롱 유지" desc={`+${game.roundSize}일 그대로 간다`} hotkey="Space"
-                onClick={() => handle('HOLD')}
-                bg="bg-indigo-500 hover:bg-indigo-400" />
-            </>
-          )}
-          {pos === 'SHORT' && (
-            <>
-              <ActionCard icon="💰" title="숏 청산 → 현금" desc="이익/손실 확정, 플랫으로" hotkey="F"
-                onClick={() => handle('FLAT')}
-                bg="bg-red-500 hover:bg-red-400" />
-              <ActionCard icon="🔁" title="롱으로 전환" desc="숏 청산 후 바로 롱" hotkey="B"
-                onClick={() => handle('LONG')}
-                bg="bg-emerald-500 hover:bg-emerald-400" />
-              <ActionCard icon="✊" title="숏 유지" desc={`+${game.roundSize}일 그대로 간다`} hotkey="Space"
-                onClick={() => handle('HOLD')}
-                bg="bg-indigo-500 hover:bg-indigo-400" />
-            </>
-          )}
+          {actions.map((a) => (
+            <ActionCard key={a.title} {...a} />
+          ))}
         </div>
       </footer>
     </div>
