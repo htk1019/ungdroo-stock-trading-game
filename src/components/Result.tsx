@@ -75,7 +75,7 @@ export function Result({ game, onReplay }: ResultProps) {
   const [hs, setHs] = useState<{ best: HighScore; isNew: boolean } | null>(null)
   useEffect(() => {
     setHs(recordHighScore({
-      returnPct: stats.returnPct,
+      cagrPct: stats.cagrPct,
       symbol: game.symbol,
       symbolName: info?.name,
       at: Date.now(),
@@ -120,12 +120,12 @@ export function Result({ game, onReplay }: ResultProps) {
                 : 'bg-[#1a1e27] border-[#252a36] text-[#8b93a7]'
             }`}>
               <div className="text-[9px] sm:text-[10px] uppercase tracking-widest font-bold">
-                {hs.isNew ? '🏆 신기록!' : '🏆 최고 기록'}
+                {hs.isNew ? '🏆 신기록! (연환산)' : '🏆 최고 기록 (연환산)'}
               </div>
               <div className={`font-mono font-black text-sm sm:text-lg ${
-                hs.best.returnPct >= 0 ? 'text-emerald-300' : 'text-red-300'
+                hs.best.cagrPct >= 0 ? 'text-emerald-300' : 'text-red-300'
               }`}>
-                {hs.best.returnPct >= 0 ? '+' : ''}{hs.best.returnPct.toFixed(2)}%
+                {hs.best.cagrPct >= 0 ? '+' : ''}{hs.best.cagrPct.toFixed(2)}%
               </div>
               <div className="text-[9px] sm:text-[10px] opacity-80 truncate max-w-[120px] sm:max-w-[160px]">
                 {hs.best.symbolName ?? hs.best.symbol}

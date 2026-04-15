@@ -186,9 +186,9 @@ export function Setup({ onStart, loading, error }: SetupProps) {
 
         {highScore && (
           <div className="mt-4 flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-amber-500/10 border-2 border-amber-400/50 text-amber-100 text-sm font-bold">
-            <span>🏆 최고 기록</span>
-            <span className={`font-mono font-black text-base ${highScore.returnPct >= 0 ? 'text-emerald-300' : 'text-red-300'}`}>
-              {highScore.returnPct >= 0 ? '+' : ''}{highScore.returnPct.toFixed(2)}%
+            <span>🏆 최고 기록 (연환산)</span>
+            <span className={`font-mono font-black text-base ${highScore.cagrPct >= 0 ? 'text-emerald-300' : 'text-red-300'}`}>
+              {highScore.cagrPct >= 0 ? '+' : ''}{highScore.cagrPct.toFixed(2)}%
             </span>
             <span className="text-amber-200/80 text-xs">
               ({highScore.symbolName ?? highScore.symbol})
