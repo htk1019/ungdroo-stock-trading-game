@@ -172,13 +172,13 @@ export function Result({ game, onReplay }: ResultProps) {
         <span>B&H 초과 {beatBM ? '✅' : '❌'} {stats.alphaPct >= 0 ? '+' : ''}{stats.alphaPct.toFixed(2)}%p (연 {stats.alphaCagrPct >= 0 ? '+' : ''}{stats.alphaCagrPct.toFixed(2)}%p)</span>
       </div>
 
+      {/* 복기 모드 */}
+      <ReplaySection game={game} hideVolume={findTicker(game.symbol)?.category === 'index'} />
+
       {/* Equity chart */}
       <section className="h-72 bg-[#12151c] border border-[#252a36] rounded-xl overflow-hidden">
         <EquityChart times={times} player={game.equityCurve} buyHold={game.buyHoldCurve} />
       </section>
-
-      {/* 복기 모드 */}
-      <ReplaySection game={game} hideVolume={findTicker(game.symbol)?.category === 'index'} />
 
       {/* Trade log */}
       <section className="bg-[#12151c] border border-[#252a36] rounded-xl overflow-hidden">
