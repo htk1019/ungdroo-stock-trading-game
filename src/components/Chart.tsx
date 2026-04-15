@@ -76,6 +76,11 @@ const ICHI = {
 // Time casting helper
 const t = (n: number) => n as UTCTimestamp
 
+// Mobile gets thicker lines for legibility on small screens.
+const isMobile = typeof window !== 'undefined'
+  && window.matchMedia('(max-width: 640px)').matches
+const BASE_LW = (isMobile ? 2 : 1) as 1 | 2
+
 const OVERLAY_DEFS: OverlayDef[] = [
   { key: 'sma5',   label: 'SMA5',   chipColor: '#f472b6', defaultOn: true,
     lines: [{ color: '#f472b6' }],
@@ -353,7 +358,7 @@ export function Chart({ candles, trades, hideVolume = false }: ChartProps) {
       for (const lc of def.lines) {
         const s = chart.addSeries(LineSeries, {
           color: lc.color,
-          lineWidth: lc.lineWidth ?? 1,
+          lineWidth: lc.lineWidth ?? BASE_LW,
           lineStyle: lc.style ?? LineStyle.Solid,
           priceLineVisible: false,
           lastValueVisible: false,
@@ -381,7 +386,7 @@ export function Chart({ candles, trades, hideVolume = false }: ChartProps) {
         if (sc.kind === 'line') {
           refs.push(chart.addSeries(LineSeries, {
             color: sc.color ?? '#94a3b8',
-            lineWidth: 1,
+            lineWidth: BASE_LW,
             lineStyle: sc.style ?? LineStyle.Solid,
             priceLineVisible: false, lastValueVisible: false,
           }, paneIdx))
@@ -408,7 +413,7 @@ export function Chart({ candles, trades, hideVolume = false }: ChartProps) {
 
     requestAnimationFrame(() => {
       const panes = chart.panes()
-      if (panes[0]) panes[0].setHeight(440)
+      // Leave pane 0 unset so it expands into remaining container space.
       let pi = 1
       for (const def of activePanes) {
         if (panes[pi]) panes[pi].setHeight(def.height)
@@ -514,9 +519,8 @@ export function Chart({ candles, trades, hideVolume = false }: ChartProps) {
   }
 
   return (
-    <div className="w-full h-full relative">
-      <div ref={containerRef} className="w-full h-full" />
-      <div className="absolute top-2 left-2 right-2 z-10 flex flex-col gap-1 pointer-events-none">
+    <div className="w-full h-full flex flex-col">
+      <div className="shrink-0 flex flex-col gap-1 p-2 bg-[#12151c]/90 border-b border-[#252a36]">
         {GROUPS.map((g) => {
           const chips = g.keys
             .map((k) => {
@@ -552,6 +556,7 @@ export function Chart({ candles, trades, hideVolume = false }: ChartProps) {
           )
         })}
       </div>
+      <div ref={containerRef} className="flex-1 min-h-0" />
     </div>
   )
 }
@@ -563,7 +568,7 @@ function Chip({
     <button
       type="button"
       onClick={onToggle}
-      className={`pointer-events-auto flex items-center gap-1 px-2 py-1 sm:px-1.5 sm:py-0.5 rounded border text-[11px] sm:text-[10px] font-mono font-semibold transition min-h-[28px] sm:min-h-0 active:scale-95 ${
+      className={`flex items-center gap-1 px-2 py-1 sm:px-1.5 sm:py-0.5 rounded border text-[11px] sm:text-[10px] font-mono font-semibold transition min-h-[28px] sm:min-h-0 active:scale-95 ${
         on
           ? 'bg-[#12151c]/85 border-[#333a4d] text-[#e5e7eb] hover:bg-[#1a1e27]/90'
           : 'bg-[#12151c]/60 border-[#252a36] text-[#64748b] hover:text-[#8b93a7] line-through'
