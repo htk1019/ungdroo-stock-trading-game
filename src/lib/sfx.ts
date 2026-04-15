@@ -44,7 +44,7 @@ function playNotes(notes: Note[]) {
 export function playWin() {
   if (typeof window === 'undefined') return
   const audio = new Audio('/win.mp3')
-  audio.volume = 0.9
+  audio.volume = 0.5
   audio.play().catch(() => {})
 }
 
@@ -71,6 +71,6 @@ export function playDing(good: boolean) {
 export function playMeh() {
   if (typeof window === 'undefined') return
   const audio = new Audio('/meh.mp3')
-  audio.volume = 0.7
+  audio.volume = 0.4
   audio.play().catch(() => {})
 }
