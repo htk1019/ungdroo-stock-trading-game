@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { ALL_CATEGORIES, CATEGORY_LABEL, type Category } from '../lib/tickers'
 import { ROUND_SIZES, ROUND_COUNTS, type RoundSize } from '../lib/engine'
 import { HelpModal } from './HelpModal'
-import { loadHighScore } from '../lib/highscore'
+import { loadHighScore, loadRecentGames } from '../lib/highscore'
 
 interface SetupProps {
   onStart: (args: { categories: Category[]; roundCount: number; roundSize: RoundSize }) => void
@@ -16,6 +16,7 @@ export function Setup({ onStart, loading, error }: SetupProps) {
   const [roundSize, setRoundSize] = useState<RoundSize>(ROUND_SIZES[1]) // 주
   const [showHelp, setShowHelp] = useState(false)
   const highScore = loadHighScore()
+  const recent = loadRecentGames()
 
   const toggleCat = (c: Category) => {
     const next = new Set(categories)
@@ -193,6 +194,29 @@ export function Setup({ onStart, loading, error }: SetupProps) {
             <span className="text-amber-200/80 text-xs">
               ({highScore.symbolName ?? highScore.symbol})
             </span>
+          </div>
+        )}
+
+        {recent.length > 0 && (
+          <div className="mt-3 px-3 py-2 rounded-xl bg-[#12151c]/70 border border-[#252a36]">
+            <div className="text-[10px] font-bold uppercase tracking-widest text-[#8b93a7] mb-1.5">
+              최근 게임 ({recent.length})
+            </div>
+            <ul className="flex flex-col gap-0.5 max-h-40 overflow-auto">
+              {recent.map((r) => (
+                <li key={r.at} className="flex items-center justify-between gap-2 text-xs font-mono">
+                  <span className="text-[#8b93a7] shrink-0 w-16">
+                    {new Date(r.at).toISOString().slice(5, 10).replace('-', '/')}
+                  </span>
+                  <span className="text-[#e5e7eb] truncate flex-1 min-w-0">
+                    {r.symbolName ?? r.symbol}
+                  </span>
+                  <span className={`font-bold shrink-0 ${r.cagrPct >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                    {r.cagrPct >= 0 ? '+' : ''}{r.cagrPct.toFixed(1)}%
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
         )}
 

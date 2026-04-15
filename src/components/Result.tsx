@@ -4,7 +4,7 @@ import { findTicker } from '../lib/tickers'
 import { EquityChart } from './EquityChart'
 import { Chart } from './Chart'
 import { playWin, playLose, playMeh } from '../lib/sfx'
-import { recordHighScore, type HighScore } from '../lib/highscore'
+import { recordHighScore, addRecentGame, type HighScore } from '../lib/highscore'
 
 interface ResultProps {
   game: GameState
@@ -74,12 +74,14 @@ export function Result({ game, onReplay }: ResultProps) {
   // Record / retrieve high score (highest absolute return ever).
   const [hs, setHs] = useState<{ best: HighScore; isNew: boolean } | null>(null)
   useEffect(() => {
-    setHs(recordHighScore({
+    const entry = {
       cagrPct: stats.cagrPct,
       symbol: game.symbol,
       symbolName: info?.name,
       at: Date.now(),
-    }))
+    }
+    setHs(recordHighScore(entry))
+    addRecentGame(entry)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
