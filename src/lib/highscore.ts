@@ -50,3 +50,7 @@ export function addRecentGame(score: HighScore): HighScore[] {
   localStorage.setItem(RECENT_KEY, JSON.stringify(next))
   return next
 }
+
+export function clearRecentGames() {
+  localStorage.removeItem(RECENT_KEY)
+}

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { ALL_CATEGORIES, CATEGORY_LABEL, type Category } from '../lib/tickers'
 import { ROUND_SIZES, ROUND_COUNTS, type RoundSize } from '../lib/engine'
 import { HelpModal } from './HelpModal'
-import { loadHighScore, loadRecentGames } from '../lib/highscore'
+import { loadHighScore, loadRecentGames, clearRecentGames } from '../lib/highscore'
 import { saveNickname } from '../lib/leaderboard'
 
 interface SetupProps {
@@ -19,7 +19,7 @@ export function Setup({ onStart, loading, error, nickname, onNicknameChange }: S
   const [roundSize, setRoundSize] = useState<RoundSize>(ROUND_SIZES[1]) // 주
   const [showHelp, setShowHelp] = useState(false)
   const highScore = loadHighScore()
-  const recent = loadRecentGames()
+  const [recent, setRecent] = useState(loadRecentGames)
 
   const toggleCat = (c: Category) => {
     const next = new Set(categories)
@@ -219,8 +219,16 @@ export function Setup({ onStart, loading, error, nickname, onNicknameChange }: S
 
         {recent.length > 0 && (
           <div className="mt-3 px-3 py-2 rounded-xl bg-[#12151c]/70 border border-[#252a36]">
-            <div className="text-[10px] font-bold uppercase tracking-widest text-[#8b93a7] mb-1.5">
-              최근 게임 ({recent.length})
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-[#8b93a7]">
+                최근 게임 ({recent.length})
+              </span>
+              <button
+                onClick={() => { clearRecentGames(); setRecent([]) }}
+                className="text-[10px] text-red-400/70 hover:text-red-300 font-bold transition"
+              >
+                전체 삭제
+              </button>
             </div>
             <ul className="flex flex-col gap-0.5 max-h-40 overflow-auto">
               {recent.map((r) => (
