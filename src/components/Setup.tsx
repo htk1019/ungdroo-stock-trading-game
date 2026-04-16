@@ -70,44 +70,6 @@ export function Setup({ onStart, loading, error, nickname, onNicknameChange, onT
     <div className={`min-h-screen flex items-center justify-center p-3 sm:p-6 relative overflow-hidden ${t.pageBg}`}>
       {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
 
-      {/* 배경 장식 — 다크 테마에서만 표시 */}
-      {isDark && (
-        <>
-          <div aria-hidden className="absolute inset-0 pointer-events-none hidden sm:block">
-            <div className="absolute inset-0 bg-gradient-to-br from-fuchsia-900/20 via-purple-900/10 to-amber-900/20" />
-            <span className="absolute top-8  left-10  text-5xl animate-spin-slow">✨</span>
-            <span className="absolute top-16 right-24 text-6xl animate-bounce">💰</span>
-            <span className="absolute bottom-24 left-16 text-5xl animate-pulse">📈</span>
-            <span className="absolute bottom-12 right-12 text-5xl animate-spin-slow">🎰</span>
-            <span className="absolute top-1/2 left-4 text-4xl animate-bounce">🪙</span>
-            <span className="absolute top-1/3 right-6 text-4xl animate-pulse">💸</span>
-            <span className="absolute top-6    right-1/3 text-3xl rotate-12 animate-blink">★</span>
-            <span className="absolute bottom-6 left-1/3  text-3xl -rotate-12 animate-blink">★</span>
-            <img src="/meme1.png" alt="" className="absolute bottom-6 left-6 w-28 opacity-60 rotate-[-8deg] rounded-lg border border-white/10 select-none" draggable={false} />
-            <img src="/meme2.png" alt="" className="absolute top-6 right-6 w-24 opacity-60 rotate-[6deg] rounded-lg border border-white/10 select-none" draggable={false} />
-          </div>
-          <div aria-hidden className="absolute inset-0 pointer-events-none sm:hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-fuchsia-900/20 via-purple-900/10 to-amber-900/20" />
-            <img src="/meme1.png" alt="" className="absolute bottom-2 left-2 w-16 opacity-40 rotate-[-8deg] rounded select-none" draggable={false} />
-            <img src="/meme2.png" alt="" className="absolute top-2 right-2 w-14 opacity-40 rotate-[6deg] rounded select-none" draggable={false} />
-          </div>
-        </>
-      )}
-
-      {/* 무지개 테마 배경 장식 */}
-      {themeKey === 'rainbow' && (
-        <div aria-hidden className="absolute inset-0 pointer-events-none">
-          <span className="absolute top-10 left-8 text-6xl animate-bounce">🌈</span>
-          <span className="absolute top-20 right-16 text-5xl animate-spin-slow">🦄</span>
-          <span className="absolute bottom-20 left-12 text-5xl animate-pulse">⭐</span>
-          <span className="absolute bottom-10 right-10 text-4xl animate-bounce">🌸</span>
-          <span className="absolute top-1/2 left-6 text-4xl animate-spin-slow">🍭</span>
-          <span className="absolute top-1/3 right-8 text-5xl animate-pulse">🎀</span>
-          <span className="absolute top-8 left-1/3 text-3xl rotate-12 animate-blink">☆</span>
-          <span className="absolute bottom-8 right-1/3 text-3xl -rotate-12 animate-blink">♡</span>
-        </div>
-      )}
-
       {/* 네온 테마 배경 — 레트로 도시 */}
       {themeKey === 'neon' && (
         <div aria-hidden className="absolute inset-0 pointer-events-none">
