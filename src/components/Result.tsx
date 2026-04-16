@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { computeStats, type GameState, INTERVAL_LABEL } from '../lib/engine'
 import { findTicker } from '../lib/tickers'
 import { EquityChart } from './EquityChart'
@@ -71,8 +71,10 @@ export function Result({ game, onReplay, nickname }: ResultProps) {
   // Record / retrieve high score (highest absolute return ever).
   const [hs, setHs] = useState<{ best: HighScore; isNew: boolean } | null>(null)
   const [leaderboard, setLeaderboard] = useState<LeaderboardRow[]>([])
+  const submitted = useRef(false)
   useEffect(() => {
-    let cancelled = false
+    if (submitted.current) return
+    submitted.current = true
     const entry = {
       cagrPct: stats.cagrPct,
       symbol: game.symbol,
@@ -80,9 +82,9 @@ export function Result({ game, onReplay, nickname }: ResultProps) {
       at: Date.now(),
     }
     setHs(recordHighScore(entry))
-    if (!cancelled) addRecentGame(entry)
+    addRecentGame(entry)
     // Submit score to Firestore & fetch leaderboard
-    if (!cancelled && nickname.trim()) {
+    if (nickname.trim()) {
       submitScore({
         nickname: nickname.trim(),
         returnPct: Math.round(stats.returnPct * 100) / 100,
@@ -93,12 +95,11 @@ export function Result({ game, onReplay, nickname }: ResultProps) {
         trades: game.trades.length,
         createdAt: null,
       }).then(() => {
-        if (!cancelled) fetchTopScores(20).then(setLeaderboard).catch(console.error)
+        fetchTopScores(20).then(setLeaderboard).catch(console.error)
       }).catch(console.error)
     } else {
       fetchTopScores(20).then(setLeaderboard).catch(console.error)
     }
-    return () => { cancelled = true }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
