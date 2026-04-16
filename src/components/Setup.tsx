@@ -152,27 +152,6 @@ export function Setup({ onStart, loading, error, nickname, onNicknameChange, onT
 
         {/* Hero */}
         <div className="flex flex-col items-center text-center mb-4 sm:mb-6 mt-2 sm:mt-4 relative">
-          {isDark && (
-            <>
-              <div className="hidden sm:block absolute -top-1 right-14 text-pink-300 text-xs font-black rotate-[12deg] select-none leading-tight animate-blink">
-                🚨 대박 🚨<br/>신호 감지!
-              </div>
-            </>
-          )}
-          {themeKey === 'rainbow' && (
-            <>
-              <div className="hidden sm:block absolute -top-1 right-14 text-purple-500 text-xs font-black rotate-[12deg] select-none leading-tight animate-blink">
-                ✨ 대박 ✨<br/>신호 감지!
-              </div>
-            </>
-          )}
-          {themeKey === 'neon' && (
-            <>
-              <div className="hidden sm:block absolute -top-1 right-14 text-fuchsia-400 text-xs font-black rotate-[12deg] select-none leading-tight animate-blink">
-                💀 대박 💀<br/>신호 감지!
-              </div>
-            </>
-          )}
 
           <div className="relative animate-wobble">
             <img
