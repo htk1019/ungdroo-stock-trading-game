@@ -141,23 +141,23 @@ export function Setup({ onStart, loading, error, nickname, onNicknameChange, onT
           ?
         </button>
 
+        {/* 테마 버튼 — 카드 왼쪽 위 (도움말 버튼과 같은 높이) */}
+        <button
+          onClick={cycleTheme}
+          className={`absolute top-3 left-3 sm:top-5 sm:left-5 z-20 px-2.5 py-1.5 rounded-lg text-xs font-bold border-2 transition-all ${
+            isDark
+              ? 'bg-[#1a1e27] border-[#252a36] text-[#8b93a7] hover:border-amber-400/50'
+              : themeKey === 'rainbow'
+                ? 'bg-white/70 border-pink-300 text-pink-600 hover:border-pink-400'
+                : 'bg-black border-lime-500/50 text-lime-400 hover:border-lime-400'
+          }`}
+          title="테마 변경"
+        >
+          {t.emoji} {t.label}
+        </button>
+
         {/* Hero */}
         <div className="flex flex-col items-center text-center mb-4 sm:mb-6 mt-2 sm:mt-4 relative">
-          {/* 테마 버튼 — 왼쪽 위 */}
-          <button
-            onClick={cycleTheme}
-            className={`absolute -top-1 left-0 sm:left-2 z-20 px-2 py-1 rounded-lg text-[10px] sm:text-xs font-bold border-2 transition-all ${
-              isDark
-                ? 'bg-[#1a1e27] border-[#252a36] text-[#8b93a7] hover:border-amber-400/50'
-                : themeKey === 'rainbow'
-                  ? 'bg-white/70 border-pink-300 text-pink-600 hover:border-pink-400'
-                  : 'bg-black border-lime-500/50 text-lime-400 hover:border-lime-400'
-            }`}
-            title="테마 변경"
-          >
-            {t.emoji} {t.label}
-          </button>
-
           {isDark && (
             <>
               <div className="hidden sm:block absolute -top-1 right-14 text-pink-300 text-xs font-black rotate-[12deg] select-none leading-tight animate-blink">
