@@ -71,7 +71,7 @@ export function Setup({ onStart, loading, error, nickname, onNicknameChange }: S
       {/* Theme toggle — top-left corner */}
       <button
         onClick={cycleTheme}
-        className={`fixed top-2 left-2 sm:top-4 sm:left-4 z-50 px-2.5 py-1.5 rounded-lg text-xs font-bold border-2 transition-all ${
+        className={`fixed top-2 right-2 sm:top-4 sm:right-4 z-50 px-2.5 py-1.5 rounded-lg text-xs font-bold border-2 transition-all ${
           isDark
             ? 'bg-[#1a1e27] border-[#252a36] text-[#8b93a7] hover:border-amber-400/50'
             : themeKey === 'rainbow'
