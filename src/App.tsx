@@ -6,6 +6,7 @@ import { Bgm } from './components/Bgm'
 import { fetchHistory } from './lib/yahoo'
 import { pickRandomTicker, type Category } from './lib/tickers'
 import { initGame, pickWindow, WARMUP_DAYS, type GameState, type RoundSize } from './lib/engine'
+import { loadNickname, loadUniqueNickname, resolveUniqueNickname } from './lib/leaderboard'
 
 type Phase = 'setup' | 'playing' | 'ended'
 
@@ -15,6 +16,8 @@ export default function App() {
   const [, setVersion] = useState(0)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [nickname, setNickname] = useState(loadNickname)
+  const [uniqueNickname, setUniqueNickname] = useState(loadUniqueNickname)
 
   const bump = useCallback(() => setVersion((v) => v + 1), [])
 
@@ -23,6 +26,11 @@ export default function App() {
   }: { categories: Category[]; roundCount: number; roundSize: RoundSize }) => {
     setLoading(true)
     setError(null)
+    // Resolve unique nickname on first game start
+    try {
+      const resolved = await resolveUniqueNickname(nickname)
+      setUniqueNickname(resolved)
+    } catch { /* offline — use base nickname */ }
     const tried = new Set<string>()
     const tradingDays = roundCount * roundSize.days
     try {
@@ -60,11 +68,11 @@ export default function App() {
 
   let screen
   if (phase === 'setup' || !game) {
-    screen = <Setup onStart={start} loading={loading} error={error} />
+    screen = <Setup onStart={start} loading={loading} error={error} nickname={nickname} onNicknameChange={setNickname} />
   } else if (phase === 'playing') {
     screen = <Play game={game} onChange={bump} onEnd={() => setPhase('ended')} />
   } else {
-    screen = <Result game={game} onReplay={replay} />
+    screen = <Result game={game} onReplay={replay} nickname={uniqueNickname || nickname} />
   }
   return (
     <>

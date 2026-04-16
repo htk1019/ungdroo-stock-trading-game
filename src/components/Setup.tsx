@@ -3,14 +3,17 @@ import { ALL_CATEGORIES, CATEGORY_LABEL, type Category } from '../lib/tickers'
 import { ROUND_SIZES, ROUND_COUNTS, type RoundSize } from '../lib/engine'
 import { HelpModal } from './HelpModal'
 import { loadHighScore, loadRecentGames } from '../lib/highscore'
+import { saveNickname } from '../lib/leaderboard'
 
 interface SetupProps {
   onStart: (args: { categories: Category[]; roundCount: number; roundSize: RoundSize }) => void
   loading: boolean
   error: string | null
+  nickname: string
+  onNicknameChange: (nick: string) => void
 }
 
-export function Setup({ onStart, loading, error }: SetupProps) {
+export function Setup({ onStart, loading, error, nickname, onNicknameChange }: SetupProps) {
   const [categories, setCategories] = useState<Set<Category>>(new Set(['kr']))
   const [roundCount, setRoundCount] = useState<number>(20)
   const [roundSize, setRoundSize] = useState<RoundSize>(ROUND_SIZES[1]) // 주
@@ -171,12 +174,29 @@ export function Setup({ onStart, loading, error }: SetupProps) {
           </p>
         </section>
 
+        <section className="mb-6">
+          <h2 className="text-sm font-black text-emerald-300 uppercase tracking-widest mb-2">
+            🏆 닉네임 (랭킹용)
+          </h2>
+          <input
+            type="text"
+            value={nickname}
+            onChange={(e) => {
+              onNicknameChange(e.target.value)
+              saveNickname(e.target.value)
+            }}
+            placeholder="닉네임을 입력하세요"
+            maxLength={20}
+            className="w-full px-4 py-3 rounded-xl border-2 border-emerald-400/40 bg-[#1a1e27] text-emerald-100 font-bold placeholder:text-[#5a6175] focus:border-emerald-400 focus:outline-none transition"
+          />
+        </section>
+
         <button
           onClick={() => onStart({ categories: Array.from(categories), roundCount, roundSize })}
-          disabled={loading}
+          disabled={loading || !nickname.trim()}
           className="btn-shine w-full py-4 sm:py-5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-pink-500 via-amber-400 to-orange-500 hover:from-pink-400 hover:via-amber-300 hover:to-orange-400 disabled:from-[#1a1e27] disabled:via-[#1a1e27] disabled:to-[#1a1e27] disabled:text-[#5a6175] text-[#0b0d12] font-black text-lg sm:text-xl transition shadow-[0_0_30px_rgba(251,191,36,0.5)] relative overflow-hidden border-2 border-amber-200"
         >
-          {loading ? '⏳ 딸깍… 딸깍… 딸깍…' : '🎰 딸깍! 시작하기 🎰'}
+          {loading ? '⏳ 딸깍… 딸깍… 딸깍…' : !nickname.trim() ? '👆 닉네임을 입력하세요' : '🎰 딸깍! 시작하기 🎰'}
         </button>
 
         {error && (

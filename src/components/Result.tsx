@@ -5,13 +5,15 @@ import { EquityChart } from './EquityChart'
 import { Chart } from './Chart'
 import { playWin, playLose, playMeh } from '../lib/sfx'
 import { recordHighScore, addRecentGame, type HighScore } from '../lib/highscore'
+import { submitScore, fetchTopScores, type LeaderboardRow } from '../lib/leaderboard'
 
 interface ResultProps {
   game: GameState
   onReplay: () => void
+  nickname: string
 }
 
-export function Result({ game, onReplay }: ResultProps) {
+export function Result({ game, onReplay, nickname }: ResultProps) {
   const stats = useMemo(() => computeStats(game), [game])
   const info = findTicker(game.symbol)
 
@@ -68,6 +70,7 @@ export function Result({ game, onReplay }: ResultProps) {
 
   // Record / retrieve high score (highest absolute return ever).
   const [hs, setHs] = useState<{ best: HighScore; isNew: boolean } | null>(null)
+  const [leaderboard, setLeaderboard] = useState<LeaderboardRow[]>([])
   useEffect(() => {
     const entry = {
       cagrPct: stats.cagrPct,
@@ -77,6 +80,20 @@ export function Result({ game, onReplay }: ResultProps) {
     }
     setHs(recordHighScore(entry))
     addRecentGame(entry)
+    // Submit score to Firestore & fetch leaderboard
+    if (nickname.trim()) {
+      submitScore({
+        nickname: nickname.trim(),
+        returnPct: Math.round(stats.returnPct * 100) / 100,
+        alphaPct: Math.round(stats.alphaPct * 100) / 100,
+        symbol: game.symbol,
+        symbolName: info?.name,
+        rounds: game.roundCount,
+        trades: game.trades.length,
+        createdAt: null,
+      }).catch(console.error)
+    }
+    fetchTopScores(20).then(setLeaderboard).catch(console.error)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -217,6 +234,54 @@ export function Result({ game, onReplay }: ResultProps) {
         </section>
       </div>
 
+      {/* Leaderboard */}
+      {leaderboard.length > 0 && (
+        <section className="bg-[#12151c] border border-[#252a36] rounded-xl overflow-hidden">
+          <div className="px-2 sm:px-4 py-2 text-sm text-amber-300 font-bold border-b border-[#252a36]">
+            🏆 수익률 랭킹 TOP {leaderboard.length}
+          </div>
+          <div className="max-h-80 overflow-auto">
+            <table className="w-full text-xs sm:text-sm whitespace-nowrap">
+              <thead className="text-xs text-[#8b93a7] uppercase sticky top-0 bg-[#12151c]">
+                <tr>
+                  <th className="text-center px-2 sm:px-3 py-2">#</th>
+                  <th className="text-left px-2 sm:px-3 py-2">닉네임</th>
+                  <th className="text-right px-2 sm:px-3 py-2">수익률</th>
+                  <th className="text-right px-2 sm:px-3 py-2">알파</th>
+                  <th className="text-right px-2 sm:px-3 py-2 hidden sm:table-cell">라운드</th>
+                  <th className="text-right px-2 sm:px-3 py-2 hidden sm:table-cell">거래</th>
+                </tr>
+              </thead>
+              <tbody>
+                {leaderboard.map((row, i) => {
+                  const isMe = row.nickname === nickname.trim()
+                  return (
+                    <tr
+                      key={i}
+                      className={`border-t border-[#1f2430] ${isMe ? 'bg-amber-500/10' : ''}`}
+                    >
+                      <td className="text-center px-2 sm:px-3 py-2 font-bold">
+                        {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1}
+                      </td>
+                      <td className={`px-2 sm:px-3 py-2 font-bold ${isMe ? 'text-amber-300' : ''}`}>
+                        {row.nickname}
+                      </td>
+                      <td className={`px-2 sm:px-3 py-2 text-right font-mono font-bold ${row.returnPct >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                        {row.returnPct >= 0 ? '+' : ''}{row.returnPct.toFixed(2)}%
+                      </td>
+                      <td className={`px-2 sm:px-3 py-2 text-right font-mono ${row.alphaPct >= 0 ? 'text-emerald-300/70' : 'text-red-300/70'}`}>
+                        {row.alphaPct >= 0 ? '+' : ''}{row.alphaPct.toFixed(2)}%
+                      </td>
+                      <td className="px-2 sm:px-3 py-2 text-right text-[#8b93a7] hidden sm:table-cell">{row.rounds}</td>
+                      <td className="px-2 sm:px-3 py-2 text-right text-[#8b93a7] hidden sm:table-cell">{row.trades}</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
     </div>
   )
 }
