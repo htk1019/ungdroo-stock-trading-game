@@ -9,7 +9,7 @@ const NICK_KEY = 'stock-game:nickname'
 
 export interface LeaderboardEntry {
   nickname: string
-  returnPct: number
+  cagrPct: number
   alphaPct: number
   symbol: string
   symbolName?: string
@@ -20,7 +20,7 @@ export interface LeaderboardEntry {
 
 export interface LeaderboardRow {
   nickname: string
-  returnPct: number
+  cagrPct: number
   alphaPct: number
   symbol: string
   symbolName?: string
@@ -47,7 +47,6 @@ export async function checkNicknameExists(nick: string): Promise<boolean> {
 }
 
 export async function submitScore(entry: LeaderboardEntry) {
-  // Check if this nickname already has a score
   const q = query(
     collection(db, COLLECTION),
     where('nickname', '==', entry.nickname),
@@ -57,9 +56,8 @@ export async function submitScore(entry: LeaderboardEntry) {
 
   if (!snap.empty) {
     const existing = snap.docs[0]
-    const oldPct = existing.data().returnPct as number
-    // Only replace if new score is higher
-    if (entry.returnPct <= oldPct) return
+    const oldPct = existing.data().cagrPct as number
+    if (entry.cagrPct <= oldPct) return
     await deleteDoc(existing.ref)
   }
 
@@ -72,7 +70,7 @@ export async function submitScore(entry: LeaderboardEntry) {
 export async function fetchTopScores(n = 10): Promise<LeaderboardRow[]> {
   const q = query(
     collection(db, COLLECTION),
-    orderBy('returnPct', 'desc'),
+    orderBy('cagrPct', 'desc'),
     limit(n),
   )
   const snap = await getDocs(q)
@@ -80,7 +78,7 @@ export async function fetchTopScores(n = 10): Promise<LeaderboardRow[]> {
     const data = d.data()
     return {
       nickname: data.nickname,
-      returnPct: data.returnPct,
+      cagrPct: data.cagrPct,
       alphaPct: data.alphaPct,
       symbol: data.symbol,
       symbolName: data.symbolName,

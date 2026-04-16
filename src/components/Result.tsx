@@ -78,21 +78,22 @@ export function Result({ game, onReplay, nickname }: ResultProps) {
     }
     setHs(recordHighScore(entry))
     addRecentGame(entry)
-    if (nickname.trim()) {
+    // Only submit if alpha is positive (beat B&H)
+    if (nickname.trim() && stats.alphaCagrPct >= 0) {
       submitScore({
         nickname: nickname.trim(),
-        returnPct: Math.round(stats.returnPct * 100) / 100,
-        alphaPct: Math.round(stats.alphaPct * 100) / 100,
+        cagrPct: Math.round(stats.cagrPct * 100) / 100,
+        alphaPct: Math.round(stats.alphaCagrPct * 100) / 100,
         symbol: game.symbol,
         symbolName: info?.name,
         rounds: game.roundCount,
         trades: game.trades.length,
         createdAt: null,
       }).then(() => {
-        fetchTopScores(20).then(setLeaderboard).catch(console.error)
+        fetchTopScores(10).then(setLeaderboard).catch(console.error)
       }).catch(console.error)
     } else {
-      fetchTopScores(20).then(setLeaderboard).catch(console.error)
+      fetchTopScores(10).then(setLeaderboard).catch(console.error)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -229,8 +230,8 @@ export function Result({ game, onReplay, nickname }: ResultProps) {
                   <tr>
                     <th className="text-center px-2 py-1.5">#</th>
                     <th className="text-left px-2 py-1.5">닉네임</th>
-                    <th className="text-right px-2 py-1.5">수익률</th>
-                    <th className="text-right px-2 py-1.5">알파</th>
+                    <th className="text-right px-2 py-1.5">CAGR</th>
+                    <th className="text-right px-2 py-1.5">알파(연)</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -247,8 +248,8 @@ export function Result({ game, onReplay, nickname }: ResultProps) {
                         <td className={`px-2 py-1.5 font-bold truncate max-w-[100px] ${isMe ? 'text-amber-300' : ''}`}>
                           {row.nickname}
                         </td>
-                        <td className={`px-2 py-1.5 text-right font-mono font-bold ${row.returnPct >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                          {row.returnPct >= 0 ? '+' : ''}{row.returnPct.toFixed(1)}%
+                        <td className={`px-2 py-1.5 text-right font-mono font-bold ${row.cagrPct >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                          {row.cagrPct >= 0 ? '+' : ''}{row.cagrPct.toFixed(1)}%
                         </td>
                         <td className={`px-2 py-1.5 text-right font-mono ${row.alphaPct >= 0 ? 'text-emerald-300/70' : 'text-red-300/70'}`}>
                           {row.alphaPct >= 0 ? '+' : ''}{row.alphaPct.toFixed(1)}%
