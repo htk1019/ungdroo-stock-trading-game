@@ -108,17 +108,11 @@ export function Setup({ onStart, loading, error, nickname, onNicknameChange, onT
         </div>
       )}
 
-      {/* 네온 테마 배경 장식 */}
+      {/* 네온 테마 배경 — 레트로 도시 */}
       {themeKey === 'neon' && (
         <div aria-hidden className="absolute inset-0 pointer-events-none">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(0,255,0,0.05),transparent_60%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(255,0,255,0.05),transparent_60%)]" />
-          <span className="absolute top-10 left-10 text-5xl animate-pulse">⚡</span>
-          <span className="absolute top-16 right-20 text-4xl animate-blink">💀</span>
-          <span className="absolute bottom-20 left-16 text-5xl animate-bounce">🎮</span>
-          <span className="absolute bottom-10 right-14 text-4xl animate-spin-slow">👾</span>
-          <span className="absolute top-1/2 left-6 text-3xl animate-blink">▶</span>
-          <span className="absolute top-1/3 right-8 text-3xl animate-pulse">◆</span>
+          <img src="/bg-neon.png" alt="" className="absolute inset-0 w-full h-full object-cover" draggable={false} />
+          <div className="absolute inset-0 bg-black/30" />
         </div>
       )}
 

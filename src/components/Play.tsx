@@ -35,7 +35,6 @@ const THEME_CHAR: Partial<Record<ThemeKey, string>> = {
 }
 
 const THEME_BG: Partial<Record<ThemeKey, string>> = {
-  neon: '/bg-neon.png',
 }
 
 export function Play({ game, onChange, onEnd, themeKey = 'dark' }: PlayProps) {
