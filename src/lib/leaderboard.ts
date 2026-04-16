@@ -3,6 +3,7 @@ import {
   deleteDoc, serverTimestamp,
 } from 'firebase/firestore'
 import { db } from './firebase'
+import { containsProfanity } from './profanity'
 
 const COLLECTION = 'leaderboard'
 const NICK_KEY = 'stock-game:nickname'
@@ -47,6 +48,9 @@ export async function checkNicknameExists(nick: string): Promise<boolean> {
 }
 
 export async function submitScore(entry: LeaderboardEntry) {
+  // Skip leaderboard registration for profane nicknames
+  if (containsProfanity(entry.nickname)) return
+
   const q = query(
     collection(db, COLLECTION),
     where('nickname', '==', entry.nickname),
