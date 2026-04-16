@@ -4,6 +4,7 @@ service cloud.firestore {
     match /leaderboard/{document=**} {
       allow read: if true;
       allow create: if true;
+      allow delete: if true;
     }
   }
 }

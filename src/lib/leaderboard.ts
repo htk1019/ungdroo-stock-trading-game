@@ -1,6 +1,6 @@
 import {
-  collection, addDoc, query, orderBy, limit, getDocs,
-  serverTimestamp,
+  collection, addDoc, query, orderBy, limit, getDocs, where,
+  deleteDoc, serverTimestamp,
 } from 'firebase/firestore'
 import { db } from './firebase'
 
@@ -37,6 +37,22 @@ export function saveNickname(nick: string) {
 }
 
 export async function submitScore(entry: LeaderboardEntry) {
+  // Check if this nickname already has a score
+  const q = query(
+    collection(db, COLLECTION),
+    where('nickname', '==', entry.nickname),
+    limit(1),
+  )
+  const snap = await getDocs(q)
+
+  if (!snap.empty) {
+    const existing = snap.docs[0]
+    const oldPct = existing.data().returnPct as number
+    // Only replace if new score is higher
+    if (entry.returnPct <= oldPct) return
+    await deleteDoc(existing.ref)
+  }
+
   await addDoc(collection(db, COLLECTION), {
     ...entry,
     createdAt: serverTimestamp(),
