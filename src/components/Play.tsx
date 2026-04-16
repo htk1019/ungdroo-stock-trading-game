@@ -34,9 +34,14 @@ const THEME_CHAR: Partial<Record<ThemeKey, string>> = {
   rainbow: '/char-rainbow.png',
 }
 
+const THEME_BG: Partial<Record<ThemeKey, string>> = {
+  neon: '/bg-neon.png',
+}
+
 export function Play({ game, onChange, onEnd, themeKey = 'dark' }: PlayProps) {
   const cc = CHART_COLORS[themeKey]
   const charImg = THEME_CHAR[themeKey]
+  const bgImg = THEME_BG[themeKey]
   const [flash, setFlash] = useState<string | null>(null)
   const [cheer, setCheer] = useState<{ dollars: number; pct: number; good: boolean; key: number } | null>(null)
   const [hintAnalysts, setHintAnalysts] = useState<Analyst[] | null>(null)
@@ -186,7 +191,7 @@ export function Play({ game, onChange, onEnd, themeKey = 'dark' }: PlayProps) {
 
   if (isLandscape) {
     return (
-      <div className="h-screen flex flex-row" style={{ background: cc.bg }}>
+      <div className="h-screen flex flex-row" style={bgImg ? { backgroundImage: `url(${bgImg})`, backgroundSize: 'cover', backgroundPosition: 'center bottom' } : { background: cc.bg }}>
         <main className="flex-1 min-h-0 relative">
           {charImg && (
             <img src={charImg} alt="" className="absolute bottom-4 right-4 w-24 sm:w-36 opacity-10 pointer-events-none select-none z-0" draggable={false} />
@@ -304,7 +309,7 @@ export function Play({ game, onChange, onEnd, themeKey = 'dark' }: PlayProps) {
   }
 
   return (
-    <div className="h-screen flex flex-col" style={{ color: cc.primaryText }}>
+    <div className="h-screen flex flex-col" style={bgImg ? { color: cc.primaryText, backgroundImage: `url(${bgImg})`, backgroundSize: 'cover', backgroundPosition: 'center bottom' } : { color: cc.primaryText }}>
       <header className="px-3 sm:px-6 py-2 sm:py-4 border-b flex items-center justify-between gap-3 flex-wrap" style={{ borderColor: cc.panelBorder, background: cc.headerBg }}>
         <div className="flex items-center gap-2 sm:gap-5 flex-wrap">
           <h1 className="font-bold text-base sm:text-lg">🦆 4848</h1>
