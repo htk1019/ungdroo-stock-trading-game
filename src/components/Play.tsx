@@ -30,8 +30,13 @@ function useIsLandscapeMobile() {
   return isLandscape
 }
 
+const THEME_CHAR: Partial<Record<ThemeKey, string>> = {
+  rainbow: '/char-rainbow.png',
+}
+
 export function Play({ game, onChange, onEnd, themeKey = 'dark' }: PlayProps) {
   const cc = CHART_COLORS[themeKey]
+  const charImg = THEME_CHAR[themeKey]
   const [flash, setFlash] = useState<string | null>(null)
   const [cheer, setCheer] = useState<{ dollars: number; pct: number; good: boolean; key: number } | null>(null)
   const [hintAnalysts, setHintAnalysts] = useState<Analyst[] | null>(null)
@@ -183,6 +188,9 @@ export function Play({ game, onChange, onEnd, themeKey = 'dark' }: PlayProps) {
     return (
       <div className="h-screen flex flex-row" style={{ background: cc.bg }}>
         <main className="flex-1 min-h-0 relative">
+          {charImg && (
+            <img src={charImg} alt="" className="absolute bottom-4 right-4 w-24 sm:w-36 opacity-10 pointer-events-none select-none z-0" draggable={false} />
+          )}
           <Chart candles={visibleCandles} trades={game.trades} hideVolume={hideVolume} themeKey={themeKey} />
           {flash && (
             <div className="absolute top-2 left-1/2 -translate-x-1/2 px-2 py-1 rounded bg-red-500/20 border border-red-500/50 text-red-200 text-xs z-20">
