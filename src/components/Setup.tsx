@@ -215,7 +215,7 @@ export function Setup({ onStart, loading, error, nickname, onNicknameChange }: S
           />
           {nickTaken && (
             <p className="mt-1.5 text-xs text-amber-300 font-bold">
-              ⚠️ 이미 랭킹에 등록된 닉네임입니다. 동일 닉네임으로 진행하면 최고 기록만 유지됩니다. 다른 닉네임을 원하시면 변경해주세요.
+              ⚠️ 이미 사용 중인 닉네임입니다. 본인이면 그대로 진행, 아니면 다른 닉네임을 입력하세요.
             </p>
           )}
         </section>
