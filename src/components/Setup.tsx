@@ -205,7 +205,7 @@ export function Setup({ onStart, loading, error, nickname, onNicknameChange }: S
             type="text"
             value={nickname}
             onChange={(e) => handleNicknameChange(e.target.value)}
-            placeholder="닉네임을 입력하세요"
+            placeholder="미입력 시 랜덤 닉네임 배정"
             maxLength={20}
             className={`w-full px-4 py-3 rounded-xl border-2 bg-[#1a1e27] font-bold placeholder:text-[#5a6175] focus:outline-none transition ${
               nickTaken
@@ -222,10 +222,10 @@ export function Setup({ onStart, loading, error, nickname, onNicknameChange }: S
 
         <button
           onClick={() => onStart({ categories: Array.from(categories), roundCount, roundSize })}
-          disabled={loading || !nickname.trim()}
+          disabled={loading}
           className="btn-shine w-full py-4 sm:py-5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-pink-500 via-amber-400 to-orange-500 hover:from-pink-400 hover:via-amber-300 hover:to-orange-400 disabled:from-[#1a1e27] disabled:via-[#1a1e27] disabled:to-[#1a1e27] disabled:text-[#5a6175] text-[#0b0d12] font-black text-lg sm:text-xl transition shadow-[0_0_30px_rgba(251,191,36,0.5)] relative overflow-hidden border-2 border-amber-200"
         >
-          {loading ? '⏳ 딸깍… 딸깍… 딸깍…' : !nickname.trim() ? '👆 닉네임을 입력하세요' : '🎰 딸깍! 시작하기 🎰'}
+          {loading ? '⏳ 딸깍… 딸깍… 딸깍…' : '🎰 딸깍! 시작하기 🎰'}
         </button>
 
         {error && (

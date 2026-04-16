@@ -6,7 +6,18 @@ import { Bgm } from './components/Bgm'
 import { fetchHistory } from './lib/yahoo'
 import { pickRandomTicker, type Category } from './lib/tickers'
 import { initGame, pickWindow, WARMUP_DAYS, type GameState, type RoundSize } from './lib/engine'
-import { loadNickname } from './lib/leaderboard'
+import { loadNickname, saveNickname } from './lib/leaderboard'
+
+const RANDOM_NAMES = [
+  '개미투자자', '워렌버핏', '차트도사', '매수왕', '존버맨',
+  '단타신', '풀매수', '손절장인', '떡상기원', '코스피지킴이',
+  '주린이', '갓투자', '수익머신', '차트쟁이', '불타는계좌',
+]
+function randomNickname() {
+  const name = RANDOM_NAMES[Math.floor(Math.random() * RANDOM_NAMES.length)]
+  const num = Math.floor(Math.random() * 9000) + 1000
+  return `${name}${num}`
+}
 
 type Phase = 'setup' | 'playing' | 'ended'
 
@@ -25,6 +36,12 @@ export default function App() {
   }: { categories: Category[]; roundCount: number; roundSize: RoundSize }) => {
     setLoading(true)
     setError(null)
+    // Assign random nickname if empty
+    if (!nickname.trim()) {
+      const rand = randomNickname()
+      setNickname(rand)
+      saveNickname(rand)
+    }
     const tried = new Set<string>()
     const tradingDays = roundCount * roundSize.days
     try {
