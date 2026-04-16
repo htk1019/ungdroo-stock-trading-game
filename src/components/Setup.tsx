@@ -197,12 +197,6 @@ export function Setup({ onStart, loading, error, nickname, onNicknameChange, onT
             <h1 className={`text-2xl sm:text-4xl md:text-5xl font-black tracking-tight ${t.titleColor} ${isDark ? 'animate-neon' : ''}`}>
               4848로 주식을 이겨라!
             </h1>
-            <img
-              src="/niga.png"
-              alt="ㅋ 니가?"
-              className={`h-8 sm:h-12 w-auto rounded-md border-2 select-none animate-wobble ${t.cardBorder}`}
-              draggable={false}
-            />
             <span className={`text-lg sm:text-xl font-black animate-blink ${t.titleColor}`}>★</span>
           </div>
           <p className={`mt-2 sm:mt-3 text-sm sm:text-base font-bold px-2 ${t.subtitleColor}`}>
