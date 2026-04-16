@@ -90,7 +90,7 @@ function simulate(
 ): { trades: AnalystTrade[]; equityCurve: number[] } {
   let cash = STARTING_CASH
   let shares = 0
-  let pos: Position = 'FLAT'
+  let pos = 'FLAT' as Position
   const trades: AnalystTrade[] = []
   const equityCurve: number[] = [STARTING_CASH]
 
