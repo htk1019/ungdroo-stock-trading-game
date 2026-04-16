@@ -85,7 +85,7 @@ export default function App() {
   } else if (phase === 'playing') {
     screen = <Play game={game} onChange={bump} onEnd={() => setPhase('ended')} themeKey={themeKey} />
   } else {
-    screen = <Result game={game} onReplay={replay} nickname={nickname} />
+    screen = <Result game={game} onReplay={replay} nickname={nickname} themeKey={themeKey} />
   }
   return (
     <>

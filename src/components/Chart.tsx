@@ -551,7 +551,7 @@ export function Chart({ candles, trades, hideVolume = false, hideIndicators = fa
     if (chips.length === 0) return null
     return (
       <div key={g.label} className="flex flex-wrap items-center gap-1">
-        <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-[#64748b] w-12 sm:w-14 shrink-0">
+        <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider w-12 sm:w-14 shrink-0" style={{ color: cc.mutedText }}>
           {g.label}
         </span>
         {chips.map((c) => (
@@ -561,6 +561,7 @@ export function Chart({ candles, trades, hideVolume = false, hideIndicators = fa
             color={c.color}
             on={c.on}
             onToggle={() => toggleKey(c.key)}
+            cc={cc}
           />
         ))}
       </div>
@@ -613,22 +614,24 @@ export function Chart({ candles, trades, hideVolume = false, hideIndicators = fa
 }
 
 function Chip({
-  label, color, on, onToggle,
-}: { label: string; color: string; on: boolean; onToggle: () => void }) {
+  label, color, on, onToggle, cc,
+}: { label: string; color: string; on: boolean; onToggle: () => void; cc: import('../lib/theme').ChartColors }) {
   return (
     <button
       type="button"
       onClick={onToggle}
       className={`flex items-center gap-1 px-2 py-1 sm:px-1.5 sm:py-0.5 rounded border text-[11px] sm:text-[10px] font-mono font-semibold transition min-h-[28px] sm:min-h-0 active:scale-95 ${
-        on
-          ? 'bg-[#12151c]/85 border-[#333a4d] text-[#e5e7eb] hover:bg-[#1a1e27]/90'
-          : 'bg-[#12151c]/60 border-[#252a36] text-[#64748b] hover:text-[#8b93a7] line-through'
+        on ? '' : 'line-through'
       }`}
+      style={on
+        ? { background: cc.panelBg, borderColor: cc.border, color: cc.primaryText }
+        : { background: cc.panelBg, borderColor: cc.border, color: cc.mutedText, opacity: 0.6 }
+      }
       title={on ? `${label} 숨기기` : `${label} 표시`}
     >
       <span
         className="inline-block w-2.5 h-2.5 sm:w-2 sm:h-2 rounded-sm"
-        style={{ backgroundColor: on ? color : '#3a3f4b' }}
+        style={{ backgroundColor: on ? color : cc.mutedText }}
       />
       {label}
       <span className="opacity-60">{on ? '×' : '+'}</span>

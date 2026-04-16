@@ -6,14 +6,17 @@ import { Chart } from './Chart'
 import { playWin, playLose, playMeh, playTotalDefeat, playPerfectWin } from '../lib/sfx'
 import { recordHighScore, addRecentGame } from '../lib/highscore'
 import { submitScore, fetchTopScores, type LeaderboardRow } from '../lib/leaderboard'
+import { CHART_COLORS, type ThemeKey } from '../lib/theme'
 
 interface ResultProps {
   game: GameState
   onReplay: () => void
   nickname: string
+  themeKey?: ThemeKey
 }
 
-export function Result({ game, onReplay, nickname }: ResultProps) {
+export function Result({ game, onReplay, nickname, themeKey = 'dark' }: ResultProps) {
+  const cc = CHART_COLORS[themeKey]
   const stats = useMemo(() => computeStats(game), [game])
   const info = findTicker(game.symbol)
 
@@ -108,14 +111,15 @@ export function Result({ game, onReplay, nickname }: ResultProps) {
   }, [])
 
   return (
-    <div className="min-h-screen p-3 sm:p-6 flex flex-col gap-3 sm:gap-4">
+    <div className="min-h-screen p-3 sm:p-6 flex flex-col gap-3 sm:gap-4" style={{ background: cc.bg, color: cc.primaryText }}>
       {/* ── Header ── */}
       <header className="flex items-center justify-between flex-wrap gap-3 sm:gap-4">
         <div className="flex items-center gap-3 sm:gap-5">
           <img
             src={verdictImg}
             alt={verdictAlt}
-            className={`w-20 h-20 sm:w-28 sm:h-28 object-contain rounded-xl bg-black/40 border ${verdictBorder} ${verdictAnim}`}
+            className={`w-20 h-20 sm:w-28 sm:h-28 object-contain rounded-xl border ${verdictBorder} ${verdictAnim}`}
+            style={{ background: cc.panelBg }}
             draggable={false}
           />
           <div>
@@ -127,9 +131,9 @@ export function Result({ game, onReplay, nickname }: ResultProps) {
                 {verdictMsg}
               </span>
             </div>
-            <p className="text-[#8b93a7] text-xs sm:text-base">
-              <span className="font-semibold text-[#e5e7eb]">{info?.name ?? game.symbol}</span>
-              <span className="ml-2 text-[10px] sm:text-xs px-2 py-0.5 bg-[#1a1e27] rounded">{game.symbol}</span>
+            <p className="text-xs sm:text-base" style={{ color: cc.mutedText }}>
+              <span className="font-semibold" style={{ color: cc.primaryText }}>{info?.name ?? game.symbol}</span>
+              <span className="ml-2 text-[10px] sm:text-xs px-2 py-0.5 rounded" style={{ background: cc.panelBg }}>{game.symbol}</span>
               <span className="block sm:inline sm:ml-3 mt-1 sm:mt-0">{INTERVAL_LABEL[game.interval]} · {startDate} ~ {endDate}</span>
             </p>
           </div>
@@ -146,15 +150,15 @@ export function Result({ game, onReplay, nickname }: ResultProps) {
 
       {/* ── Stats cards ── full-width compact grid */}
       <section className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2">
-        <Card label="내 수익률" value={fmtPct(stats.returnPct)} accent={stats.returnPct >= 0 ? 'up' : 'down'} />
-        <Card label="B&H 수익률" value={fmtPct(stats.buyHoldReturnPct)} accent={stats.buyHoldReturnPct >= 0 ? 'up' : 'down'} />
-        <Card label="알파" value={fmtPct(stats.alphaPct)} accent={beat ? 'up' : 'down'} />
-        <Card label={`CAGR (${stats.years.toFixed(1)}년)`} value={fmtPct(stats.cagrPct)} accent={stats.cagrPct >= 0 ? 'up' : 'down'} />
-        <Card label="MDD" value={`${stats.maxDrawdownPct.toFixed(2)}%`} accent="down" />
-        <Card label="샤프" value={stats.sharpe.toFixed(2)} />
-        <Card label="승률 (포지션)" value={`${stats.winRate.toFixed(1)}%`} />
-        <Card label="승률 (라운드)" value={`${stats.winRateByRound.toFixed(1)}%`} />
-        <Card label="총 거래" value={`${stats.trades}회`} />
+        <Card label="내 수익률" value={fmtPct(stats.returnPct)} accent={stats.returnPct >= 0 ? 'up' : 'down'} cc={cc} />
+        <Card label="B&H 수익률" value={fmtPct(stats.buyHoldReturnPct)} accent={stats.buyHoldReturnPct >= 0 ? 'up' : 'down'} cc={cc} />
+        <Card label="알파" value={fmtPct(stats.alphaPct)} accent={beat ? 'up' : 'down'} cc={cc} />
+        <Card label={`CAGR (${stats.years.toFixed(1)}년)`} value={fmtPct(stats.cagrPct)} accent={stats.cagrPct >= 0 ? 'up' : 'down'} cc={cc} />
+        <Card label="MDD" value={`${stats.maxDrawdownPct.toFixed(2)}%`} accent="down" cc={cc} />
+        <Card label="샤프" value={stats.sharpe.toFixed(2)} cc={cc} />
+        <Card label="승률 (포지션)" value={`${stats.winRate.toFixed(1)}%`} cc={cc} />
+        <Card label="승률 (라운드)" value={`${stats.winRateByRound.toFixed(1)}%`} cc={cc} />
+        <Card label="총 거래" value={`${stats.trades}회`} cc={cc} />
       </section>
 
       {/* ── Replay chart ── */}
@@ -163,23 +167,25 @@ export function Result({ game, onReplay, nickname }: ResultProps) {
         hideVolume={findTicker(game.symbol)?.category === 'index'}
         className="flex flex-col"
         chartClass="h-[55vh] sm:h-[60vh]"
+        themeKey={themeKey}
+        cc={cc}
       />
 
       {/* ── Bottom row: Equity | Trade log | Leaderboard ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
         {/* Equity chart */}
-        <section className="h-64 lg:h-72 bg-[#12151c] border border-[#252a36] rounded-xl overflow-hidden">
+        <section className="h-64 lg:h-72 rounded-xl overflow-hidden border" style={{ background: cc.panelBg, borderColor: cc.panelBorder }}>
           <EquityChart times={times} player={game.equityCurve} buyHold={game.buyHoldCurve} />
         </section>
 
         {/* Trade log */}
-        <section className="bg-[#12151c] border border-[#252a36] rounded-xl overflow-hidden flex flex-col">
-          <div className="px-3 py-2 text-sm text-[#8b93a7] border-b border-[#252a36] shrink-0">
+        <section className="rounded-xl overflow-hidden flex flex-col border" style={{ background: cc.panelBg, borderColor: cc.panelBorder }}>
+          <div className="px-3 py-2 text-sm border-b shrink-0" style={{ color: cc.mutedText, borderColor: cc.panelBorder }}>
             거래 내역 ({game.trades.length})
           </div>
           <div className="flex-1 min-h-0 overflow-auto max-h-64 lg:max-h-none">
             <table className="w-full text-xs whitespace-nowrap">
-              <thead className="text-[10px] text-[#8b93a7] uppercase sticky top-0 bg-[#12151c]">
+              <thead className="text-[10px] uppercase sticky top-0" style={{ color: cc.mutedText, background: cc.panelBg }}>
                 <tr>
                   <th className="text-left px-2 py-1.5">#</th>
                   <th className="text-left px-2 py-1.5">날짜</th>
@@ -189,19 +195,19 @@ export function Result({ game, onReplay, nickname }: ResultProps) {
                 </tr>
               </thead>
               <tbody>
-                {game.trades.map((t, i) => (
-                  <tr key={i} className="border-t border-[#1f2430]">
-                    <td className="px-2 py-1.5 text-[#8b93a7]">{i + 1}</td>
-                    <td className="px-2 py-1.5">{new Date(t.time * 1000).toISOString().slice(0, 10)}</td>
-                    <td className={`px-2 py-1.5 font-semibold ${t.side === 'BUY' ? 'text-emerald-400' : 'text-red-400'}`}>
-                      {t.side}
+                {game.trades.map((tr, i) => (
+                  <tr key={i} className="border-t" style={{ borderColor: cc.gridLine }}>
+                    <td className="px-2 py-1.5" style={{ color: cc.mutedText }}>{i + 1}</td>
+                    <td className="px-2 py-1.5">{new Date(tr.time * 1000).toISOString().slice(0, 10)}</td>
+                    <td className={`px-2 py-1.5 font-semibold ${tr.side === 'BUY' ? 'text-emerald-400' : 'text-red-400'}`}>
+                      {tr.side}
                     </td>
-                    <td className="px-2 py-1.5 text-right font-mono">${t.price.toFixed(2)}</td>
-                    <td className="px-2 py-1.5 text-right font-mono text-[#8b93a7]">${t.fee.toFixed(2)}</td>
+                    <td className="px-2 py-1.5 text-right font-mono">${tr.price.toFixed(2)}</td>
+                    <td className="px-2 py-1.5 text-right font-mono" style={{ color: cc.mutedText }}>${tr.fee.toFixed(2)}</td>
                   </tr>
                 ))}
                 {game.trades.length === 0 && (
-                  <tr><td colSpan={5} className="px-4 py-6 text-center text-[#8b93a7]">매매 기록 없음</td></tr>
+                  <tr><td colSpan={5} className="px-4 py-6 text-center" style={{ color: cc.mutedText }}>매매 기록 없음</td></tr>
                 )}
               </tbody>
             </table>
@@ -209,14 +215,14 @@ export function Result({ game, onReplay, nickname }: ResultProps) {
         </section>
 
         {/* Leaderboard */}
-        <section className="bg-[#12151c] border border-amber-500/30 rounded-xl overflow-hidden flex flex-col">
+        <section className="rounded-xl overflow-hidden flex flex-col border border-amber-500/30" style={{ background: cc.panelBg }}>
           <div className="px-3 py-2 text-sm text-amber-300 font-bold border-b border-amber-500/20 shrink-0">
             🏆 수익률 랭킹
           </div>
           <div className="flex-1 min-h-0 overflow-auto max-h-64 lg:max-h-none">
             {leaderboard.length > 0 ? (
               <table className="w-full text-xs whitespace-nowrap">
-                <thead className="text-[10px] text-[#8b93a7] uppercase sticky top-0 bg-[#12151c]">
+                <thead className="text-[10px] uppercase sticky top-0" style={{ color: cc.mutedText, background: cc.panelBg }}>
                   <tr>
                     <th className="text-center px-2 py-1.5">#</th>
                     <th className="text-left px-2 py-1.5">닉네임</th>
@@ -230,7 +236,8 @@ export function Result({ game, onReplay, nickname }: ResultProps) {
                     return (
                       <tr
                         key={i}
-                        className={`border-t border-[#1f2430] ${isMe ? 'bg-amber-500/10' : ''}`}
+                        className={`border-t ${isMe ? 'bg-amber-500/10' : ''}`}
+                        style={{ borderColor: cc.gridLine }}
                       >
                         <td className="text-center px-2 py-1.5 font-bold">
                           {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1}
@@ -250,7 +257,7 @@ export function Result({ game, onReplay, nickname }: ResultProps) {
                 </tbody>
               </table>
             ) : (
-              <div className="flex items-center justify-center h-full text-[#8b93a7] text-xs py-8">
+              <div className="flex items-center justify-center h-full text-xs py-8" style={{ color: cc.mutedText }}>
                 아직 기록이 없습니다
               </div>
             )}
@@ -262,24 +269,26 @@ export function Result({ game, onReplay, nickname }: ResultProps) {
 }
 
 function Card({
-  label, value, accent,
-}: { label: string; value: string; accent?: 'up' | 'down' }) {
-  const color = accent === 'up' ? 'text-emerald-400' : accent === 'down' ? 'text-red-400' : 'text-[#e5e7eb]'
+  label, value, accent, cc,
+}: { label: string; value: string; accent?: 'up' | 'down'; cc: import('../lib/theme').ChartColors }) {
+  const color = accent === 'up' ? 'text-emerald-400' : accent === 'down' ? 'text-red-400' : ''
   return (
-    <div className="bg-[#12151c] border border-[#252a36] rounded-lg p-2 sm:p-3">
-      <div className="text-[9px] sm:text-[10px] text-[#8b93a7] uppercase tracking-wider mb-0.5">{label}</div>
-      <div className={`text-sm sm:text-lg font-mono font-semibold ${color}`}>{value}</div>
+    <div className="rounded-lg p-2 sm:p-3 border" style={{ background: cc.panelBg, borderColor: cc.panelBorder }}>
+      <div className="text-[9px] sm:text-[10px] uppercase tracking-wider mb-0.5" style={{ color: cc.mutedText }}>{label}</div>
+      <div className={`text-sm sm:text-lg font-mono font-semibold ${color}`} style={color ? undefined : { color: cc.primaryText }}>{value}</div>
     </div>
   )
 }
 
 function ReplaySection({
-  game, hideVolume, className = '', chartClass = 'h-[70vh] sm:h-[75vh]',
+  game, hideVolume, className = '', chartClass = 'h-[70vh] sm:h-[75vh]', themeKey = 'dark', cc,
 }: {
   game: GameState
   hideVolume: boolean
   className?: string
   chartClass?: string
+  themeKey?: ThemeKey
+  cc: import('../lib/theme').ChartColors
 }) {
   const [open, setOpen] = useState(true)
   const allCandles = useMemo(
@@ -292,17 +301,18 @@ function ReplaySection({
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-[#12151c] border border-[#252a36] hover:border-[#333a4d] transition text-sm font-bold text-[#e5e7eb] shrink-0"
+        className="w-full flex items-center justify-between px-4 py-3 rounded-xl border transition text-sm font-bold shrink-0"
+        style={{ background: cc.panelBg, borderColor: cc.panelBorder, color: cc.primaryText }}
       >
         <span className="flex items-center gap-2">
           <span>복기 모드</span>
-          <span className="text-xs font-normal text-[#8b93a7]">— 전체 차트 + 매매 포인트</span>
+          <span className="text-xs font-normal" style={{ color: cc.mutedText }}>— 전체 차트 + 매매 포인트</span>
         </span>
-        <span className={`transition-transform text-[#8b93a7] ${open ? 'rotate-180' : ''}`}>▾</span>
+        <span className="transition-transform" style={{ color: cc.mutedText, transform: open ? 'rotate(180deg)' : '' }}>▾</span>
       </button>
       {open && (
-        <div className={`mt-2 bg-[#12151c] border border-[#252a36] rounded-xl overflow-hidden ${chartClass}`}>
-          <Chart candles={allCandles} trades={game.trades} hideVolume={hideVolume} hideIndicators />
+        <div className={`mt-2 rounded-xl overflow-hidden border ${chartClass}`} style={{ background: cc.panelBg, borderColor: cc.panelBorder }}>
+          <Chart candles={allCandles} trades={game.trades} hideVolume={hideVolume} hideIndicators themeKey={themeKey} />
         </div>
       )}
     </section>
