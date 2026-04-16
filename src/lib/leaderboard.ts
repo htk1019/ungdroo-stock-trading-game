@@ -36,6 +36,16 @@ export function saveNickname(nick: string) {
   localStorage.setItem(NICK_KEY, nick.trim())
 }
 
+export async function checkNicknameExists(nick: string): Promise<boolean> {
+  const q = query(
+    collection(db, COLLECTION),
+    where('nickname', '==', nick.trim()),
+    limit(1),
+  )
+  const snap = await getDocs(q)
+  return !snap.empty
+}
+
 export async function submitScore(entry: LeaderboardEntry) {
   // Check if this nickname already has a score
   const q = query(

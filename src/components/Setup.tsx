@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ALL_CATEGORIES, CATEGORY_LABEL, type Category } from '../lib/tickers'
 import { ROUND_SIZES, ROUND_COUNTS, type RoundSize } from '../lib/engine'
 import { HelpModal } from './HelpModal'
 import { loadHighScore, loadRecentGames, clearRecentGames } from '../lib/highscore'
-import { saveNickname } from '../lib/leaderboard'
+import { saveNickname, checkNicknameExists } from '../lib/leaderboard'
 
 interface SetupProps {
   onStart: (args: { categories: Category[]; roundCount: number; roundSize: RoundSize }) => void
@@ -20,6 +20,29 @@ export function Setup({ onStart, loading, error, nickname, onNicknameChange }: S
   const [showHelp, setShowHelp] = useState(false)
   const highScore = loadHighScore()
   const [recent, setRecent] = useState(loadRecentGames)
+  const [nickTaken, setNickTaken] = useState(false)
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined)
+
+  const handleNicknameChange = (value: string) => {
+    onNicknameChange(value)
+    saveNickname(value)
+    setNickTaken(false)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    const trimmed = value.trim()
+    if (!trimmed) return
+    debounceRef.current = setTimeout(() => {
+      checkNicknameExists(trimmed).then(setNickTaken).catch(() => {})
+    }, 500)
+  }
+
+  useEffect(() => {
+    // Check on mount if saved nickname is already taken
+    const trimmed = nickname.trim()
+    if (trimmed) {
+      checkNicknameExists(trimmed).then(setNickTaken).catch(() => {})
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const toggleCat = (c: Category) => {
     const next = new Set(categories)
@@ -181,14 +204,20 @@ export function Setup({ onStart, loading, error, nickname, onNicknameChange }: S
           <input
             type="text"
             value={nickname}
-            onChange={(e) => {
-              onNicknameChange(e.target.value)
-              saveNickname(e.target.value)
-            }}
+            onChange={(e) => handleNicknameChange(e.target.value)}
             placeholder="닉네임을 입력하세요"
             maxLength={20}
-            className="w-full px-4 py-3 rounded-xl border-2 border-emerald-400/40 bg-[#1a1e27] text-emerald-100 font-bold placeholder:text-[#5a6175] focus:border-emerald-400 focus:outline-none transition"
+            className={`w-full px-4 py-3 rounded-xl border-2 bg-[#1a1e27] font-bold placeholder:text-[#5a6175] focus:outline-none transition ${
+              nickTaken
+                ? 'border-amber-400/60 text-amber-100 focus:border-amber-400'
+                : 'border-emerald-400/40 text-emerald-100 focus:border-emerald-400'
+            }`}
           />
+          {nickTaken && (
+            <p className="mt-1.5 text-xs text-amber-300 font-bold">
+              ⚠️ 이미 랭킹에 등록된 닉네임입니다. 동일 닉네임으로 진행하면 최고 기록만 유지됩니다. 다른 닉네임을 원하시면 변경해주세요.
+            </p>
+          )}
         </section>
 
         <button
