@@ -7,6 +7,7 @@ import { fetchHistory } from './lib/yahoo'
 import { pickRandomTicker, type Category } from './lib/tickers'
 import { initGame, pickWindow, WARMUP_DAYS, type GameState, type RoundSize } from './lib/engine'
 import { loadNickname, saveNickname } from './lib/leaderboard'
+import { loadTheme, type ThemeKey } from './lib/theme'
 
 const RANDOM_NAMES = [
   '개미투자자', '워렌버핏', '차트도사', '매수왕', '존버맨',
@@ -28,6 +29,7 @@ export default function App() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [nickname, setNickname] = useState(loadNickname)
+  const [themeKey, setThemeKey] = useState<ThemeKey>(loadTheme)
 
   const bump = useCallback(() => setVersion((v) => v + 1), [])
 
@@ -79,7 +81,7 @@ export default function App() {
 
   let screen
   if (phase === 'setup' || !game) {
-    screen = <Setup onStart={start} loading={loading} error={error} nickname={nickname} onNicknameChange={setNickname} />
+    screen = <Setup onStart={start} loading={loading} error={error} nickname={nickname} onNicknameChange={setNickname} onThemeChange={setThemeKey} />
   } else if (phase === 'playing') {
     screen = <Play game={game} onChange={bump} onEnd={() => setPhase('ended')} />
   } else {
@@ -88,7 +90,7 @@ export default function App() {
   return (
     <>
       {screen}
-      <Bgm active={phase !== 'ended'} />
+      <Bgm active={phase !== 'ended'} themeKey={themeKey} />
     </>
   )
 }

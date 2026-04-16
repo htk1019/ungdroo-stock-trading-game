@@ -96,9 +96,7 @@ export const THEMES: Record<ThemeKey, Theme> = {
 }
 
 export function loadTheme(): ThemeKey {
-  const saved = localStorage.getItem(THEME_KEY)
-  if (saved && saved in THEMES) return saved as ThemeKey
-  return 'dark'
+  return THEME_KEYS[Math.floor(Math.random() * THEME_KEYS.length)]
 }
 
 export function saveTheme(key: ThemeKey) {

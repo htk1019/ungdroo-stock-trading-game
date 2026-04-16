@@ -12,9 +12,10 @@ interface SetupProps {
   error: string | null
   nickname: string
   onNicknameChange: (nick: string) => void
+  onThemeChange: (key: ThemeKey) => void
 }
 
-export function Setup({ onStart, loading, error, nickname, onNicknameChange }: SetupProps) {
+export function Setup({ onStart, loading, error, nickname, onNicknameChange, onThemeChange }: SetupProps) {
   const [categories, setCategories] = useState<Set<Category>>(new Set(['kr']))
   const [roundCount, setRoundCount] = useState<number>(20)
   const [roundSize, setRoundSize] = useState<RoundSize>(ROUND_SIZES[1]) // 주
@@ -32,6 +33,7 @@ export function Setup({ onStart, loading, error, nickname, onNicknameChange }: S
     const next = THEME_KEYS[(idx + 1) % THEME_KEYS.length]
     setThemeKey(next)
     saveTheme(next)
+    onThemeChange(next)
   }
 
   const handleNicknameChange = (value: string) => {

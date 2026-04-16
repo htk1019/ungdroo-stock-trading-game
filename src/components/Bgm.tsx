@@ -1,7 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
+import type { ThemeKey } from '../lib/theme'
 
 interface BgmProps {
   active: boolean   // when false, music is paused (e.g. on result screen)
+  themeKey: ThemeKey
+}
+
+const THEME_DEFAULT_TRACK: Record<ThemeKey, string> = {
+  dark: 'duck',
+  rainbow: 'pingpong',
+  neon: 'arcade',
 }
 
 interface Track {
@@ -29,7 +37,7 @@ function randomTrackKey(): string {
 // Persistent background music with a mute toggle and a track picker.
 // Browsers block raw autoplay, so we start the audio on the first user
 // gesture (click / keydown) that happens anywhere in the app.
-export function Bgm({ active }: BgmProps) {
+export function Bgm({ active, themeKey }: BgmProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const [muted, setMuted] = useState<boolean>(() => {
     return localStorage.getItem('bgm-muted') === '1'
@@ -76,6 +84,17 @@ export function Bgm({ active }: BgmProps) {
     if (audioRef.current) audioRef.current.muted = muted
     localStorage.setItem('bgm-muted', muted ? '1' : '0')
   }, [muted])
+
+  // When theme changes, switch to the theme's default track
+  const prevTheme = useRef(themeKey)
+  useEffect(() => {
+    if (prevTheme.current === themeKey) return
+    prevTheme.current = themeKey
+    const defaultTrack = THEME_DEFAULT_TRACK[themeKey]
+    if (defaultTrack && defaultTrack !== trackKey) {
+      setTrackKey(defaultTrack)
+    }
+  }, [themeKey, trackKey])
 
   // When the user picks a different track, reload the element and resume
   // playback if we're already past the first gesture.
