@@ -7,6 +7,7 @@ import { playWin, playLose, playMeh, playTotalDefeat, playPerfectWin } from '../
 import { recordHighScore, addRecentGame } from '../lib/highscore'
 import { submitScore, fetchTopScores, type LeaderboardRow } from '../lib/leaderboard'
 import { CHART_COLORS, type ThemeKey } from '../lib/theme'
+import { simulateAnalysts, type AnalystSimResult } from '../lib/simulate'
 
 interface ResultProps {
   game: GameState
@@ -76,6 +77,9 @@ export function Result({ game, onReplay, nickname, themeKey = 'dark' }: ResultPr
     else playLose()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  const analystResults = useMemo(() => simulateAnalysts(game), [game])
+  const [selectedAnalyst, setSelectedAnalyst] = useState<number | null>(null)
 
   const [leaderboard, setLeaderboard] = useState<LeaderboardRow[]>([])
   const submitted = useRef(false)
@@ -159,6 +163,46 @@ export function Result({ game, onReplay, nickname, themeKey = 'dark' }: ResultPr
         <Card label="승률 (포지션)" value={`${stats.winRate.toFixed(1)}%`} cc={cc} />
         <Card label="승률 (라운드)" value={`${stats.winRateByRound.toFixed(1)}%`} cc={cc} />
         <Card label="총 거래" value={`${stats.trades}회`} cc={cc} />
+      </section>
+
+      {/* ── 훈수꾼 복기 ── */}
+      <section>
+        <div className="text-sm font-bold mb-2" style={{ color: cc.mutedText }}>
+          🔮 훈수꾼들은 어땠을까?
+        </div>
+        <div className="grid grid-cols-5 gap-2">
+          {analystResults.map((a, i) => {
+            const beatPlayer = a.returnPct > stats.returnPct
+            const selected = selectedAnalyst === i
+            return (
+              <button
+                key={a.name}
+                onClick={() => setSelectedAnalyst(selected ? null : i)}
+                className={`rounded-lg p-2 sm:p-3 border text-center transition active:scale-95 ${selected ? 'ring-2 ring-amber-400' : ''}`}
+                style={{ background: cc.panelBg, borderColor: cc.panelBorder }}
+              >
+                <div className="text-2xl sm:text-3xl">{a.emoji}</div>
+                <div className="text-[10px] sm:text-xs font-bold mt-1" style={{ color: cc.primaryText }}>{a.name}</div>
+                <div className={`text-xs sm:text-sm font-mono font-bold mt-0.5 ${a.returnPct >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                  {fmtPct(a.returnPct)}
+                </div>
+                <div className={`text-[9px] sm:text-[10px] font-mono ${beatPlayer ? 'text-amber-300' : 'text-emerald-300/60'}`}>
+                  {beatPlayer ? '😏 나보다 잘함' : '😌 내가 이김'}
+                </div>
+              </button>
+            )
+          })}
+        </div>
+        {selectedAnalyst !== null && (
+          <AnalystDetail
+            analyst={analystResults[selectedAnalyst]}
+            playerReturn={stats.returnPct}
+            times={times}
+            playerCurve={game.equityCurve}
+            buyHoldCurve={game.buyHoldCurve}
+            cc={cc}
+          />
+        )}
       </section>
 
       {/* ── Replay chart ── */}
@@ -316,6 +360,87 @@ function ReplaySection({
         </div>
       )}
     </section>
+  )
+}
+
+function AnalystDetail({
+  analyst, playerReturn, times, playerCurve, buyHoldCurve, cc,
+}: {
+  analyst: AnalystSimResult
+  playerReturn: number
+  times: number[]
+  playerCurve: number[]
+  buyHoldCurve: number[]
+  cc: import('../lib/theme').ChartColors
+}) {
+  const delta = analyst.returnPct - playerReturn
+  const beatMe = delta > 0
+  const SIDE_LABEL: Record<string, string> = { BUY: '매수', SELL: '매도', SHORT: '공매도', COVER: '환매' }
+  const SIDE_COLOR: Record<string, string> = { BUY: 'text-emerald-400', SELL: 'text-red-400', SHORT: 'text-amber-400', COVER: 'text-blue-400' }
+
+  const comment = beatMe
+    ? analyst.returnPct >= 0
+      ? `${analyst.name}: "그러니까 내 말을 들었어야지 ㅋㅋ"`
+      : `${analyst.name}: "나도 졌지만 너보단 낫잖아..."`
+    : analyst.returnPct >= 0
+      ? `${analyst.name}: "흠... 인정한다. 이번엔 네가 잘했다."`
+      : `${analyst.name}: "우리 둘 다 망했구나... ㅎㅎ"`
+
+  return (
+    <div className="mt-3 rounded-xl border overflow-hidden" style={{ background: cc.panelBg, borderColor: cc.panelBorder }}>
+      <div className="px-4 py-3 border-b flex items-center justify-between flex-wrap gap-2" style={{ borderColor: cc.panelBorder }}>
+        <div className="flex items-center gap-2">
+          <span className="text-2xl">{analyst.emoji}</span>
+          <span className="font-bold" style={{ color: cc.primaryText }}>{analyst.name}</span>
+          <span className={`text-sm font-mono font-bold ${analyst.returnPct >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+            {fmtPct(analyst.returnPct)}
+          </span>
+          <span className={`text-xs font-mono ${beatMe ? 'text-amber-300' : 'text-emerald-300'}`}>
+            (나와의 차이: {delta >= 0 ? '+' : ''}{delta.toFixed(2)}%p)
+          </span>
+        </div>
+        <div className="text-xs italic" style={{ color: cc.mutedText }}>{comment}</div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
+        {/* 수익 곡선 비교 */}
+        <div className="h-48 sm:h-56">
+          <EquityChart
+            times={times}
+            player={playerCurve}
+            buyHold={buyHoldCurve}
+            analyst={{ name: analyst.name, curve: analyst.equityCurve }}
+          />
+        </div>
+
+        {/* 거래 내역 */}
+        <div className="overflow-auto max-h-56 border-l" style={{ borderColor: cc.panelBorder }}>
+          <table className="w-full text-xs whitespace-nowrap">
+            <thead className="text-[10px] uppercase sticky top-0" style={{ color: cc.mutedText, background: cc.panelBg }}>
+              <tr>
+                <th className="text-left px-2 py-1.5">#</th>
+                <th className="text-left px-2 py-1.5">날짜</th>
+                <th className="text-left px-2 py-1.5">구분</th>
+                <th className="text-right px-2 py-1.5">가격</th>
+              </tr>
+            </thead>
+            <tbody>
+              {analyst.trades.map((tr, i) => (
+                <tr key={i} className="border-t" style={{ borderColor: cc.gridLine }}>
+                  <td className="px-2 py-1" style={{ color: cc.mutedText }}>{i + 1}</td>
+                  <td className="px-2 py-1">{new Date(tr.time * 1000).toISOString().slice(0, 10)}</td>
+                  <td className={`px-2 py-1 font-semibold ${SIDE_COLOR[tr.side]}`}>{SIDE_LABEL[tr.side]}</td>
+                  <td className="px-2 py-1 text-right font-mono">${tr.price.toFixed(2)}</td>
+                </tr>
+              ))}
+              {analyst.trades.length === 0 && (
+                <tr><td colSpan={4} className="px-4 py-4 text-center" style={{ color: cc.mutedText }}>매매 없음</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   )
 }
 

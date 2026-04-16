@@ -7,9 +7,10 @@ interface EquityChartProps {
   times: number[]
   player: number[]
   buyHold: number[]
+  analyst?: { name: string; curve: number[] }
 }
 
-export function EquityChart({ times, player, buyHold }: EquityChartProps) {
+export function EquityChart({ times, player, buyHold, analyst }: EquityChartProps) {
   const ref = useRef<HTMLDivElement>(null)
   const chartRef = useRef<IChartApi | null>(null)
 
@@ -37,10 +38,21 @@ export function EquityChart({ times, player, buyHold }: EquityChartProps) {
     bhSeries.setData(
       times.map((t, i) => ({ time: t as UTCTimestamp, value: buyHold[i] })),
     )
+
+    if (analyst && analyst.curve.length > 0) {
+      const analystSeries = chart.addSeries(LineSeries, {
+        color: '#f59e0b', lineWidth: 2, title: analyst.name,
+      })
+      const len = Math.min(times.length, analyst.curve.length)
+      analystSeries.setData(
+        times.slice(0, len).map((t, i) => ({ time: t as UTCTimestamp, value: analyst.curve[i] })),
+      )
+    }
+
     chart.timeScale().fitContent()
 
     return () => { chart.remove(); chartRef.current = null }
-  }, [times, player, buyHold])
+  }, [times, player, buyHold, analyst])
 
   return <div ref={ref} className="w-full h-full" />
 }

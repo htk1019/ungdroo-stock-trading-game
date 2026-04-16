@@ -17,9 +17,8 @@ export const ROUND_SIZES: RoundSize[] = [
   { key: 'w', label: '주',   days: 5 },
   { key: 'm', label: '월',   days: 21 },
   { key: 'q', label: '분기', days: 63 },
-  { key: 'h', label: '반기', days: 126 },
 ]
-export const ROUND_COUNTS = [3, 5, 10, 20, 50, 100] as const
+export const ROUND_COUNTS = [10, 20, 30, 50, 100] as const
 
 export const STARTING_CASH = 10_000
 export const FEE_RATE = 0.001 // 0.1% per side

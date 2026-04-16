@@ -133,7 +133,7 @@ export const CATEGORY_LABEL: Record<Category, string> = {
   index: '주가지수',
 }
 
-export const ALL_CATEGORIES: Category[] = ['us', 'jp', 'kr', 'index']
+export const ALL_CATEGORIES: Category[] = ['index', 'kr', 'us', 'jp']
 
 export function pickRandomTicker(
   categories: Category[] = ALL_CATEGORIES,

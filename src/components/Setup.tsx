@@ -18,6 +18,7 @@ interface SetupProps {
 export function Setup({ onStart, loading, error, nickname, onNicknameChange, onThemeChange }: SetupProps) {
   const [categories, setCategories] = useState<Set<Category>>(new Set(['kr']))
   const [roundCount, setRoundCount] = useState<number>(20)
+  const [customRound, setCustomRound] = useState(false)
   const [roundSize, setRoundSize] = useState<RoundSize>(ROUND_SIZES[1]) // 주
   const [showHelp, setShowHelp] = useState(false)
   const [themeKey, setThemeKey] = useState<ThemeKey>(loadTheme)
@@ -166,15 +167,37 @@ export function Setup({ onStart, loading, error, nickname, onNicknameChange, onT
             {ROUND_COUNTS.map((n) => (
               <button
                 key={n}
-                onClick={() => setRoundCount(n)}
+                onClick={() => { setRoundCount(n); setCustomRound(false) }}
                 className={`py-2 sm:py-3 rounded-xl border-2 text-sm font-black transition ${
-                  roundCount === n ? t.chipActive : t.chipInactive
+                  roundCount === n && !customRound ? t.chipActive : t.chipInactive
                 }`}
               >
                 {n}
               </button>
             ))}
+            <button
+              onClick={() => setCustomRound(true)}
+              className={`py-2 sm:py-3 rounded-xl border-2 text-sm font-black transition ${
+                customRound ? t.chipActive : t.chipInactive
+              }`}
+            >
+              직접입력
+            </button>
           </div>
+          {customRound && (
+            <input
+              type="number"
+              min={1}
+              max={200}
+              value={roundCount}
+              onChange={(e) => {
+                const v = Math.max(1, Math.min(200, Number(e.target.value) || 1))
+                setRoundCount(v)
+              }}
+              className={`mt-2 w-full px-3 py-2 rounded-lg border-2 text-sm font-mono font-bold ${t.inputBorder} ${t.inputBg} ${t.inputText}`}
+              placeholder="라운드 수 입력 (1~200)"
+            />
+          )}
         </section>
 
         <section className="mb-6">
