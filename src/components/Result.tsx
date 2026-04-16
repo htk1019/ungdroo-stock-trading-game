@@ -3,7 +3,7 @@ import { computeStats, type GameState, INTERVAL_LABEL } from '../lib/engine'
 import { findTicker } from '../lib/tickers'
 import { EquityChart } from './EquityChart'
 import { Chart } from './Chart'
-import { playWin, playLose, playMeh } from '../lib/sfx'
+import { playWin, playLose, playMeh, playTotalDefeat, playPerfectWin } from '../lib/sfx'
 import { recordHighScore, addRecentGame } from '../lib/highscore'
 import { submitScore, fetchTopScores, type LeaderboardRow } from '../lib/leaderboard'
 
@@ -32,34 +32,44 @@ export function Result({ game, onReplay, nickname }: ResultProps) {
   const beat = beatBM && profitable
   const bothFail = !beatBM && !profitable
   const mixed = !beat && !bothFail
-  const verdict: 'win' | 'mixed' | 'lose' = beat ? 'win' : mixed ? 'mixed' : 'lose'
+  const verdict: 'win' | 'mixed' | 'lose' | 'total-defeat' = beat
+    ? 'win'
+    : mixed
+      ? 'mixed'
+      : (bothFail && stats.winRate <= 30)
+        ? 'total-defeat'
+        : 'lose'
   const perfect = verdict === 'win' && stats.winRate >= 90
-  const verdictImg = verdict === 'win' ? '/happy.png' : verdict === 'lose' ? '/sad.png' : '/meh.png'
-  const verdictAlt = perfect ? '완벽승리' : verdict === 'win' ? '승리' : verdict === 'lose' ? '패배' : '애매'
-  const verdictLabel = perfect ? '👑 완벽승리!' : verdict === 'win' ? '승리!' : verdict === 'lose' ? '패배…' : '애매…'
-  const verdictBorder = verdict === 'win' ? 'border-emerald-500/40' : verdict === 'lose' ? 'border-red-500/40' : 'border-amber-500/40'
-  const verdictAnim = verdict === 'win' ? 'animate-bounce-slow' : verdict === 'lose' ? 'animate-shake' : ''
+  const verdictImg = perfect ? '/perfect-win.png' : verdict === 'win' ? '/happy.png' : verdict === 'total-defeat' ? '/total-defeat.png' : verdict === 'lose' ? '/sad.png' : '/meh.png'
+  const verdictAlt = perfect ? '완벽승리' : verdict === 'win' ? '승리' : verdict === 'total-defeat' ? '완전패배' : verdict === 'lose' ? '패배' : '애매'
+  const verdictLabel = perfect ? '👑 완벽승리!' : verdict === 'win' ? '승리!' : verdict === 'total-defeat' ? '💀 완전패배!!!' : verdict === 'lose' ? '패배…' : '애매…'
+  const verdictBorder = verdict === 'win' ? 'border-emerald-500/40' : (verdict === 'lose' || verdict === 'total-defeat') ? 'border-red-500/40' : 'border-amber-500/40'
+  const verdictAnim = verdict === 'win' ? 'animate-bounce-slow' : (verdict === 'lose' || verdict === 'total-defeat') ? 'animate-shake' : ''
   const verdictLabelCls = verdict === 'win'
     ? 'bg-emerald-500/15 border-emerald-500/60 text-emerald-300'
-    : verdict === 'lose'
+    : (verdict === 'lose' || verdict === 'total-defeat')
       ? 'bg-red-500/15 border-red-500/60 text-red-300'
       : 'bg-amber-500/15 border-amber-500/60 text-amber-300'
   const verdictMsgCls = verdict === 'win'
     ? 'text-emerald-200'
-    : verdict === 'lose'
+    : (verdict === 'lose' || verdict === 'total-defeat')
       ? 'text-red-200'
       : 'text-amber-200'
   const verdictMsg = verdict === 'win'
     ? `🎉 절대수익 +${stats.returnPct.toFixed(2)}% & B&H 대비 +${stats.alphaPct.toFixed(2)}%p — 둘 다 이겼습니다.`
-    : verdict === 'lose'
-      ? `📉 패배 — 돈도 잃고(${stats.returnPct.toFixed(2)}%) B&H에도 뒤졌습니다(${stats.alphaPct.toFixed(2)}%p).`
-      : !profitable
-        ? `🤔 애매 — B&H는 이겼지만(${stats.alphaPct >= 0 ? '+' : ''}${stats.alphaPct.toFixed(2)}%p) 절대수익이 마이너스(${stats.returnPct.toFixed(2)}%)입니다.`
-        : `🤔 애매 — 돈은 벌었지만(+${stats.returnPct.toFixed(2)}%) B&H에 뒤졌습니다(${stats.alphaPct.toFixed(2)}%p).`
+    : verdict === 'total-defeat'
+      ? `💀 완전패배 — 돈도 잃고(${stats.returnPct.toFixed(2)}%) B&H에도 뒤지고 승률 ${stats.winRate.toFixed(1)}%... 이건 너무한 거 아니냐고.`
+      : verdict === 'lose'
+        ? `📉 패배 — 돈도 잃고(${stats.returnPct.toFixed(2)}%) B&H에도 뒤졌습니다(${stats.alphaPct.toFixed(2)}%p).`
+        : !profitable
+          ? `🤔 애매 — B&H는 이겼지만(${stats.alphaPct >= 0 ? '+' : ''}${stats.alphaPct.toFixed(2)}%p) 절대수익이 마이너스(${stats.returnPct.toFixed(2)}%)입니다.`
+          : `🤔 애매 — 돈은 벌었지만(+${stats.returnPct.toFixed(2)}%) B&H에 뒤졌습니다(${stats.alphaPct.toFixed(2)}%p).`
 
   useEffect(() => {
-    if (verdict === 'win') playWin()
+    if (perfect) playPerfectWin()
+    else if (verdict === 'win') playWin()
     else if (verdict === 'mixed') playMeh()
+    else if (verdict === 'total-defeat') playTotalDefeat()
     else playLose()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

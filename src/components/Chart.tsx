@@ -24,12 +24,14 @@ import {
   obvSeries, mfiSeries, psarSeries, awesomeOscSeries, vwapSeries,
 } from '../lib/indicators'
 import { IchimokuCloudPrimitive } from './IchimokuCloudPrimitive'
+import { CHART_COLORS, type ThemeKey } from '../lib/theme'
 
 interface ChartProps {
   candles: Candle[]
   trades: Trade[]
   hideVolume?: boolean   // true for indices (no volume data)
   hideIndicators?: boolean  // true to render a vanilla candles+markers chart (no overlays/panes/toggle UI)
+  themeKey?: ThemeKey
 }
 
 type LineData = { time: UTCTimestamp; value: number }
@@ -299,7 +301,8 @@ const GROUPS: { label: string; keys: string[] }[] = [
 const OVERLAY_BY_KEY = new Map(OVERLAY_DEFS.map((d) => [d.key, d]))
 const PANE_BY_KEY = new Map(PANE_DEFS.map((d) => [d.key, d]))
 
-export function Chart({ candles, trades, hideVolume = false, hideIndicators = false }: ChartProps) {
+export function Chart({ candles, trades, hideVolume = false, hideIndicators = false, themeKey = 'dark' }: ChartProps) {
+  const cc = CHART_COLORS[themeKey]
   const containerRef = useRef<HTMLDivElement>(null)
   const chartRef = useRef<IChartApi | null>(null)
   const candleSeriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null)
@@ -333,20 +336,20 @@ export function Chart({ candles, trades, hideVolume = false, hideIndicators = fa
     const chart = createChart(containerRef.current, {
       autoSize: true,
       layout: {
-        background: { color: '#12151c' },
-        textColor: '#e5e7eb',
-        panes: { separatorColor: '#252a36', separatorHoverColor: '#333a4d', enableResize: true },
+        background: { color: cc.bg },
+        textColor: cc.text,
+        panes: { separatorColor: cc.separatorColor, separatorHoverColor: cc.separatorHover, enableResize: true },
       },
-      grid: { vertLines: { color: '#1f2430' }, horzLines: { color: '#1f2430' } },
+      grid: { vertLines: { color: cc.gridLine }, horzLines: { color: cc.gridLine } },
       crosshair: { mode: CrosshairMode.Normal },
-      rightPriceScale: { borderColor: '#252a36' },
-      timeScale: { borderColor: '#252a36', timeVisible: true, secondsVisible: false },
+      rightPriceScale: { borderColor: cc.border },
+      timeScale: { borderColor: cc.border, timeVisible: true, secondsVisible: false },
     })
     chartRef.current = chart
 
     candleSeriesRef.current = chart.addSeries(CandlestickSeries, {
-      upColor: '#22c55e', downColor: '#ef4444',
-      wickUpColor: '#22c55e', wickDownColor: '#ef4444',
+      upColor: cc.upColor, downColor: cc.downColor,
+      wickUpColor: cc.upColor, wickDownColor: cc.downColor,
       borderVisible: false,
     }, 0)
 
@@ -431,7 +434,7 @@ export function Chart({ candles, trades, hideVolume = false, hideIndicators = fa
       cloudRef.current = null
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [paneSig, hideVolume])
+  }, [paneSig, hideVolume, themeKey])
 
   // Toggle overlay visibility without rebuilding the chart.
   useEffect(() => {
@@ -575,16 +578,17 @@ export function Chart({ candles, trades, hideVolume = false, hideIndicators = fa
   return (
     <div className="w-full h-full flex flex-col">
       {/* Desktop: always show chips. Hidden on short viewports (e.g. phone landscape) to keep chart visible. */}
-      <div className="hidden sm:flex [@media(max-height:500px)]:!hidden shrink-0 flex-col gap-1 p-2 bg-[#12151c]/90 border-b border-[#252a36]">
+      <div className="hidden sm:flex [@media(max-height:500px)]:!hidden shrink-0 flex-col gap-1 p-2 border-b" style={{ background: cc.panelBg + 'e6', borderColor: cc.border }}>
         {chipPanel}
       </div>
 
       {/* Mobile (or any short viewport): collapsible */}
-      <div className="sm:hidden [@media(max-height:500px)]:!block shrink-0 bg-[#12151c]/90 border-b border-[#252a36]">
+      <div className="sm:hidden [@media(max-height:500px)]:!block shrink-0 border-b" style={{ background: cc.panelBg + 'e6', borderColor: cc.border }}>
         <button
           type="button"
           onClick={() => setIndicatorOpen((o) => !o)}
-          className="w-full flex items-center justify-between px-3 py-1.5 text-xs font-bold text-[#8b93a7] active:bg-[#1a1e27]"
+          className="w-full flex items-center justify-between px-3 py-1.5 text-xs font-bold"
+          style={{ color: cc.mutedText }}
         >
           <span className="flex items-center gap-1.5">
             <span>지표</span>

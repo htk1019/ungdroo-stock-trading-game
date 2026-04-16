@@ -95,6 +95,72 @@ export const THEMES: Record<ThemeKey, Theme> = {
   },
 }
 
+// Chart color scheme per theme (used by Chart.tsx + Play.tsx)
+export interface ChartColors {
+  bg: string
+  text: string
+  gridLine: string
+  border: string
+  separatorColor: string
+  separatorHover: string
+  upColor: string
+  downColor: string
+  // Play.tsx UI panels
+  panelBg: string
+  panelBorder: string
+  headerBg: string
+  mutedText: string
+  primaryText: string
+}
+
+export const CHART_COLORS: Record<ThemeKey, ChartColors> = {
+  dark: {
+    bg: '#12151c',
+    text: '#e5e7eb',
+    gridLine: '#1f2430',
+    border: '#252a36',
+    separatorColor: '#252a36',
+    separatorHover: '#333a4d',
+    upColor: '#22c55e',
+    downColor: '#ef4444',
+    panelBg: '#12151c',
+    panelBorder: '#252a36',
+    headerBg: '#12151c',
+    mutedText: '#8b93a7',
+    primaryText: '#e5e7eb',
+  },
+  rainbow: {
+    bg: '#fef9f0',
+    text: '#4a3728',
+    gridLine: '#f0e0d0',
+    border: '#e8c8b8',
+    separatorColor: '#e8c8b8',
+    separatorHover: '#d4a894',
+    upColor: '#16a34a',
+    downColor: '#dc2626',
+    panelBg: '#fef7ed',
+    panelBorder: '#f5d0b0',
+    headerBg: '#fef7ed',
+    mutedText: '#a08060',
+    primaryText: '#3d2b1f',
+  },
+  neon: {
+    bg: '#050505',
+    text: '#39ff14',
+    gridLine: '#0a1a0a',
+    border: '#1a3a1a',
+    separatorColor: '#1a3a1a',
+    separatorHover: '#2a5a2a',
+    upColor: '#39ff14',
+    downColor: '#ff073a',
+    panelBg: '#080808',
+    panelBorder: '#1a3a1a',
+    headerBg: '#080808',
+    mutedText: '#2a7a2a',
+    primaryText: '#39ff14',
+  },
+}
+
 export function loadTheme(): ThemeKey {
   return THEME_KEYS[Math.floor(Math.random() * THEME_KEYS.length)]
 }

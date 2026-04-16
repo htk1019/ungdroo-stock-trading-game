@@ -106,6 +106,46 @@ button:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2
   pointer-events: none;
 }
 
+/* ===== Combo system animations ===== */
+@keyframes combo-pop {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.3) rotate(-10deg); }
+  20%  { opacity: 1; transform: translate(-50%, -50%) scale(1.3) rotate(3deg); }
+  35%  { transform: translate(-50%, -50%) scale(0.95) rotate(-1deg); }
+  50%  { transform: translate(-50%, -50%) scale(1.05) rotate(0); }
+  70%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -60%) scale(0.9); }
+}
+.animate-combo-pop { animation: combo-pop 2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+
+@keyframes combo-break {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(1.5); }
+  15%  { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0); }
+  25%  { transform: translate(-50%, -50%) scale(1) rotate(-3deg); }
+  35%  { transform: translate(-50%, -50%) scale(1) rotate(3deg); }
+  45%  { transform: translate(-50%, -50%) scale(1) rotate(-2deg); }
+  55%  { transform: translate(-50%, -50%) scale(1) rotate(0); }
+  75%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -55%) scale(0.95); }
+}
+.animate-combo-break { animation: combo-break 2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+
+@keyframes tilt-duck {
+  0%   { opacity: 0; transform: translate(-50%, 30px) scale(0.5); }
+  15%  { opacity: 1; transform: translate(-50%, 0) scale(1.05); }
+  25%  { transform: translate(-50%, 0) scale(1); }
+  75%  { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, 20px) scale(0.9); }
+}
+.animate-tilt-duck { animation: tilt-duck 3.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+
+@keyframes proverb-slide {
+  0%   { opacity: 0; transform: translateY(-10px); }
+  10%  { opacity: 1; transform: translateY(0); }
+  80%  { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-8px); }
+}
+.animate-proverb-slide { animation: proverb-slide 3.5s ease-in-out forwards; }
+
 /* 무지개 테마: 공책 줄무늬 배경 */
 .bg-notebook {
   background-image:
