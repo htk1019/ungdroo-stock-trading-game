@@ -70,21 +70,6 @@ export function Setup({ onStart, loading, error, nickname, onNicknameChange, onT
     <div className={`min-h-screen flex items-center justify-center p-3 sm:p-6 relative overflow-hidden ${t.pageBg}`}>
       {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
 
-      {/* Theme toggle — top-left corner */}
-      <button
-        onClick={cycleTheme}
-        className={`fixed top-2 right-2 sm:top-4 sm:right-4 z-50 px-2.5 py-1.5 rounded-lg text-xs font-bold border-2 transition-all ${
-          isDark
-            ? 'bg-[#1a1e27] border-[#252a36] text-[#8b93a7] hover:border-amber-400/50'
-            : themeKey === 'rainbow'
-              ? 'bg-white/70 border-pink-300 text-pink-600 hover:border-pink-400'
-              : 'bg-black border-lime-500/50 text-lime-400 hover:border-lime-400'
-        }`}
-        title="테마 변경"
-      >
-        {t.emoji} {t.label}
-      </button>
-
       {/* 배경 장식 — 다크 테마에서만 표시 */}
       {isDark && (
         <>
@@ -158,11 +143,23 @@ export function Setup({ onStart, loading, error, nickname, onNicknameChange, onT
 
         {/* Hero */}
         <div className="flex flex-col items-center text-center mb-4 sm:mb-6 mt-2 sm:mt-4 relative">
+          {/* 테마 버튼 — 왼쪽 위 */}
+          <button
+            onClick={cycleTheme}
+            className={`absolute -top-1 left-0 sm:left-2 z-20 px-2 py-1 rounded-lg text-[10px] sm:text-xs font-bold border-2 transition-all ${
+              isDark
+                ? 'bg-[#1a1e27] border-[#252a36] text-[#8b93a7] hover:border-amber-400/50'
+                : themeKey === 'rainbow'
+                  ? 'bg-white/70 border-pink-300 text-pink-600 hover:border-pink-400'
+                  : 'bg-black border-lime-500/50 text-lime-400 hover:border-lime-400'
+            }`}
+            title="테마 변경"
+          >
+            {t.emoji} {t.label}
+          </button>
+
           {isDark && (
             <>
-              <div className="hidden sm:block absolute -top-1 left-2 text-amber-300 text-xs font-black rotate-[-18deg] select-none leading-tight">
-                🔥 오늘의<br/>한탕 🔥
-              </div>
               <div className="hidden sm:block absolute -top-1 right-14 text-pink-300 text-xs font-black rotate-[12deg] select-none leading-tight animate-blink">
                 🚨 대박 🚨<br/>신호 감지!
               </div>
@@ -170,9 +167,6 @@ export function Setup({ onStart, loading, error, nickname, onNicknameChange, onT
           )}
           {themeKey === 'rainbow' && (
             <>
-              <div className="hidden sm:block absolute -top-1 left-2 text-orange-500 text-xs font-black rotate-[-18deg] select-none leading-tight">
-                🌟 오늘의<br/>한탕 🌟
-              </div>
               <div className="hidden sm:block absolute -top-1 right-14 text-purple-500 text-xs font-black rotate-[12deg] select-none leading-tight animate-blink">
                 ✨ 대박 ✨<br/>신호 감지!
               </div>
@@ -180,9 +174,6 @@ export function Setup({ onStart, loading, error, nickname, onNicknameChange, onT
           )}
           {themeKey === 'neon' && (
             <>
-              <div className="hidden sm:block absolute -top-1 left-2 text-lime-400 text-xs font-black rotate-[-18deg] select-none leading-tight">
-                ⚡ 오늘의<br/>한탕 ⚡
-              </div>
               <div className="hidden sm:block absolute -top-1 right-14 text-fuchsia-400 text-xs font-black rotate-[12deg] select-none leading-tight animate-blink">
                 💀 대박 💀<br/>신호 감지!
               </div>
