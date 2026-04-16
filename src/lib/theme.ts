@@ -21,6 +21,7 @@ export interface Theme {
   inputBorder: string
   inputBg: string
   inputText: string
+  fontClass: string // applied to the whole card
 }
 
 const THEME_KEY = 'stock-game:theme'
@@ -46,20 +47,21 @@ export const THEMES: Record<ThemeKey, Theme> = {
     inputBorder: 'border-emerald-400/40 focus:border-emerald-400',
     inputBg: 'bg-[#1a1e27]',
     inputText: 'text-emerald-100',
+    fontClass: '',
   },
   rainbow: {
     key: 'rainbow',
     label: '무지개',
     emoji: '🌈',
     pageBg: 'bg-gradient-to-br from-pink-200 via-yellow-100 via-green-100 to-blue-200',
-    cardBg: 'bg-white/80 backdrop-blur-sm',
-    cardBorder: 'border-pink-400',
+    cardBg: 'bg-white/90 backdrop-blur-sm bg-notebook',
+    cardBorder: 'border-pink-400 border-dashed',
     cardShadow: 'shadow-[0_8px_40px_rgba(236,72,153,0.3)]',
     titleColor: 'text-pink-500',
     subtitleColor: 'text-purple-600',
     sectionTitleColors: ['text-orange-500', 'text-pink-500', 'text-blue-500'],
-    chipActive: 'bg-pink-200 border-pink-400 text-pink-700 shadow-[0_0_12px_rgba(236,72,153,0.4)]',
-    chipInactive: 'bg-white/60 border-pink-200 text-gray-500 hover:border-pink-300',
+    chipActive: 'bg-pink-200 border-pink-400 border-dashed text-pink-700 shadow-[0_0_12px_rgba(236,72,153,0.4)]',
+    chipInactive: 'bg-white/60 border-pink-200 border-dashed text-gray-500 hover:border-pink-300',
     startBtn: 'bg-gradient-to-r from-red-400 via-yellow-300 via-green-300 to-blue-400 hover:from-red-300 hover:via-yellow-200 hover:to-blue-300 border-pink-300',
     startBtnText: 'text-purple-900',
     textPrimary: 'text-gray-800',
@@ -67,6 +69,7 @@ export const THEMES: Record<ThemeKey, Theme> = {
     inputBorder: 'border-pink-300 focus:border-pink-500',
     inputBg: 'bg-white/70',
     inputText: 'text-pink-700',
+    fontClass: "font-[Gaegu]",
   },
   neon: {
     key: 'neon',
@@ -88,6 +91,7 @@ export const THEMES: Record<ThemeKey, Theme> = {
     inputBorder: 'border-cyan-500/50 focus:border-cyan-400',
     inputBg: 'bg-black/80',
     inputText: 'text-cyan-200',
+    fontClass: "font-['Press_Start_2P']",
   },
 }
 

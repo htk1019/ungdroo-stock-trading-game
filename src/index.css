@@ -105,3 +105,12 @@ button:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2
   animation: shine 2.6s ease-in-out infinite;
   pointer-events: none;
 }
+
+/* 무지개 테마: 공책 줄무늬 배경 */
+.bg-notebook {
+  background-image:
+    repeating-linear-gradient(
+      transparent, transparent 27px, #e8b4b8 27px, #e8b4b8 28px
+    );
+  background-size: 100% 28px;
+}

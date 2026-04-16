@@ -135,7 +135,7 @@ export function Setup({ onStart, loading, error, nickname, onNicknameChange }: S
         </div>
       )}
 
-      <div className={`w-full max-w-3xl ${t.cardBg} border-2 sm:border-4 ${t.cardBorder} rounded-2xl sm:rounded-3xl p-5 sm:p-10 ${t.cardShadow} relative overflow-hidden z-10`}>
+      <div className={`w-full max-w-3xl ${t.cardBg} border-2 sm:border-4 ${t.cardBorder} rounded-2xl sm:rounded-3xl p-5 sm:p-10 ${t.cardShadow} relative overflow-hidden z-10 ${t.fontClass}`}>
         {/* 레인보우 테두리 스트라이프 */}
         <div className="absolute top-0 left-0 right-0 h-2 bg-rainbow-stripe" />
         <div className="absolute bottom-0 left-0 right-0 h-2 bg-rainbow-stripe" />
