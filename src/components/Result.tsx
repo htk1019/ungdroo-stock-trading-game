@@ -72,6 +72,7 @@ export function Result({ game, onReplay, nickname }: ResultProps) {
   const [hs, setHs] = useState<{ best: HighScore; isNew: boolean } | null>(null)
   const [leaderboard, setLeaderboard] = useState<LeaderboardRow[]>([])
   useEffect(() => {
+    let cancelled = false
     const entry = {
       cagrPct: stats.cagrPct,
       symbol: game.symbol,
@@ -79,9 +80,9 @@ export function Result({ game, onReplay, nickname }: ResultProps) {
       at: Date.now(),
     }
     setHs(recordHighScore(entry))
-    addRecentGame(entry)
+    if (!cancelled) addRecentGame(entry)
     // Submit score to Firestore & fetch leaderboard
-    if (nickname.trim()) {
+    if (!cancelled && nickname.trim()) {
       submitScore({
         nickname: nickname.trim(),
         returnPct: Math.round(stats.returnPct * 100) / 100,
@@ -91,9 +92,13 @@ export function Result({ game, onReplay, nickname }: ResultProps) {
         rounds: game.roundCount,
         trades: game.trades.length,
         createdAt: null,
+      }).then(() => {
+        if (!cancelled) fetchTopScores(20).then(setLeaderboard).catch(console.error)
       }).catch(console.error)
+    } else {
+      fetchTopScores(20).then(setLeaderboard).catch(console.error)
     }
-    fetchTopScores(20).then(setLeaderboard).catch(console.error)
+    return () => { cancelled = true }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
