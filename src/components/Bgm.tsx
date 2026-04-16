@@ -19,14 +19,14 @@ interface Track {
 }
 
 const TRACKS: Track[] = [
-  { key: 'duck',        label: '🦆 오리',       src: '/bgm-duck.mp3'        },
-  { key: 'arcade',      label: '🎮 아케이드',   src: '/bgm-arcade.mp3'      },
-  { key: 'pingpong',    label: '🏓 핑퐁',       src: '/bgm-pingpong.mp3'    },
-  { key: 'phantasy',    label: '⚔️ 판타지',     src: '/bgm-phantasy.mp3'    },
-  { key: 'ys',          label: '💎 이스',       src: '/bgm-ys.mp3'          },
-  { key: 'motavia',     label: '🏜️ 모타비아',   src: '/bgm-motavia.mp3'     },
-  { key: 'jijy',        label: '🎻 지지의 랙',  src: '/bgm-jijy.mp3'        },
-  { key: 'dilapidated', label: '🏚️ 폐허마을',   src: '/bgm-dilapidated.mp3' },
+  { key: 'duck',        label: '🌃 서울',   src: '/bgm-duck.mp3'        },
+  { key: 'arcade',      label: '🏙️ 부산',   src: '/bgm-arcade.mp3'      },
+  { key: 'pingpong',    label: '🌆 대구',   src: '/bgm-pingpong.mp3'    },
+  { key: 'phantasy',    label: '🌉 대전',   src: '/bgm-phantasy.mp3'    },
+  { key: 'ys',          label: '🏛️ 광주',   src: '/bgm-ys.mp3'          },
+  { key: 'motavia',     label: '🌅 인천',   src: '/bgm-motavia.mp3'     },
+  { key: 'jijy',        label: '🌇 울산',   src: '/bgm-jijy.mp3'        },
+  { key: 'dilapidated', label: '🌁 제주',   src: '/bgm-dilapidated.mp3' },
 ]
 
 function pickTrack(key: string): Track {
