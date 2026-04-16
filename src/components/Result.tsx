@@ -4,7 +4,7 @@ import { findTicker } from '../lib/tickers'
 import { EquityChart } from './EquityChart'
 import { Chart } from './Chart'
 import { playWin, playLose, playMeh } from '../lib/sfx'
-import { recordHighScore, addRecentGame, type HighScore } from '../lib/highscore'
+import { recordHighScore, addRecentGame } from '../lib/highscore'
 import { submitScore, fetchTopScores, type LeaderboardRow } from '../lib/leaderboard'
 
 interface ResultProps {
@@ -64,7 +64,6 @@ export function Result({ game, onReplay, nickname }: ResultProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const [hs, setHs] = useState<{ best: HighScore; isNew: boolean } | null>(null)
   const [leaderboard, setLeaderboard] = useState<LeaderboardRow[]>([])
   const submitted = useRef(false)
   useEffect(() => {
@@ -76,7 +75,7 @@ export function Result({ game, onReplay, nickname }: ResultProps) {
       symbolName: info?.name,
       at: Date.now(),
     }
-    setHs(recordHighScore(entry))
+    recordHighScore(entry)
     addRecentGame(entry)
     // Only submit if alpha is positive (beat B&H)
     if (nickname.trim() && stats.alphaCagrPct >= 0) {
@@ -126,25 +125,6 @@ export function Result({ game, onReplay, nickname }: ResultProps) {
           </div>
         </div>
         <div className="flex items-center gap-2 sm:gap-3">
-          {hs && (
-            <div className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg border text-xs sm:text-sm ${
-              hs.isNew
-                ? 'bg-amber-500/15 border-amber-400/60 text-amber-200 animate-pulse'
-                : 'bg-[#1a1e27] border-[#252a36] text-[#8b93a7]'
-            }`}>
-              <div className="text-[9px] sm:text-[10px] uppercase tracking-widest font-bold">
-                {hs.isNew ? '🏆 신기록! (연환산)' : '🏆 최고 기록 (연환산)'}
-              </div>
-              <div className={`font-mono font-black text-sm sm:text-lg ${
-                hs.best.cagrPct >= 0 ? 'text-emerald-300' : 'text-red-300'
-              }`}>
-                {hs.best.cagrPct >= 0 ? '+' : ''}{hs.best.cagrPct.toFixed(2)}%
-              </div>
-              <div className="text-[9px] sm:text-[10px] opacity-80 truncate max-w-[120px] sm:max-w-[160px]">
-                {hs.best.symbolName ?? hs.best.symbol}
-              </div>
-            </div>
-          )}
           <button
             onClick={onReplay}
             className="px-4 sm:px-6 py-2 sm:py-3 rounded-lg bg-indigo-500 hover:bg-indigo-400 text-white font-semibold text-sm sm:text-base"
