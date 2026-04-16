@@ -7,7 +7,7 @@ interface BgmProps {
 }
 
 const THEME_TRACKS: Record<ThemeKey, string[]> = {
-  dark: ['duck'],
+  dark: ['duck', 'phantasy', 'ys', 'jijy'],
   rainbow: ['pingpong', 'phantasy'],
   neon: ['dilapidated', 'arcade'],
 }
