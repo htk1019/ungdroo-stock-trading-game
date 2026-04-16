@@ -194,7 +194,7 @@ export function Setup({ onStart, loading, error, nickname, onNicknameChange, onT
             <span className={`text-lg sm:text-xl font-black animate-blink ${t.titleColor}`}>★</span>
           </div>
           <p className={`mt-2 sm:mt-3 text-sm sm:text-base font-bold px-2 ${t.subtitleColor}`}>
-            ❗ 종목은 <u>비밀</u>! 차트만 보고 <span className={t.titleColor}>Buy &amp; Hold</span> ⚡️발라버려⚡️ 승리! ❗
+            ❗ 종목은 <u>비밀</u>! 차트만 보고 <span className={t.titleColor}>Buy &amp; Hold</span>를 이겨라! ❗
           </p>
         </div>
 
