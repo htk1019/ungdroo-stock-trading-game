@@ -6,10 +6,15 @@ interface BgmProps {
   themeKey: ThemeKey
 }
 
-const THEME_DEFAULT_TRACK: Record<ThemeKey, string> = {
-  dark: 'duck',
-  rainbow: 'pingpong',
-  neon: 'arcade',
+const THEME_TRACKS: Record<ThemeKey, string[]> = {
+  dark: ['duck'],
+  rainbow: ['pingpong'],
+  neon: ['dilapidated', 'arcade'],
+}
+
+function pickThemeTrack(theme: ThemeKey): string {
+  const pool = THEME_TRACKS[theme]
+  return pool[Math.floor(Math.random() * pool.length)]
 }
 
 interface Track {
@@ -93,9 +98,9 @@ export function Bgm({ active, themeKey }: BgmProps) {
   useEffect(() => {
     if (prevTheme.current === themeKey) return
     prevTheme.current = themeKey
-    const defaultTrack = THEME_DEFAULT_TRACK[themeKey]
-    if (defaultTrack && defaultTrack !== trackKey) {
-      setTrackKey(defaultTrack)
+    const picked = pickThemeTrack(themeKey)
+    if (picked !== trackKey) {
+      setTrackKey(picked)
     }
   }, [themeKey, trackKey])
 
