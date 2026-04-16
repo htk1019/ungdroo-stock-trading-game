@@ -162,7 +162,9 @@ export const CHART_COLORS: Record<ThemeKey, ChartColors> = {
 }
 
 export function loadTheme(): ThemeKey {
-  return THEME_KEYS[Math.floor(Math.random() * THEME_KEYS.length)]
+  const saved = localStorage.getItem(THEME_KEY) as ThemeKey | null
+  if (saved && THEME_KEYS.includes(saved)) return saved
+  return 'dark'
 }
 
 export function saveTheme(key: ThemeKey) {
