@@ -1,21 +1,33 @@
 import { useEffect, useRef, useState } from 'react'
 import { ALL_CATEGORIES, CATEGORY_LABEL, type Category } from '../lib/tickers'
 import { ROUND_SIZES, ROUND_COUNTS, type RoundSize } from '../lib/engine'
+import { GUESS_HORIZONS, DEFAULT_GUESS_HORIZON, type GuessHorizon } from '../lib/guess'
 import { HelpModal } from './HelpModal'
 import { loadHighScore, loadRecentGames, clearRecentGames } from '../lib/highscore'
 import { saveNickname, checkNicknameExists } from '../lib/leaderboard'
 import { THEMES, THEME_KEYS, loadTheme, saveTheme, type ThemeKey } from '../lib/theme'
 
+export type GameMode = 'classic' | 'guess'
+
 interface SetupProps {
-  onStart: (args: { categories: Category[]; roundCount: number; roundSize: RoundSize }) => void
+  onStart: (args: {
+    mode: GameMode
+    categories: Category[]
+    roundCount: number
+    roundSize: RoundSize
+    guessHorizon: GuessHorizon
+  }) => void
   loading: boolean
+  progress: { loaded: number; total: number } | null
   error: string | null
   nickname: string
   onNicknameChange: (nick: string) => void
   onThemeChange: (key: ThemeKey) => void
 }
 
-export function Setup({ onStart, loading, error, nickname, onNicknameChange, onThemeChange }: SetupProps) {
+export function Setup({ onStart, loading, progress, error, nickname, onNicknameChange, onThemeChange }: SetupProps) {
+  const [mode, setMode] = useState<GameMode>('classic')
+  const [guessHorizon, setGuessHorizon] = useState<GuessHorizon>(DEFAULT_GUESS_HORIZON)
   const [categories, setCategories] = useState<Set<Category>>(new Set(['kr']))
   const [roundCount, setRoundCount] = useState<number>(20)
   const [customRound, setCustomRound] = useState(false)
@@ -136,8 +148,44 @@ export function Setup({ onStart, loading, error, nickname, onNicknameChange, onT
             <span className={`text-lg sm:text-xl font-black animate-blink ${t.titleColor}`}>★</span>
           </div>
           <p className={`mt-2 sm:mt-3 text-sm sm:text-base font-bold px-2 ${t.subtitleColor}`}>
-            ❗ 종목은 <u>비밀</u>! 차트만 보고 <span className={t.titleColor}>Buy &amp; Hold</span>를 이겨라! ❗
+            {mode === 'classic' ? (
+              <>
+                ❗ 종목은 <u>비밀</u>! 차트만 보고 <span className={t.titleColor}>Buy &amp; Hold</span>를 이겨라! ❗
+              </>
+            ) : (
+              <>
+                ❗ 20개 차트, <span className={t.titleColor}>{guessHorizon.label} 뒤</span> 오를지 내릴지만 찍어라! ❗
+              </>
+            )}
           </p>
+        </div>
+
+        {/* 모드 선택 — 컴팩트 세그먼트. 기본은 리밸런싱(메인). */}
+        <div className="mb-4 flex items-center justify-center">
+          <div className={`inline-flex rounded-full p-0.5 border ${
+            isDark
+              ? 'bg-[#1a1e27] border-[#252a36]'
+              : themeKey === 'rainbow'
+                ? 'bg-white/70 border-pink-200'
+                : 'bg-black/60 border-lime-500/30'
+          }`}>
+            <button
+              onClick={() => setMode('classic')}
+              className={`px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-bold transition ${
+                mode === 'classic' ? t.chipActive : `${t.textMuted} hover:opacity-80`
+              }`}
+            >
+              🎰 리밸런싱 <span className="opacity-70 font-normal">(메인)</span>
+            </button>
+            <button
+              onClick={() => setMode('guess')}
+              className={`px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-bold transition ${
+                mode === 'guess' ? t.chipActive : `${t.textMuted} hover:opacity-80`
+              }`}
+            >
+              🎯 다음날 맞추기
+            </button>
+          </div>
         </div>
 
         <section className="mb-4">
@@ -159,7 +207,7 @@ export function Setup({ onStart, loading, error, nickname, onNicknameChange, onT
           </div>
         </section>
 
-        <section className="mb-4">
+        {mode === 'classic' && <section className="mb-4">
           <h2 className={`text-sm font-black uppercase tracking-widest mb-2 ${t.sectionTitleColors[1]}`}>
             🔥 몇 라운드?
           </h2>
@@ -198,9 +246,9 @@ export function Setup({ onStart, loading, error, nickname, onNicknameChange, onT
               placeholder="라운드 수 입력 (1~200)"
             />
           )}
-        </section>
+        </section>}
 
-        <section className="mb-6">
+        {mode === 'classic' && <section className="mb-6">
           <h2 className={`text-sm font-black uppercase tracking-widest mb-2 ${t.sectionTitleColors[2]}`}>
             ⚡ 리밸런싱 주기
           </h2>
@@ -221,7 +269,49 @@ export function Setup({ onStart, loading, error, nickname, onNicknameChange, onT
             총 트레이딩 기간 ≈ <span className="font-mono">{tradingDays}거래일</span>
             {' '}({(tradingDays / 252).toFixed(1)}년)
           </p>
-        </section>
+        </section>}
+
+        {mode === 'guess' && (
+          <>
+            <section className="mb-4">
+              <h2 className={`text-sm font-black uppercase tracking-widest mb-2 ${t.sectionTitleColors[1]}`}>
+                ⏱️ 예측 기간
+              </h2>
+              <div className="grid grid-cols-3 gap-2">
+                {GUESS_HORIZONS.map((h) => (
+                  <button
+                    key={h.key}
+                    onClick={() => setGuessHorizon(h)}
+                    className={`py-2 sm:py-3 rounded-xl border-2 text-sm font-black transition ${
+                      guessHorizon.key === h.key ? t.chipActive : t.chipInactive
+                    }`}
+                  >
+                    {h.label}
+                    <span className="ml-1 text-[10px] sm:text-xs font-mono font-normal opacity-80">
+                      ({h.days}d)
+                    </span>
+                  </button>
+                ))}
+              </div>
+              <p className={`text-xs mt-2 text-center font-bold ${t.textMuted}`}>
+                {guessHorizon.days}거래일 뒤({guessHorizon.label}) 종가가 지금보다 오를지 내릴지 맞춘다. 기본 = 주.
+              </p>
+            </section>
+            <section className="mb-6">
+              <div className={`px-3 py-2 rounded-xl border-2 text-xs sm:text-sm font-bold ${
+                isDark
+                  ? 'bg-[#1a1e27] border-[#252a36] text-[#b5bbc9]'
+                  : themeKey === 'rainbow'
+                    ? 'bg-white/50 border-pink-200 text-purple-700'
+                    : 'bg-black/60 border-lime-500/40 text-lime-200'
+              }`}>
+                📊 <span className="font-black">20문제</span> · 각 문제마다 <span className="font-mono">1년치 차트</span>를 보고{' '}
+                <span className="font-mono">{guessHorizon.days}거래일</span> 뒤{' '}
+                <span className="text-emerald-400">상승</span> / <span className="text-red-400">하락</span>을 선택. 승률 20% 단위로 평가.
+              </div>
+            </section>
+          </>
+        )}
 
         <section className="mb-6">
           <h2 className="text-sm font-black text-emerald-300 uppercase tracking-widest mb-2">
@@ -243,12 +333,59 @@ export function Setup({ onStart, loading, error, nickname, onNicknameChange, onT
         </section>
 
         <button
-          onClick={() => onStart({ categories: Array.from(categories), roundCount, roundSize })}
+          onClick={() => onStart({ mode, categories: Array.from(categories), roundCount, roundSize, guessHorizon })}
           disabled={loading}
           className={`btn-shine w-full py-4 sm:py-5 rounded-xl sm:rounded-2xl ${t.startBtn} disabled:from-[#1a1e27] disabled:via-[#1a1e27] disabled:to-[#1a1e27] disabled:text-[#5a6175] ${t.startBtnText} font-black text-lg sm:text-xl transition shadow-[0_0_30px_rgba(251,191,36,0.5)] relative overflow-hidden border-2`}
         >
-          {loading ? '⏳ 딸깍… 딸깍… 딸깍…' : '🎰 딸깍! 시작하기 🎰'}
+          {loading
+            ? (progress
+                ? `⏳ 차트 불러오는 중… ${progress.loaded}/${progress.total}`
+                : '⏳ 딸깍… 딸깍… 딸깍…')
+            : mode === 'guess'
+              ? '🎯 20문제 시작하기 🎯'
+              : '🎰 딸깍! 시작하기 🎰'}
         </button>
+
+        {loading && (
+          <div className={`mt-3 p-3 rounded-xl border-2 ${
+            isDark
+              ? 'bg-[#1a1e27] border-amber-400/40'
+              : themeKey === 'rainbow'
+                ? 'bg-white/70 border-pink-300'
+                : 'bg-black/60 border-lime-500/50'
+          }`}>
+            <div className="flex items-center justify-between text-xs sm:text-sm font-bold mb-1.5">
+              <span className={t.textPrimary}>
+                {mode === 'guess'
+                  ? '📊 20개 차트를 불러오고 있어요. 잠시만요…'
+                  : '📈 차트 데이터를 준비하고 있어요…'}
+              </span>
+              {progress && (
+                <span className="font-mono text-amber-300">
+                  {Math.round((progress.loaded / progress.total) * 100)}%
+                </span>
+              )}
+            </div>
+            <div
+              className="h-2 rounded-full overflow-hidden border"
+              style={{ background: '#12151c', borderColor: '#252a36' }}
+            >
+              <div
+                className="h-full bg-gradient-to-r from-emerald-500 via-amber-400 to-pink-500 transition-all"
+                style={{
+                  width: progress
+                    ? `${(progress.loaded / progress.total) * 100}%`
+                    : '15%',
+                }}
+              />
+            </div>
+            <p className={`mt-1.5 text-[10px] sm:text-xs font-bold ${t.textMuted}`}>
+              {mode === 'guess'
+                ? '종목 수집 → 무작위 1년치 구간 추출 · 10~20초 정도 걸릴 수 있어요.'
+                : '종목을 고르고 있어요. 금방 끝납니다.'}
+            </p>
+          </div>
+        )}
 
         {error && (
           <div className="mt-4 p-3 rounded-lg bg-red-500/10 border-2 border-red-500/60 text-red-200 text-sm font-bold">
@@ -308,15 +445,25 @@ export function Setup({ onStart, loading, error, nickname, onNicknameChange, onT
         )}
 
         <div className={`mt-5 text-xs space-y-1 text-center font-bold ${t.textMuted}`}>
-          <p>
-            💵 시작자금 $10,000 · 💸 수수료 0.1% · 🎯 포지션 100%
-          </p>
-          <p>
-            ⌨️ <kbd className={`px-1.5 py-0.5 rounded border ${isDark ? 'bg-[#1a1e27] border-amber-400/30' : themeKey === 'rainbow' ? 'bg-white/60 border-pink-300' : 'bg-black border-lime-500/30'}`}>Space</kbd> 다음
-            · <kbd className={`px-1.5 py-0.5 rounded border ${isDark ? 'bg-[#1a1e27] border-emerald-400/30' : themeKey === 'rainbow' ? 'bg-white/60 border-green-300' : 'bg-black border-lime-500/30'}`}>B</kbd> 매수
-            · <kbd className={`px-1.5 py-0.5 rounded border ${isDark ? 'bg-[#1a1e27] border-rose-400/30' : themeKey === 'rainbow' ? 'bg-white/60 border-red-300' : 'bg-black border-fuchsia-500/30'}`}>S</kbd> 숏
-            · <kbd className={`px-1.5 py-0.5 rounded border ${isDark ? 'bg-[#1a1e27] border-slate-400/30' : themeKey === 'rainbow' ? 'bg-white/60 border-gray-300' : 'bg-black border-cyan-500/30'}`}>F</kbd> 플랫
-          </p>
+          {mode === 'classic' ? (
+            <>
+              <p>💵 시작자금 $10,000 · 💸 수수료 0.1% · 🎯 포지션 100%</p>
+              <p>
+                ⌨️ <kbd className={`px-1.5 py-0.5 rounded border ${isDark ? 'bg-[#1a1e27] border-amber-400/30' : themeKey === 'rainbow' ? 'bg-white/60 border-pink-300' : 'bg-black border-lime-500/30'}`}>Space</kbd> 다음
+                · <kbd className={`px-1.5 py-0.5 rounded border ${isDark ? 'bg-[#1a1e27] border-emerald-400/30' : themeKey === 'rainbow' ? 'bg-white/60 border-green-300' : 'bg-black border-lime-500/30'}`}>B</kbd> 매수
+                · <kbd className={`px-1.5 py-0.5 rounded border ${isDark ? 'bg-[#1a1e27] border-rose-400/30' : themeKey === 'rainbow' ? 'bg-white/60 border-red-300' : 'bg-black border-fuchsia-500/30'}`}>S</kbd> 숏
+                · <kbd className={`px-1.5 py-0.5 rounded border ${isDark ? 'bg-[#1a1e27] border-slate-400/30' : themeKey === 'rainbow' ? 'bg-white/60 border-gray-300' : 'bg-black border-cyan-500/30'}`}>F</kbd> 플랫
+              </p>
+            </>
+          ) : (
+            <>
+              <p>🎯 20문제 · 각 차트 다음날 상승/하락 예측 · 승률 20% 단위 평가</p>
+              <p>
+                ⌨️ <kbd className={`px-1.5 py-0.5 rounded border ${isDark ? 'bg-[#1a1e27] border-emerald-400/30' : themeKey === 'rainbow' ? 'bg-white/60 border-green-300' : 'bg-black border-lime-500/30'}`}>B</kbd> / <kbd className={`px-1.5 py-0.5 rounded border ${isDark ? 'bg-[#1a1e27] border-emerald-400/30' : themeKey === 'rainbow' ? 'bg-white/60 border-green-300' : 'bg-black border-lime-500/30'}`}>↑</kbd> 오른다
+                · <kbd className={`px-1.5 py-0.5 rounded border ${isDark ? 'bg-[#1a1e27] border-rose-400/30' : themeKey === 'rainbow' ? 'bg-white/60 border-red-300' : 'bg-black border-fuchsia-500/30'}`}>S</kbd> / <kbd className={`px-1.5 py-0.5 rounded border ${isDark ? 'bg-[#1a1e27] border-rose-400/30' : themeKey === 'rainbow' ? 'bg-white/60 border-red-300' : 'bg-black border-fuchsia-500/30'}`}>↓</kbd> 내린다
+              </p>
+            </>
+          )}
         </div>
       </div>
     </div>

@@ -1,11 +1,20 @@
 import { useCallback, useState } from 'react'
-import { Setup } from './components/Setup'
+import { Setup, type GameMode } from './components/Setup'
 import { Play } from './components/Play'
 import { Result } from './components/Result'
+import { GuessPlay } from './components/GuessPlay'
+import { GuessResult } from './components/GuessResult'
 import { Bgm } from './components/Bgm'
 import { fetchHistory } from './lib/yahoo'
 import { pickRandomTicker, type Category } from './lib/tickers'
 import { initGame, pickWindow, WARMUP_DAYS, type GameState, type RoundSize } from './lib/engine'
+import {
+  initGuessGame,
+  prepareGuessCharts,
+  GUESS_CHART_COUNT,
+  type GuessGameState,
+  type GuessHorizon,
+} from './lib/guess'
 import { loadNickname, saveNickname } from './lib/leaderboard'
 import { loadTheme, type ThemeKey } from './lib/theme'
 
@@ -24,26 +33,32 @@ type Phase = 'setup' | 'playing' | 'ended'
 
 export default function App() {
   const [phase, setPhase] = useState<Phase>('setup')
+  const [mode, setMode] = useState<GameMode>('classic')
   const [game, setGame] = useState<GameState | null>(null)
+  const [guessGame, setGuessGame] = useState<GuessGameState | null>(null)
   const [, setVersion] = useState(0)
   const [loading, setLoading] = useState(false)
+  const [progress, setProgress] = useState<{ loaded: number; total: number } | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [nickname, setNickname] = useState(loadNickname)
   const [themeKey, setThemeKey] = useState<ThemeKey>(loadTheme)
 
   const bump = useCallback(() => setVersion((v) => v + 1), [])
 
-  const start = async ({
-    categories, roundCount, roundSize,
-  }: { categories: Category[]; roundCount: number; roundSize: RoundSize }) => {
-    setLoading(true)
-    setError(null)
-    // Assign random nickname if empty
+  const assignNicknameIfEmpty = () => {
     if (!nickname.trim()) {
       const rand = randomNickname()
       setNickname(rand)
       saveNickname(rand)
     }
+  }
+
+  const startClassic = async ({
+    categories, roundCount, roundSize,
+  }: { categories: Category[]; roundCount: number; roundSize: RoundSize }) => {
+    setLoading(true)
+    setError(null)
+    assignNicknameIfEmpty()
     const tried = new Set<string>()
     const tradingDays = roundCount * roundSize.days
     try {
@@ -60,6 +75,7 @@ export default function App() {
             roundSize: roundSize.days, roundCount,
           })
           setGame(g)
+          setMode('classic')
           setPhase('playing')
           setLoading(false)
           return
@@ -74,19 +90,79 @@ export default function App() {
     }
   }
 
+  const startGuess = async ({ categories, horizon }: { categories: Category[]; horizon: GuessHorizon }) => {
+    setLoading(true)
+    setError(null)
+    setProgress({ loaded: 0, total: GUESS_CHART_COUNT })
+    assignNicknameIfEmpty()
+    try {
+      const charts = await prepareGuessCharts(categories, GUESS_CHART_COUNT, horizon, (loaded, total) => {
+        setProgress({ loaded, total })
+      })
+      const g = initGuessGame(charts, horizon)
+      setGuessGame(g)
+      setMode('guess')
+      setPhase('playing')
+    } catch (e) {
+      console.error(e)
+      setError(e instanceof Error ? e.message : '차트 불러오기 실패')
+    } finally {
+      setLoading(false)
+      setProgress(null)
+    }
+  }
+
+  const start = async (args: {
+    mode: GameMode
+    categories: Category[]
+    roundCount: number
+    roundSize: RoundSize
+    guessHorizon: GuessHorizon
+  }) => {
+    if (args.mode === 'guess') return startGuess({ categories: args.categories, horizon: args.guessHorizon })
+    return startClassic(args)
+  }
+
   const replay = () => {
     setGame(null)
+    setGuessGame(null)
     setPhase('setup')
   }
 
-  let screen
-  if (phase === 'setup' || !game) {
-    screen = <Setup onStart={start} loading={loading} error={error} nickname={nickname} onNicknameChange={setNickname} onThemeChange={setThemeKey} />
+  let screen: React.ReactNode = null
+  if (phase === 'setup') {
+    screen = (
+      <Setup
+        onStart={start}
+        loading={loading}
+        progress={progress}
+        error={error}
+        nickname={nickname}
+        onNicknameChange={setNickname}
+        onThemeChange={setThemeKey}
+      />
+    )
   } else if (phase === 'playing') {
-    screen = <Play game={game} onChange={bump} onEnd={() => setPhase('ended')} themeKey={themeKey} />
+    if (mode === 'guess' && guessGame) {
+      screen = (
+        <GuessPlay
+          game={guessGame}
+          onChange={bump}
+          onEnd={() => setPhase('ended')}
+          themeKey={themeKey}
+        />
+      )
+    } else if (game) {
+      screen = <Play game={game} onChange={bump} onEnd={() => setPhase('ended')} themeKey={themeKey} />
+    }
   } else {
-    screen = <Result game={game} onReplay={replay} nickname={nickname} themeKey={themeKey} />
+    if (mode === 'guess' && guessGame) {
+      screen = <GuessResult game={guessGame} onReplay={replay} themeKey={themeKey} />
+    } else if (game) {
+      screen = <Result game={game} onReplay={replay} nickname={nickname} themeKey={themeKey} />
+    }
   }
+
   return (
     <>
       {screen}
