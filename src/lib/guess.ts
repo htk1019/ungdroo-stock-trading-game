@@ -1,7 +1,9 @@
 import { fetchHistory, type Candle } from './yahoo'
 import { pickRandomTicker, findTicker, type Category } from './tickers'
 
-export const GUESS_CHART_COUNT = 20
+export const GUESS_COUNT_PRESETS = [10, 20] as const
+export const DEFAULT_GUESS_COUNT = 10
+export const MAX_GUESS_COUNT = 20
 export const GUESS_WARMUP_DAYS = 252 // ≈ 1년치
 
 export interface GuessHorizon {

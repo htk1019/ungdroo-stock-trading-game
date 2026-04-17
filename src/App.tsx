@@ -11,7 +11,7 @@ import { initGame, pickWindow, WARMUP_DAYS, type GameState, type RoundSize } fro
 import {
   initGuessGame,
   prepareGuessCharts,
-  GUESS_CHART_COUNT,
+  MAX_GUESS_COUNT,
   type GuessGameState,
   type GuessHorizon,
 } from './lib/guess'
@@ -90,13 +90,14 @@ export default function App() {
     }
   }
 
-  const startGuess = async ({ categories, horizon }: { categories: Category[]; horizon: GuessHorizon }) => {
+  const startGuess = async ({ categories, horizon, count }: { categories: Category[]; horizon: GuessHorizon; count: number }) => {
     setLoading(true)
     setError(null)
-    setProgress({ loaded: 0, total: GUESS_CHART_COUNT })
+    const n = Math.max(1, Math.min(MAX_GUESS_COUNT, Math.floor(count)))
+    setProgress({ loaded: 0, total: n })
     assignNicknameIfEmpty()
     try {
-      const charts = await prepareGuessCharts(categories, GUESS_CHART_COUNT, horizon, (loaded, total) => {
+      const charts = await prepareGuessCharts(categories, n, horizon, (loaded, total) => {
         setProgress({ loaded, total })
       })
       const g = initGuessGame(charts, horizon)
@@ -118,8 +119,9 @@ export default function App() {
     roundCount: number
     roundSize: RoundSize
     guessHorizon: GuessHorizon
+    guessCount: number
   }) => {
-    if (args.mode === 'guess') return startGuess({ categories: args.categories, horizon: args.guessHorizon })
+    if (args.mode === 'guess') return startGuess({ categories: args.categories, horizon: args.guessHorizon, count: args.guessCount })
     return startClassic(args)
   }
 

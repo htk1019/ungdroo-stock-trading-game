@@ -1,7 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { ALL_CATEGORIES, CATEGORY_LABEL, type Category } from '../lib/tickers'
 import { ROUND_SIZES, ROUND_COUNTS, type RoundSize } from '../lib/engine'
-import { GUESS_HORIZONS, DEFAULT_GUESS_HORIZON, type GuessHorizon } from '../lib/guess'
+import {
+  GUESS_HORIZONS,
+  DEFAULT_GUESS_HORIZON,
+  GUESS_COUNT_PRESETS,
+  DEFAULT_GUESS_COUNT,
+  MAX_GUESS_COUNT,
+  type GuessHorizon,
+} from '../lib/guess'
 import { HelpModal } from './HelpModal'
 import { loadHighScore, loadRecentGames, clearRecentGames } from '../lib/highscore'
 import { saveNickname, checkNicknameExists } from '../lib/leaderboard'
@@ -16,6 +23,7 @@ interface SetupProps {
     roundCount: number
     roundSize: RoundSize
     guessHorizon: GuessHorizon
+    guessCount: number
   }) => void
   loading: boolean
   progress: { loaded: number; total: number } | null
@@ -28,6 +36,8 @@ interface SetupProps {
 export function Setup({ onStart, loading, progress, error, nickname, onNicknameChange, onThemeChange }: SetupProps) {
   const [mode, setMode] = useState<GameMode>('classic')
   const [guessHorizon, setGuessHorizon] = useState<GuessHorizon>(DEFAULT_GUESS_HORIZON)
+  const [guessCount, setGuessCount] = useState<number>(DEFAULT_GUESS_COUNT)
+  const [customGuessCount, setCustomGuessCount] = useState(false)
   const [categories, setCategories] = useState<Set<Category>>(new Set(['kr']))
   const [roundCount, setRoundCount] = useState<number>(20)
   const [customRound, setCustomRound] = useState(false)
@@ -154,7 +164,7 @@ export function Setup({ onStart, loading, progress, error, nickname, onNicknameC
               </>
             ) : (
               <>
-                ❗ 20개 차트, <span className={t.titleColor}>{guessHorizon.label} 뒤</span> 오를지 내릴지만 찍어라! ❗
+                ❗ {guessCount}개 차트, <span className={t.titleColor}>{guessHorizon.label} 뒤</span> 오를지 내릴지만 찍어라! ❗
               </>
             )}
           </p>
@@ -274,6 +284,49 @@ export function Setup({ onStart, loading, progress, error, nickname, onNicknameC
         {mode === 'guess' && (
           <>
             <section className="mb-4">
+              <h2 className={`text-sm font-black uppercase tracking-widest mb-2 ${t.sectionTitleColors[2]}`}>
+                🔥 몇 판?
+              </h2>
+              <div className="grid grid-cols-3 gap-2">
+                {GUESS_COUNT_PRESETS.map((n) => (
+                  <button
+                    key={n}
+                    onClick={() => { setGuessCount(n); setCustomGuessCount(false) }}
+                    className={`py-2 sm:py-3 rounded-xl border-2 text-sm font-black transition ${
+                      guessCount === n && !customGuessCount ? t.chipActive : t.chipInactive
+                    }`}
+                  >
+                    {n}판
+                  </button>
+                ))}
+                <button
+                  onClick={() => setCustomGuessCount(true)}
+                  className={`py-2 sm:py-3 rounded-xl border-2 text-sm font-black transition ${
+                    customGuessCount ? t.chipActive : t.chipInactive
+                  }`}
+                >
+                  직접입력
+                </button>
+              </div>
+              {customGuessCount && (
+                <input
+                  type="number"
+                  min={1}
+                  max={MAX_GUESS_COUNT}
+                  value={guessCount}
+                  onChange={(e) => {
+                    const v = Math.max(1, Math.min(MAX_GUESS_COUNT, Number(e.target.value) || 1))
+                    setGuessCount(v)
+                  }}
+                  className={`mt-2 w-full px-3 py-2 rounded-lg border-2 text-sm font-mono font-bold ${t.inputBorder} ${t.inputBg} ${t.inputText}`}
+                  placeholder={`판 수 입력 (1~${MAX_GUESS_COUNT})`}
+                />
+              )}
+              <p className={`text-xs mt-2 text-center font-bold ${t.textMuted}`}>
+                최대 <span className="font-mono">{MAX_GUESS_COUNT}판</span> · 기본 <span className="font-mono">{DEFAULT_GUESS_COUNT}판</span>
+              </p>
+            </section>
+            <section className="mb-4">
               <h2 className={`text-sm font-black uppercase tracking-widest mb-2 ${t.sectionTitleColors[1]}`}>
                 ⏱️ 예측 기간
               </h2>
@@ -305,7 +358,7 @@ export function Setup({ onStart, loading, progress, error, nickname, onNicknameC
                     ? 'bg-white/50 border-pink-200 text-purple-700'
                     : 'bg-black/60 border-lime-500/40 text-lime-200'
               }`}>
-                📊 <span className="font-black">20문제</span> · 각 문제마다 <span className="font-mono">1년치 차트</span>를 보고{' '}
+                📊 <span className="font-black">{guessCount}문제</span> · 각 문제마다 <span className="font-mono">1년치 차트</span>를 보고{' '}
                 <span className="font-mono">{guessHorizon.days}거래일</span> 뒤{' '}
                 <span className="text-emerald-400">상승</span> / <span className="text-red-400">하락</span>을 선택. 승률 20% 단위로 평가.
               </div>
@@ -333,7 +386,7 @@ export function Setup({ onStart, loading, progress, error, nickname, onNicknameC
         </section>
 
         <button
-          onClick={() => onStart({ mode, categories: Array.from(categories), roundCount, roundSize, guessHorizon })}
+          onClick={() => onStart({ mode, categories: Array.from(categories), roundCount, roundSize, guessHorizon, guessCount })}
           disabled={loading}
           className={`btn-shine w-full py-4 sm:py-5 rounded-xl sm:rounded-2xl ${t.startBtn} disabled:from-[#1a1e27] disabled:via-[#1a1e27] disabled:to-[#1a1e27] disabled:text-[#5a6175] ${t.startBtnText} font-black text-lg sm:text-xl transition shadow-[0_0_30px_rgba(251,191,36,0.5)] relative overflow-hidden border-2`}
         >
@@ -342,7 +395,7 @@ export function Setup({ onStart, loading, progress, error, nickname, onNicknameC
                 ? `⏳ 차트 불러오는 중… ${progress.loaded}/${progress.total}`
                 : '⏳ 딸깍… 딸깍… 딸깍…')
             : mode === 'guess'
-              ? '🎯 20문제 시작하기 🎯'
+              ? `🎯 ${guessCount}문제 시작하기 🎯`
               : '🎰 딸깍! 시작하기 🎰'}
         </button>
 
@@ -357,7 +410,7 @@ export function Setup({ onStart, loading, progress, error, nickname, onNicknameC
             <div className="flex items-center justify-between text-xs sm:text-sm font-bold mb-1.5">
               <span className={t.textPrimary}>
                 {mode === 'guess'
-                  ? '📊 20개 차트를 불러오고 있어요. 잠시만요…'
+                  ? `📊 ${guessCount}개 차트를 불러오고 있어요. 잠시만요…`
                   : '📈 차트 데이터를 준비하고 있어요…'}
               </span>
               {progress && (
@@ -457,7 +510,7 @@ export function Setup({ onStart, loading, progress, error, nickname, onNicknameC
             </>
           ) : (
             <>
-              <p>🎯 20문제 · 각 차트 다음날 상승/하락 예측 · 승률 20% 단위 평가</p>
+              <p>🎯 {guessCount}문제 · 각 차트 {guessHorizon.label}({guessHorizon.days}d) 뒤 상승/하락 예측 · 승률 20% 단위 평가</p>
               <p>
                 ⌨️ <kbd className={`px-1.5 py-0.5 rounded border ${isDark ? 'bg-[#1a1e27] border-emerald-400/30' : themeKey === 'rainbow' ? 'bg-white/60 border-green-300' : 'bg-black border-lime-500/30'}`}>B</kbd> / <kbd className={`px-1.5 py-0.5 rounded border ${isDark ? 'bg-[#1a1e27] border-emerald-400/30' : themeKey === 'rainbow' ? 'bg-white/60 border-green-300' : 'bg-black border-lime-500/30'}`}>↑</kbd> 오른다
                 · <kbd className={`px-1.5 py-0.5 rounded border ${isDark ? 'bg-[#1a1e27] border-rose-400/30' : themeKey === 'rainbow' ? 'bg-white/60 border-red-300' : 'bg-black border-fuchsia-500/30'}`}>S</kbd> / <kbd className={`px-1.5 py-0.5 rounded border ${isDark ? 'bg-[#1a1e27] border-rose-400/30' : themeKey === 'rainbow' ? 'bg-white/60 border-red-300' : 'bg-black border-fuchsia-500/30'}`}>↓</kbd> 내린다
