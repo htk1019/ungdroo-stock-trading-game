@@ -22,24 +22,46 @@ export function HelpModal({ onClose }: HelpModalProps) {
         </div>
 
         <section className="mb-6">
-          <h3 className="text-sm font-bold text-amber-300 mb-2">🎯 목표</h3>
-          <p className="text-sm leading-relaxed text-[#e5e7eb]">
-            종목과 시점을 모르는 채로 차트만 보고 매매하세요. 시뮬이 끝났을 때
-            절대수익이 플러스이고 <span className="text-amber-300">Buy &amp; Hold</span>보다
-            수익률도 높으면 <span className="text-emerald-400 font-semibold">승리</span>.
-            거기에 <b>승률 90% 이상</b>이면 <span className="text-amber-300 font-semibold">👑 완벽승리</span>.
+          <h3 className="text-sm font-bold text-amber-300 mb-2">🕹️ 두 가지 게임 모드</h3>
+          <p className="text-sm leading-relaxed text-[#e5e7eb] mb-2">
+            시작 화면 상단 세그먼트에서 모드를 고릅니다.
           </p>
+          <ul className="space-y-1.5 text-sm text-[#e5e7eb]">
+            <li>🎰 <b>리밸런싱(메인)</b> — 라운드마다 롱/숏/플랫 선택, <span className="text-amber-300">Buy &amp; Hold</span> 이기기</li>
+            <li>🎯 <b>다음날 맞추기</b> — 10~20개 무작위 차트, <b>일/주/월</b> 중 선택한 기간 뒤 상승/하락만 찍기, 승률로 평가</li>
+          </ul>
         </section>
 
         <section className="mb-6">
-          <h3 className="text-sm font-bold text-amber-300 mb-2">🎬 흐름</h3>
+          <h3 className="text-sm font-bold text-amber-300 mb-2">🎰 리밸런싱 모드 — 목표 & 흐름</h3>
+          <p className="text-sm leading-relaxed text-[#e5e7eb] mb-2">
+            종목과 시점을 모르는 채로 차트만 보고 매매. 끝났을 때 절대수익이 플러스이고{' '}
+            <span className="text-amber-300">Buy &amp; Hold</span>보다 수익률도 높으면{' '}
+            <span className="text-emerald-400 font-semibold">승리</span>. 거기에 <b>승률 90% 이상</b>이면{' '}
+            <span className="text-amber-300 font-semibold">👑 완벽승리</span>.
+          </p>
           <ol className="list-decimal pl-5 space-y-1.5 text-sm text-[#e5e7eb]">
-            <li>카테고리(미국/일본/한국/주가지수)와 <b>라운드 수</b>, <b>리밸런싱 주기</b>(일/주/월/분기/반기)를 고른다.</li>
+            <li>카테고리와 <b>라운드 수</b>, <b>리밸런싱 주기</b>(일/주/월/분기/반기)를 고른다.</li>
             <li>랜덤 종목, 랜덤 시점의 <b>과거 1년</b> 일간 차트가 공개된다. (종목명은 비밀!)</li>
             <li>각 라운드마다 <b>롱 / 숏 / 플랫 / 홀드</b> 중 하나를 선택하면 다음 라운드까지 시간이 흐른다.</li>
             <li>필요하면 <b>🔮 훈수</b> 버튼으로 분석가 5명의 의견을 볼 수 있다(게임당 5회).</li>
             <li>모든 라운드가 끝나면 수익률, Buy &amp; Hold 비교, 복기 차트를 확인.</li>
           </ol>
+        </section>
+
+        <section className="mb-6">
+          <h3 className="text-sm font-bold text-amber-300 mb-2">🎯 다음날 맞추기 모드 — 흐름</h3>
+          <ol className="list-decimal pl-5 space-y-1.5 text-sm text-[#e5e7eb]">
+            <li><b>판수</b>(10/20/직접입력 1~20, 기본 10)와 <b>예측 기간</b>(일/주/월, 기본 주)을 고른다.</li>
+            <li>시작 누르면 N개 차트를 미리 로딩 (진행바 · 10~20초).</li>
+            <li>각 문제마다 1년치 차트가 뜨고 <b>📈 오른다 / 📉 내린다</b>만 선택.</li>
+            <li>답 고르는 즉시 <b>실제 해당 기간만큼의 캔들</b>이 이어붙고 정답 여부·변화율·가격이 표시됨.</li>
+            <li>2.8초 뒤 자동으로 다음 문제 (또는 <b>다음 →</b> 버튼).</li>
+            <li>끝나면 <b>승률 20% 단위 6등급</b>(완벽적중/승리/괜찮아/애매/패배/완전패배)으로 평가. 문제별 복기도 가능.</li>
+          </ol>
+          <p className="text-xs text-[#8b93a7] mt-2">
+            단축키: <kbd className="px-1.5 py-0.5 rounded bg-[#1a1e27] border border-[#252a36] font-mono">B</kbd> / <kbd className="px-1.5 py-0.5 rounded bg-[#1a1e27] border border-[#252a36] font-mono">↑</kbd> 오른다, <kbd className="px-1.5 py-0.5 rounded bg-[#1a1e27] border border-[#252a36] font-mono">S</kbd> / <kbd className="px-1.5 py-0.5 rounded bg-[#1a1e27] border border-[#252a36] font-mono">↓</kbd> 내린다
+          </p>
         </section>
 
         <section className="mb-6">
