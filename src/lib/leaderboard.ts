@@ -44,16 +44,16 @@ export interface ScoreInputs {
 }
 
 // 복합 점수 (WAR식).
-//   base = 1.0×알파 + 0.3×sgn(CAGR)·√|CAGR| + 0.5×(승률-50) + 0.3×MDD
+//   base = 0.07×알파 + 0.03×sgn(CAGR)·√|CAGR| + 0.5×(승률-50) + 0.3×MDD
 //   score = base × √rounds
-// - 알파(1.0): 핵심 실력
-// - CAGR(0.3, sqrt 스케일): 절대 수익 보정, 운 좋은 종목의 극단값은 눌림
-// - 승률-50(0.5): 동전던지기 대비 일관성 보상
+// - 알파(0.07)+CAGR(0.03): 수익률 크기 영향 억제, 운빨 종목 효과 최소화
+// - CAGR은 sqrt 스케일로 극단값 추가 완화
+// - 승률-50(0.5): 동전던지기 대비 일관성 보상 (핵심 실력 지표)
 // - MDD(0.3): 음수이므로 자동 페널티
 // - √rounds: 표본크기 보정 (짧은 게임 한방 억제)
 export const SCORE_WEIGHTS = {
-  alpha: 1.0,
-  cagr: 0.3,
+  alpha: 0.07,
+  cagr: 0.03,
   winRate: 0.5,
   mdd: 0.3,
 } as const
