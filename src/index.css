@@ -10,6 +10,17 @@
   --color-up: #22c55e;
   --color-down: #ef4444;
   --color-accent: #818cf8;
+
+  /* ===== 쌈마이 tokens (referenced by .ssm-* utilities below) ===== */
+  --ssm-hot-pink:    #ff2d87;
+  --ssm-acid-yellow: #ffe600;
+  --ssm-cheap-red:   #e10e28;
+  --ssm-crt-green:   #22ff55;
+  --ssm-karaoke:     #7a21c6;
+  --ssm-paper:       #f3e9c9;
+  --ssm-paper-2:     #fff4cf;
+  --ssm-smoke:       #5b4b3a;
+  --ssm-ink:         #120a0a;
 }
 
 html, body, #root {
@@ -56,7 +67,6 @@ button:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2
 }
 .animate-shake { animation: shake 1.4s ease-in-out; }
 
-/* ===== 쌈마이(retro arcade) effects for the Setup screen ===== */
 @keyframes wobble {
   0%, 100% { transform: rotate(-3deg); }
   50%      { transform: rotate(3deg); }
@@ -106,7 +116,6 @@ button:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2
   pointer-events: none;
 }
 
-/* ===== Combo system animations ===== */
 @keyframes combo-pop {
   0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.3) rotate(-10deg); }
   20%  { opacity: 1; transform: translate(-50%, -50%) scale(1.3) rotate(3deg); }
@@ -154,3 +163,48 @@ button:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2
     );
   background-size: 100% 28px;
 }
+
+/* ===== 쌈마이 patterns & utilities ===== */
+.bg-ssm-zebra {
+  background-image: repeating-linear-gradient(
+    135deg, var(--ssm-acid-yellow) 0 18px, var(--ssm-ink) 18px 36px
+  );
+}
+.bg-ssm-dots {
+  background-color: var(--ssm-hot-pink);
+  background-image: radial-gradient(var(--ssm-ink) 2px, transparent 2px);
+  background-size: 14px 14px;
+}
+.bg-ssm-checker {
+  background-color: var(--ssm-acid-yellow);
+  background-image:
+    linear-gradient(45deg, var(--ssm-ink) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--ssm-ink) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--ssm-ink) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--ssm-ink) 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0;
+}
+
+/* Hard drop shadow helper (no blur) */
+.ssm-hard-shadow { box-shadow: 6px 6px 0 0 var(--ssm-ink); }
+.ssm-hard-shadow-lg { box-shadow: 10px 10px 0 0 var(--ssm-ink); }
+.ssm-hard-shadow-stack { box-shadow: 3px 3px 0 var(--ssm-acid-yellow), 6px 6px 0 var(--ssm-hot-pink), 9px 9px 0 var(--ssm-ink); }
+
+/* Sticker rotate */
+.ssm-tilt-l { transform: rotate(-4deg); }
+.ssm-tilt-r { transform: rotate(3deg); }
+
+/* Marquee */
+@keyframes ssm-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.ssm-marquee-track { display: inline-flex; white-space: nowrap; animation: ssm-marquee 22s linear infinite; }
+
+/* Jitter on hover */
+@keyframes ssm-jitter {
+  0%,100% { transform: rotate(-2deg); }
+  50%     { transform: rotate(2deg); }
+}
+.hover\:ssm-jitter:hover { animation: ssm-jitter 240ms ease-in-out 2; }

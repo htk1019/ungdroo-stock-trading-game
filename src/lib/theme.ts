@@ -1,4 +1,4 @@
-export type ThemeKey = 'dark' | 'rainbow' | 'neon'
+export type ThemeKey = 'dark' | 'rainbow' | 'neon' | 'ssammai'
 
 export interface Theme {
   key: ThemeKey
@@ -93,6 +93,29 @@ export const THEMES: Record<ThemeKey, Theme> = {
     inputText: 'text-cyan-200',
     fontClass: "font-['Press_Start_2P']",
   },
+  // ========== NEW: 쌈마이 (ssammai) — B급/찌라시/카바레 감성 ==========
+  ssammai: {
+    key: 'ssammai',
+    label: '쌈마이',
+    emoji: '🦆',
+    pageBg: 'bg-[#f3e9c9]',
+    cardBg: 'bg-[#fff4cf]',
+    cardBorder: 'border-black border-[5px]',
+    cardShadow: 'shadow-[10px_10px_0_0_#120a0a]',
+    titleColor: 'text-[#e10e28]',
+    subtitleColor: 'text-[#7a21c6]',
+    sectionTitleColors: ['text-[#e10e28]', 'text-[#ff2d87]', 'text-[#120a0a]'],
+    chipActive: 'bg-[#22ff55] border-black border-[3px] text-[#120a0a] shadow-[4px_4px_0_#120a0a]',
+    chipInactive: 'bg-[#fff4cf] border-black border-[3px] text-[#5b4b3a] hover:bg-[#ffe600]',
+    startBtn: 'bg-[#e10e28] hover:bg-[#ff2d87] border-black',
+    startBtnText: 'text-[#ffe600]',
+    textPrimary: 'text-[#120a0a]',
+    textMuted: 'text-[#5b4b3a]',
+    inputBorder: 'border-black border-[3px] focus:border-[#e10e28]',
+    inputBg: 'bg-white',
+    inputText: 'text-[#120a0a]',
+    fontClass: "font-['Jua']",
+  },
 }
 
 // Chart color scheme per theme (used by Chart.tsx + Play.tsx)
@@ -159,6 +182,22 @@ export const CHART_COLORS: Record<ThemeKey, ChartColors> = {
     mutedText: '#2a7a2a',
     primaryText: '#39ff14',
   },
+  // ========== NEW: ssammai — KR 증권면 관례(빨강=상승, 파랑=하락) ==========
+  ssammai: {
+    bg: '#f3e9c9',
+    text: '#120a0a',
+    gridLine: '#d9c89a',
+    border: '#120a0a',
+    separatorColor: '#120a0a',
+    separatorHover: '#e10e28',
+    upColor: '#e10e28',   // 빨강 = 상승
+    downColor: '#0055c4', // 파랑 = 하락
+    panelBg: '#fff4cf',
+    panelBorder: '#120a0a',
+    headerBg: '#ffe600',
+    mutedText: '#5b4b3a',
+    primaryText: '#120a0a',
+  },
 }
 
 export function loadTheme(): ThemeKey {
@@ -171,4 +210,4 @@ export function saveTheme(key: ThemeKey) {
   localStorage.setItem(THEME_KEY, key)
 }
 
-export const THEME_KEYS: ThemeKey[] = ['dark', 'rainbow', 'neon']
+export const THEME_KEYS: ThemeKey[] = ['dark', 'rainbow', 'neon', 'ssammai']
