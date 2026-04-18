@@ -14,6 +14,7 @@ export interface LeaderboardEntry {
   alphaPct: number
   mddPct: number        // 음수 (예: -15 = 최대낙폭 15%)
   winRatePct: number    // 0~100 (라운드 기준)
+  sharpe: number
   score: number
   symbol: string
   symbolName?: string
@@ -28,12 +29,15 @@ export interface LeaderboardRow {
   alphaPct: number
   mddPct: number
   winRatePct: number
+  sharpe: number
   score: number
   symbol: string
   symbolName?: string
   rounds: number
   trades: number
 }
+
+export type LeaderboardSort = 'score' | 'cagr' | 'sharpe'
 
 export interface ScoreInputs {
   alphaPct: number
@@ -134,8 +138,11 @@ export async function submitScore(entry: LeaderboardEntry) {
   })
 }
 
-export async function fetchTopScores(n = 10): Promise<LeaderboardRow[]> {
-  // 오래된 엔트리는 score 필드가 없을 수 있어 클라에서 계산·정렬.
+export async function fetchTopScores(
+  n = 10,
+  sort: LeaderboardSort = 'score',
+): Promise<LeaderboardRow[]> {
+  // 오래된 엔트리는 score/sharpe 필드가 없을 수 있어 클라에서 계산·정렬.
   // 상한을 넉넉히 받아 정렬 후 상위 n개만 반환.
   const q = query(
     collection(db, COLLECTION),
@@ -160,6 +167,7 @@ export async function fetchTopScores(n = 10): Promise<LeaderboardRow[]> {
       alphaPct: data.alphaPct,
       mddPct: data.mddPct ?? 0,
       winRatePct: data.winRatePct ?? 0,
+      sharpe: typeof data.sharpe === 'number' ? data.sharpe : 0,
       score,
       symbol: data.symbol,
       symbolName: data.symbolName,
@@ -167,6 +175,10 @@ export async function fetchTopScores(n = 10): Promise<LeaderboardRow[]> {
       trades: data.trades,
     }
   })
-  rows.sort((a, b) => b.score - a.score)
+  const key: (r: LeaderboardRow) => number =
+    sort === 'cagr' ? (r) => r.cagrPct
+    : sort === 'sharpe' ? (r) => r.sharpe
+    : (r) => r.score
+  rows.sort((a, b) => key(b) - key(a))
   return rows.slice(0, n)
 }

@@ -5,7 +5,7 @@ import { EquityChart } from './EquityChart'
 import { Chart } from './Chart'
 import { playWin, playLose, playMeh, playTotalDefeat, playPerfectWin } from '../lib/sfx'
 import { recordHighScore, addRecentGame } from '../lib/highscore'
-import { submitScore, fetchTopScores, computeScore, type LeaderboardRow } from '../lib/leaderboard'
+import { submitScore, fetchTopScores, computeScore, type LeaderboardRow, type LeaderboardSort } from '../lib/leaderboard'
 import { CHART_COLORS, type ThemeKey } from '../lib/theme'
 import { simulateAnalysts, type AnalystSimResult } from '../lib/simulate'
 
@@ -83,6 +83,7 @@ export function Result({ game, onReplay, nickname, themeKey = 'dark' }: ResultPr
 
   const [leaderboard, setLeaderboard] = useState<LeaderboardRow[]>([])
   const [scoreHelpOpen, setScoreHelpOpen] = useState(false)
+  const [sortMode, setSortMode] = useState<LeaderboardSort>('score')
   const submitted = useRef(false)
   useEffect(() => {
     if (submitted.current) return
@@ -102,12 +103,14 @@ export function Result({ game, onReplay, nickname, themeKey = 'dark' }: ResultPr
       const alphaR = round2(stats.alphaCagrPct)
       const mddR = round2(stats.maxDrawdownPct)
       const winR = round2(stats.winRateByRound)
+      const sharpeR = round2(stats.sharpe)
       submitScore({
         nickname: nickname.trim(),
         cagrPct: cagrR,
         alphaPct: alphaR,
         mddPct: mddR,
         winRatePct: winR,
+        sharpe: sharpeR,
         score: computeScore({
           alphaPct: alphaR,
           cagrPct: cagrR,
@@ -121,13 +124,18 @@ export function Result({ game, onReplay, nickname, themeKey = 'dark' }: ResultPr
         trades: game.trades.length,
         createdAt: null,
       }).then(() => {
-        fetchTopScores(10).then(setLeaderboard).catch(console.error)
+        fetchTopScores(10, sortMode).then(setLeaderboard).catch(console.error)
       }).catch(console.error)
     } else {
-      fetchTopScores(10).then(setLeaderboard).catch(console.error)
+      fetchTopScores(10, sortMode).then(setLeaderboard).catch(console.error)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  useEffect(() => {
+    if (!submitted.current) return
+    fetchTopScores(10, sortMode).then(setLeaderboard).catch(console.error)
+  }, [sortMode])
 
   return (
     <div className="min-h-screen p-3 sm:p-6 flex flex-col gap-3 sm:gap-4" style={{ background: cc.bg, color: cc.primaryText }}>
@@ -276,7 +284,7 @@ export function Result({ game, onReplay, nickname, themeKey = 'dark' }: ResultPr
         {/* Leaderboard */}
         <section className="rounded-xl overflow-hidden flex flex-col border border-amber-500/30" style={{ background: cc.panelBg }}>
           <div className="px-3 py-2 text-sm text-amber-300 font-bold border-b border-amber-500/20 shrink-0 flex items-center gap-1.5">
-            <span>🏆 점수 랭킹</span>
+            <span>🏆 랭킹</span>
             <button
               type="button"
               onClick={() => setScoreHelpOpen(true)}
@@ -284,6 +292,26 @@ export function Result({ game, onReplay, nickname, themeKey = 'dark' }: ResultPr
               aria-label="점수 계산 방법"
               title="점수 계산 방법"
             >?</button>
+            <div className="ml-auto flex items-center gap-1">
+              {([
+                { key: 'score', label: '점수' },
+                { key: 'cagr', label: 'CAGR' },
+                { key: 'sharpe', label: '샤프' },
+              ] as { key: LeaderboardSort; label: string }[]).map(({ key, label }) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setSortMode(key)}
+                  className={`px-2 py-0.5 text-[11px] rounded border transition ${
+                    sortMode === key
+                      ? 'bg-amber-400/25 border-amber-400 text-amber-200'
+                      : 'border-amber-500/30 text-amber-300/70 hover:border-amber-400/60 hover:text-amber-200'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
           <div className="flex-1 min-h-0 overflow-auto max-h-64 lg:max-h-none">
             {leaderboard.length > 0 ? (
@@ -292,12 +320,20 @@ export function Result({ game, onReplay, nickname, themeKey = 'dark' }: ResultPr
                   <tr>
                     <th className="text-center px-2 py-1.5">#</th>
                     <th className="text-left px-2 py-1.5">닉네임</th>
-                    <th className="text-right px-2 py-1.5">점수</th>
+                    <th className="text-right px-2 py-1.5">
+                      {sortMode === 'cagr' ? 'CAGR' : sortMode === 'sharpe' ? '샤프' : '점수'}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {leaderboard.map((row, i) => {
                     const isMe = row.nickname === nickname.trim()
+                    const value = sortMode === 'cagr' ? row.cagrPct : sortMode === 'sharpe' ? row.sharpe : row.score
+                    const display = sortMode === 'cagr'
+                      ? `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`
+                      : sortMode === 'sharpe'
+                        ? value.toFixed(2)
+                        : `${value >= 0 ? '+' : ''}${value.toFixed(1)}`
                     return (
                       <tr
                         key={i}
@@ -310,8 +346,8 @@ export function Result({ game, onReplay, nickname, themeKey = 'dark' }: ResultPr
                         <td className={`px-2 py-1.5 font-bold truncate max-w-[100px] ${isMe ? 'text-amber-300' : ''}`}>
                           {row.nickname}
                         </td>
-                        <td className={`px-2 py-1.5 text-right font-mono font-bold ${row.score >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                          {row.score >= 0 ? '+' : ''}{row.score.toFixed(1)}
+                        <td className={`px-2 py-1.5 text-right font-mono font-bold ${value >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                          {display}
                         </td>
                       </tr>
                     )
