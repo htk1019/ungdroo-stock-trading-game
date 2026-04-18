@@ -5,7 +5,7 @@ import { EquityChart } from './EquityChart'
 import { Chart } from './Chart'
 import { playWin, playLose, playMeh, playTotalDefeat, playPerfectWin } from '../lib/sfx'
 import { recordHighScore, addRecentGame } from '../lib/highscore'
-import { submitScore, fetchTopScores, type LeaderboardRow } from '../lib/leaderboard'
+import { submitScore, fetchTopScores, computeScore, type LeaderboardRow } from '../lib/leaderboard'
 import { CHART_COLORS, type ThemeKey } from '../lib/theme'
 import { simulateAnalysts, type AnalystSimResult } from '../lib/simulate'
 
@@ -82,6 +82,7 @@ export function Result({ game, onReplay, nickname, themeKey = 'dark' }: ResultPr
   const [selectedAnalyst, setSelectedAnalyst] = useState<number | null>(null)
 
   const [leaderboard, setLeaderboard] = useState<LeaderboardRow[]>([])
+  const [scoreHelpOpen, setScoreHelpOpen] = useState(false)
   const submitted = useRef(false)
   useEffect(() => {
     if (submitted.current) return
@@ -96,10 +97,12 @@ export function Result({ game, onReplay, nickname, themeKey = 'dark' }: ResultPr
     addRecentGame(entry)
     // Only submit if alpha is positive (beat B&H)
     if (nickname.trim() && stats.alphaCagrPct >= 0) {
+      const alphaRounded = Math.round(stats.alphaCagrPct * 100) / 100
       submitScore({
         nickname: nickname.trim(),
         cagrPct: Math.round(stats.cagrPct * 100) / 100,
-        alphaPct: Math.round(stats.alphaCagrPct * 100) / 100,
+        alphaPct: alphaRounded,
+        score: computeScore(alphaRounded, game.roundCount),
         symbol: game.symbol,
         symbolName: info?.name,
         rounds: game.roundCount,
@@ -260,8 +263,15 @@ export function Result({ game, onReplay, nickname, themeKey = 'dark' }: ResultPr
 
         {/* Leaderboard */}
         <section className="rounded-xl overflow-hidden flex flex-col border border-amber-500/30" style={{ background: cc.panelBg }}>
-          <div className="px-3 py-2 text-sm text-amber-300 font-bold border-b border-amber-500/20 shrink-0">
-            🏆 수익률 랭킹
+          <div className="px-3 py-2 text-sm text-amber-300 font-bold border-b border-amber-500/20 shrink-0 flex items-center gap-1.5">
+            <span>🏆 점수 랭킹</span>
+            <button
+              type="button"
+              onClick={() => setScoreHelpOpen(true)}
+              className="w-5 h-5 rounded-full border border-amber-400/50 text-[10px] font-bold text-amber-300 hover:bg-amber-400/20 hover:border-amber-400 transition"
+              aria-label="점수 계산 방법"
+              title="점수 계산 방법"
+            >?</button>
           </div>
           <div className="flex-1 min-h-0 overflow-auto max-h-64 lg:max-h-none">
             {leaderboard.length > 0 ? (
@@ -270,8 +280,9 @@ export function Result({ game, onReplay, nickname, themeKey = 'dark' }: ResultPr
                   <tr>
                     <th className="text-center px-2 py-1.5">#</th>
                     <th className="text-left px-2 py-1.5">닉네임</th>
-                    <th className="text-right px-2 py-1.5">CAGR</th>
+                    <th className="text-right px-2 py-1.5">점수</th>
                     <th className="text-right px-2 py-1.5">알파(연)</th>
+                    <th className="text-right px-2 py-1.5">라운드</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -289,11 +300,14 @@ export function Result({ game, onReplay, nickname, themeKey = 'dark' }: ResultPr
                         <td className={`px-2 py-1.5 font-bold truncate max-w-[100px] ${isMe ? 'text-amber-300' : ''}`}>
                           {row.nickname}
                         </td>
-                        <td className={`px-2 py-1.5 text-right font-mono font-bold ${row.cagrPct >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                          {row.cagrPct >= 0 ? '+' : ''}{row.cagrPct.toFixed(1)}%
+                        <td className={`px-2 py-1.5 text-right font-mono font-bold ${row.score >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                          {row.score >= 0 ? '+' : ''}{row.score.toFixed(1)}
                         </td>
                         <td className={`px-2 py-1.5 text-right font-mono ${row.alphaPct >= 0 ? 'text-emerald-300/70' : 'text-red-300/70'}`}>
                           {row.alphaPct >= 0 ? '+' : ''}{row.alphaPct.toFixed(1)}%
+                        </td>
+                        <td className="px-2 py-1.5 text-right font-mono" style={{ color: cc.mutedText }}>
+                          {row.rounds}
                         </td>
                       </tr>
                     )
@@ -308,6 +322,53 @@ export function Result({ game, onReplay, nickname, themeKey = 'dark' }: ResultPr
           </div>
         </section>
       </div>
+      {scoreHelpOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-6"
+          onClick={() => setScoreHelpOpen(false)}
+        >
+          <div
+            className="w-full max-w-md bg-[#12151c] border border-amber-500/40 rounded-2xl p-6 shadow-2xl text-[#e5e7eb]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between mb-4">
+              <h2 className="text-lg font-extrabold text-amber-300">🏆 점수 계산 방법</h2>
+              <button
+                onClick={() => setScoreHelpOpen(false)}
+                className="text-[#8b93a7] hover:text-white text-2xl leading-none"
+                aria-label="닫기"
+              >×</button>
+            </div>
+            <div className="space-y-3 text-sm leading-relaxed">
+              <p className="font-mono text-center text-amber-200 bg-black/40 rounded-lg py-2.5 px-3 border border-amber-500/20">
+                점수 = 알파(연) × √라운드
+              </p>
+              <p>
+                야구의 <b className="text-amber-300">WAR</b>처럼{' '}
+                <span className="text-emerald-300">실력(알파)</span>과{' '}
+                <span className="text-sky-300">경기량(라운드)</span>을 함께 반영합니다.
+              </p>
+              <ul className="space-y-1.5 text-[13px] text-[#c9cdd6] list-disc list-inside">
+                <li>
+                  <b className="text-[#e5e7eb]">알파(연)</b> = 당신의 CAGR − Buy&Hold CAGR.
+                  순수 매매 실력 부분.
+                </li>
+                <li>
+                  <b className="text-[#e5e7eb]">√라운드</b> = 표본크기 보정.
+                  5라운드에서 한방 터뜨린 알파는 √5≈2.2배,
+                  100라운드에서 같은 알파는 10배로 반영됩니다.
+                </li>
+                <li>
+                  짧은 게임의 극단 CAGR이 랭킹을 지배하지 못하도록 설계.
+                </li>
+              </ul>
+              <p className="text-xs text-[#8b93a7]">
+                참고: 알파가 음수이면 랭킹에 등록되지 않습니다 (Buy&Hold 이긴 기록만 올라감).
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
