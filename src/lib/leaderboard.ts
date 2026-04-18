@@ -44,10 +44,11 @@ export interface ScoreInputs {
 }
 
 // 복합 점수 (WAR식).
-//   base = 0.07×알파 + 0.03×sgn(CAGR)·√|CAGR| + 0.5×(승률-50) + 0.3×MDD
-//   score = base × √rounds
-// - 알파(0.07)+CAGR(0.03): 수익률 크기 영향 억제, 운빨 종목 효과 최소화
-// - CAGR은 sqrt 스케일로 극단값 추가 완화
+//   alpha  → ±100% 로 cap
+//   CAGR   → ±200% 로 cap 후 sgn·√| · | 스케일
+//   base   = 0.07×알파 + 0.03×sgn(CAGR)·√|CAGR| + 0.5×(승률-50) + 0.3×MDD
+//   score  = base × √rounds
+// - 알파/CAGR 캡: 운 좋은 종목의 극단 수익률이 점수를 장악하지 못하게 차단
 // - 승률-50(0.5): 동전던지기 대비 일관성 보상 (핵심 실력 지표)
 // - MDD(0.3): 음수이므로 자동 페널티
 // - √rounds: 표본크기 보정 (짧은 게임 한방 억제)
@@ -58,14 +59,22 @@ export const SCORE_WEIGHTS = {
   mdd: 0.3,
 } as const
 
+export const SCORE_CAPS = {
+  alphaPct: 100,
+  cagrPct: 200,
+} as const
+
+const clamp = (x: number, cap: number) => Math.max(-cap, Math.min(cap, x))
+
 export function computeScore(inputs: ScoreInputs): number {
   const safe = (x: unknown) => (typeof x === 'number' && Number.isFinite(x) ? x : 0)
   const rounds = safe(inputs.rounds)
   if (rounds <= 0) return 0
-  const cagr = safe(inputs.cagrPct)
+  const alpha = clamp(safe(inputs.alphaPct), SCORE_CAPS.alphaPct)
+  const cagr = clamp(safe(inputs.cagrPct), SCORE_CAPS.cagrPct)
   const cagrScaled = Math.sign(cagr) * Math.sqrt(Math.abs(cagr))
   const base =
-    SCORE_WEIGHTS.alpha * safe(inputs.alphaPct) +
+    SCORE_WEIGHTS.alpha * alpha +
     SCORE_WEIGHTS.cagr * cagrScaled +
     SCORE_WEIGHTS.winRate * (safe(inputs.winRatePct) - 50) +
     SCORE_WEIGHTS.mdd * safe(inputs.mddPct)

@@ -293,8 +293,6 @@ export function Result({ game, onReplay, nickname, themeKey = 'dark' }: ResultPr
                     <th className="text-center px-2 py-1.5">#</th>
                     <th className="text-left px-2 py-1.5">닉네임</th>
                     <th className="text-right px-2 py-1.5">점수</th>
-                    <th className="text-right px-2 py-1.5">알파(연)</th>
-                    <th className="text-right px-2 py-1.5">라운드</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -314,12 +312,6 @@ export function Result({ game, onReplay, nickname, themeKey = 'dark' }: ResultPr
                         </td>
                         <td className={`px-2 py-1.5 text-right font-mono font-bold ${row.score >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                           {row.score >= 0 ? '+' : ''}{row.score.toFixed(1)}
-                        </td>
-                        <td className={`px-2 py-1.5 text-right font-mono ${row.alphaPct >= 0 ? 'text-emerald-300/70' : 'text-red-300/70'}`}>
-                          {row.alphaPct >= 0 ? '+' : ''}{row.alphaPct.toFixed(1)}%
-                        </td>
-                        <td className="px-2 py-1.5 text-right font-mono" style={{ color: cc.mutedText }}>
-                          {row.rounds}
                         </td>
                       </tr>
                     )
