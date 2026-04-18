@@ -46,11 +46,12 @@ export interface ScoreInputs {
 // 복합 점수 (WAR식).
 //   alpha  → ±100% 로 cap
 //   CAGR   → ±200% 로 cap 후 sgn·√| · | 스케일
-//   base   = 0.07×알파 + 0.03×sgn(CAGR)·√|CAGR| + 0.5×(승률-50) + 0.3×MDD
+//   MDD    → 100+MDD (= 100-|MDD|), 음수 방지 위해 0 clamp
+//   base   = 0.07×알파 + 0.03×sgn(CAGR)·√|CAGR| + 0.5×(승률-50) + 0.3×(100+MDD)
 //   score  = base × √rounds
 // - 알파/CAGR 캡: 운 좋은 종목의 극단 수익률이 점수를 장악하지 못하게 차단
-// - 승률-50(0.5): 동전던지기 대비 일관성 보상 (핵심 실력 지표)
-// - MDD(0.3): 음수이므로 자동 페널티
+// - 승률-50(0.5): 동전던지기 대비 일관성 보상
+// - MDD 항 재설계: 낙폭이 작을수록 양수 가점 (0%=+30, -100%=0)
 // - √rounds: 표본크기 보정 (짧은 게임 한방 억제)
 export const SCORE_WEIGHTS = {
   alpha: 0.07,
@@ -73,11 +74,12 @@ export function computeScore(inputs: ScoreInputs): number {
   const alpha = clamp(safe(inputs.alphaPct), SCORE_CAPS.alphaPct)
   const cagr = clamp(safe(inputs.cagrPct), SCORE_CAPS.cagrPct)
   const cagrScaled = Math.sign(cagr) * Math.sqrt(Math.abs(cagr))
+  const mddScore = Math.max(0, 100 + safe(inputs.mddPct))
   const base =
     SCORE_WEIGHTS.alpha * alpha +
     SCORE_WEIGHTS.cagr * cagrScaled +
     SCORE_WEIGHTS.winRate * (safe(inputs.winRatePct) - 50) +
-    SCORE_WEIGHTS.mdd * safe(inputs.mddPct)
+    SCORE_WEIGHTS.mdd * mddScore
   return Math.round(base * Math.sqrt(rounds) * 100) / 100
 }
 
