@@ -12,6 +12,8 @@ export interface LeaderboardEntry {
   nickname: string
   cagrPct: number
   alphaPct: number
+  mddPct: number        // 음수 (예: -15 = 최대낙폭 15%)
+  winRatePct: number    // 0~100 (라운드 기준)
   score: number
   symbol: string
   symbolName?: string
@@ -24,6 +26,8 @@ export interface LeaderboardRow {
   nickname: string
   cagrPct: number
   alphaPct: number
+  mddPct: number
+  winRatePct: number
   score: number
   symbol: string
   symbolName?: string
@@ -31,11 +35,39 @@ export interface LeaderboardRow {
   trades: number
 }
 
-// WAR-like score: 연간 알파 × √rounds.
-// 긴 게임일수록 가중치 커지고, 짧은 게임 한방 CAGR은 √로 눌림.
-export function computeScore(alphaPct: number, rounds: number): number {
-  if (!Number.isFinite(alphaPct) || !Number.isFinite(rounds) || rounds <= 0) return 0
-  return Math.round(alphaPct * Math.sqrt(rounds) * 100) / 100
+export interface ScoreInputs {
+  alphaPct: number
+  cagrPct: number
+  winRatePct: number   // 0~100
+  mddPct: number       // 음수 (예: -15)
+  rounds: number
+}
+
+// 복합 점수 (WAR식).
+//   base = 1.0×알파 + 0.3×CAGR + 0.5×(승률-50) + 0.3×MDD
+//   score = base × √rounds
+// - 알파(1.0): 핵심 실력
+// - CAGR(0.3): 절대 수익 보정
+// - 승률-50(0.5): 동전던지기 대비 일관성 보상
+// - MDD(0.3): 음수이므로 자동 페널티
+// - √rounds: 표본크기 보정 (짧은 게임 한방 억제)
+export const SCORE_WEIGHTS = {
+  alpha: 1.0,
+  cagr: 0.3,
+  winRate: 0.5,
+  mdd: 0.3,
+} as const
+
+export function computeScore(inputs: ScoreInputs): number {
+  const safe = (x: unknown) => (typeof x === 'number' && Number.isFinite(x) ? x : 0)
+  const rounds = safe(inputs.rounds)
+  if (rounds <= 0) return 0
+  const base =
+    SCORE_WEIGHTS.alpha * safe(inputs.alphaPct) +
+    SCORE_WEIGHTS.cagr * safe(inputs.cagrPct) +
+    SCORE_WEIGHTS.winRate * (safe(inputs.winRatePct) - 50) +
+    SCORE_WEIGHTS.mdd * safe(inputs.mddPct)
+  return Math.round(base * Math.sqrt(rounds) * 100) / 100
 }
 
 export function loadNickname(): string {
@@ -72,7 +104,13 @@ export async function submitScore(entry: LeaderboardEntry) {
     const oldData = existing.data()
     const oldScore = typeof oldData.score === 'number'
       ? oldData.score
-      : computeScore(oldData.alphaPct ?? 0, oldData.rounds ?? 0)
+      : computeScore({
+          alphaPct: oldData.alphaPct ?? 0,
+          cagrPct: oldData.cagrPct ?? 0,
+          winRatePct: oldData.winRatePct ?? 0,
+          mddPct: oldData.mddPct ?? 0,
+          rounds: oldData.rounds ?? 0,
+        })
     if (entry.score <= oldScore) return
     await deleteDoc(existing.ref)
   }
@@ -96,11 +134,19 @@ export async function fetchTopScores(n = 10): Promise<LeaderboardRow[]> {
     const data = d.data()
     const score = typeof data.score === 'number'
       ? data.score
-      : computeScore(data.alphaPct ?? 0, data.rounds ?? 0)
+      : computeScore({
+          alphaPct: data.alphaPct ?? 0,
+          cagrPct: data.cagrPct ?? 0,
+          winRatePct: data.winRatePct ?? 0,
+          mddPct: data.mddPct ?? 0,
+          rounds: data.rounds ?? 0,
+        })
     return {
       nickname: data.nickname,
       cagrPct: data.cagrPct,
       alphaPct: data.alphaPct,
+      mddPct: data.mddPct ?? 0,
+      winRatePct: data.winRatePct ?? 0,
       score,
       symbol: data.symbol,
       symbolName: data.symbolName,

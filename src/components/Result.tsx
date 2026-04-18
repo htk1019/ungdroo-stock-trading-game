@@ -97,12 +97,24 @@ export function Result({ game, onReplay, nickname, themeKey = 'dark' }: ResultPr
     addRecentGame(entry)
     // Only submit if alpha is positive (beat B&H)
     if (nickname.trim() && stats.alphaCagrPct >= 0) {
-      const alphaRounded = Math.round(stats.alphaCagrPct * 100) / 100
+      const round2 = (x: number) => Math.round(x * 100) / 100
+      const cagrR = round2(stats.cagrPct)
+      const alphaR = round2(stats.alphaCagrPct)
+      const mddR = round2(stats.maxDrawdownPct)
+      const winR = round2(stats.winRateByRound)
       submitScore({
         nickname: nickname.trim(),
-        cagrPct: Math.round(stats.cagrPct * 100) / 100,
-        alphaPct: alphaRounded,
-        score: computeScore(alphaRounded, game.roundCount),
+        cagrPct: cagrR,
+        alphaPct: alphaR,
+        mddPct: mddR,
+        winRatePct: winR,
+        score: computeScore({
+          alphaPct: alphaR,
+          cagrPct: cagrR,
+          winRatePct: winR,
+          mddPct: mddR,
+          rounds: game.roundCount,
+        }),
         symbol: game.symbol,
         symbolName: info?.name,
         rounds: game.roundCount,
@@ -340,30 +352,39 @@ export function Result({ game, onReplay, nickname, themeKey = 'dark' }: ResultPr
               >×</button>
             </div>
             <div className="space-y-3 text-sm leading-relaxed">
-              <p className="font-mono text-center text-amber-200 bg-black/40 rounded-lg py-2.5 px-3 border border-amber-500/20">
-                점수 = 알파(연) × √라운드
-              </p>
+              <div className="font-mono text-center text-amber-200 bg-black/40 rounded-lg py-3 px-3 border border-amber-500/20 text-[12px]">
+                <div className="mb-1 text-[11px] text-amber-300/80">점수 =</div>
+                <div>( 1.0×알파 + 0.3×CAGR</div>
+                <div>+ 0.5×(승률−50) + 0.3×MDD )</div>
+                <div className="mt-1">× √라운드</div>
+              </div>
               <p>
-                야구의 <b className="text-amber-300">WAR</b>처럼{' '}
-                <span className="text-emerald-300">실력(알파)</span>과{' '}
-                <span className="text-sky-300">경기량(라운드)</span>을 함께 반영합니다.
+                야구의 <b className="text-amber-300">WAR</b>처럼 여러 요소를 한 점수로 합칩니다.
+                각 지표는 연율(%) 또는 %포인트 단위.
               </p>
               <ul className="space-y-1.5 text-[13px] text-[#c9cdd6] list-disc list-inside">
                 <li>
-                  <b className="text-[#e5e7eb]">알파(연)</b> = 당신의 CAGR − Buy&Hold CAGR.
-                  순수 매매 실력 부분.
+                  <b className="text-emerald-300">알파(연)</b> × 1.0 — 벤치마크(Buy&Hold) 대비 초과수익.
+                  핵심 실력.
                 </li>
                 <li>
-                  <b className="text-[#e5e7eb]">√라운드</b> = 표본크기 보정.
-                  5라운드에서 한방 터뜨린 알파는 √5≈2.2배,
-                  100라운드에서 같은 알파는 10배로 반영됩니다.
+                  <b className="text-emerald-300">CAGR(연)</b> × 0.3 — 절대 수익률 보정.
                 </li>
                 <li>
-                  짧은 게임의 극단 CAGR이 랭킹을 지배하지 못하도록 설계.
+                  <b className="text-emerald-300">(승률 − 50)</b> × 0.5 — 동전던지기 대비 일관성.
+                  40% 승률이면 −5점, 60%면 +5점.
+                </li>
+                <li>
+                  <b className="text-red-300">MDD</b> × 0.3 — 최대낙폭은 음수라 자동 페널티.
+                  −20% 드로다운 = −6점.
+                </li>
+                <li>
+                  <b className="text-sky-300">√라운드</b> — 표본크기 보정.
+                  5라운드 한방보다 100라운드 꾸준함을 10배 가중.
                 </li>
               </ul>
               <p className="text-xs text-[#8b93a7]">
-                참고: 알파가 음수이면 랭킹에 등록되지 않습니다 (Buy&Hold 이긴 기록만 올라감).
+                알파가 음수이면 랭킹에 등록되지 않습니다 (Buy&Hold 이긴 기록만 올라감).
               </p>
             </div>
           </div>
