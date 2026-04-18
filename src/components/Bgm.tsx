@@ -10,6 +10,7 @@ const THEME_TRACKS: Record<ThemeKey, string[]> = {
   dark: ['duck', 'phantasy', 'ys', 'jijy'],
   rainbow: ['pingpong', 'phantasy'],
   neon: ['dilapidated', 'arcade'],
+  ssammai: ['duck', 'arcade', 'pingpong', 'phantasy', 'ys', 'motavia', 'jijy', 'dilapidated'],
 }
 
 function pickThemeTrack(theme: ThemeKey): string {
