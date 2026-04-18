@@ -14,7 +14,7 @@ const THEME_TRACKS: Record<ThemeKey, string[]> = {
 }
 
 function pickThemeTrack(theme: ThemeKey): string {
-  const pool = THEME_TRACKS[theme]
+  const pool = THEME_TRACKS[theme] ?? TRACKS.map((t) => t.key)
   return pool[Math.floor(Math.random() * pool.length)]
 }
 

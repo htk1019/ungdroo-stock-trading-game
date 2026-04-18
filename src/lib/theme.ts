@@ -29,7 +29,7 @@ const THEME_KEY = 'stock-game:theme'
 export const THEMES: Record<ThemeKey, Theme> = {
   dark: {
     key: 'dark',
-    label: '기본',
+    label: '다크',
     emoji: '🌙',
     pageBg: '',
     cardBg: 'bg-[#12151c]',
@@ -96,7 +96,7 @@ export const THEMES: Record<ThemeKey, Theme> = {
   // ========== NEW: 쌈마이 (ssammai) — B급/찌라시/카바레 감성 ==========
   ssammai: {
     key: 'ssammai',
-    label: '쌈마이',
+    label: '클래식',
     emoji: '🦆',
     pageBg: 'bg-[#f3e9c9]',
     cardBg: 'bg-[#fff4cf]',
@@ -203,7 +203,10 @@ export const CHART_COLORS: Record<ThemeKey, ChartColors> = {
 export function loadTheme(): ThemeKey {
   const saved = localStorage.getItem(THEME_KEY) as ThemeKey | null
   if (saved && THEME_KEYS.includes(saved)) return saved
-  return 'dark'
+  // 저장된 선호가 없으면 가중 랜덤: 쌈마이 60%, 나머지 uniform
+  if (Math.random() < 0.6) return 'ssammai'
+  const others: ThemeKey[] = ['dark', 'rainbow', 'neon']
+  return others[Math.floor(Math.random() * others.length)]
 }
 
 export function saveTheme(key: ThemeKey) {

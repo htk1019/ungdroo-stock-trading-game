@@ -454,15 +454,17 @@ export function Chart({ candles, trades, hideVolume = false, hideIndicators = fa
       time: t(c.time), open: c.open, high: c.high, low: c.low, close: c.close,
     })))
 
+    const isFiniteValue = (p: { value: number }) => Number.isFinite(p.value)
+
     for (const def of OVERLAY_DEFS) {
       const refs = overlayRefs.current.get(def.key)
       if (!refs) continue
       const data = def.compute(candles)
-      for (let i = 0; i < refs.length; i++) refs[i].setData(data[i] ?? [])
+      for (let i = 0; i < refs.length; i++) refs[i].setData((data[i] ?? []).filter(isFiniteValue))
       if (def.special === 'ichimoku' && cloudRef.current) {
         cloudRef.current.setData(
-          (data[2] ?? []).map((p) => ({ time: p.time as number, value: p.value })),
-          (data[3] ?? []).map((p) => ({ time: p.time as number, value: p.value })),
+          (data[2] ?? []).filter(isFiniteValue).map((p) => ({ time: p.time as number, value: p.value })),
+          (data[3] ?? []).filter(isFiniteValue).map((p) => ({ time: p.time as number, value: p.value })),
         )
       }
     }
@@ -473,7 +475,7 @@ export function Chart({ candles, trades, hideVolume = false, hideIndicators = fa
       const data = def.compute(candles)
       for (let i = 0; i < refs.length; i++) {
         const s = refs[i]
-        const d = data[i] ?? []
+        const d = (data[i] ?? []).filter(isFiniteValue)
         // Both LineData and HistogramData are compatible with the respective series API.
         ;(s as ISeriesApi<'Line' | 'Histogram'>).setData(d as never)
       }
